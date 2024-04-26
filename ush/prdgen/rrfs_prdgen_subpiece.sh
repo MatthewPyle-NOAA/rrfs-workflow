@@ -26,19 +26,19 @@ export compress_type=c3
 
 cd $DATA/prdgen_${domain}_${subpiece}
 
-if [ $domain == "conus" ]; then
+if [ $domain == "3km.conus" ]; then
   # 3-km Lambert Conformal CONUS domain
   gridspecs="lambert:262.5:38.5:38.5 237.280472:1799:3000 21.138123:1059:3000"
   parmfile=${DATA}/conus_ak_${subpiece}.txt 
-elif [ $domain == "ak" ]; then
+elif [ $domain == "3km.ak" ]; then
   # 3-km NPS Alaska domain
   gridspecs="nps:210.0:60.0 181.429:1649:2976.0 40.530:1105:2976.0"
   parmfile=${DATA}/conus_ak_${subpiece}.txt
-elif [ $domain == "hi" ]; then
+elif [ $domain == "2p5km.hi" ]; then
   # 2.5 km Mercator Hawaii domain
   gridspecs="mercator:20.00 198.474999:321:2500.0:206.13099 18.072699:225:2500.0:23.087799"
   parmfile=${DATA}/hi_pr_${subpiece}.txt
-elif [ $domain == "pr" ]; then
+elif [ $domain == "2p5km.pr" ]; then
   # 2.5 km Mercator Puerto Rico domain
   gridspecs="mercator:20 284.5:544:2500:297.491 15.0:310:2500:22.005"
   parmfile=${DATA}/hi_pr_${subpiece}.txt

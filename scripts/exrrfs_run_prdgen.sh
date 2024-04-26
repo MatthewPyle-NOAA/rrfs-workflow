@@ -305,7 +305,7 @@ if [ "${DO_PARALLEL_PRDGEN}" = "TRUE" ]; then
     echo "export COMOUT=${COMOUT}" >> $DATAprdgen/poescript_${fhr}
 
     tasks=(4 4 2 2)
-    domains=(conus ak hi pr)
+    domains=(3km.conus 3km.ak 2p5km.hi 2p5km.pr)
     count=0
     for domain in ${domains[@]}
     do
@@ -327,7 +327,7 @@ if [ "${DO_PARALLEL_PRDGEN}" = "TRUE" ]; then
 
     # reassemble the output grids
     tasks=(4 4 2 2)
-    domains=(conus ak hi pr)
+    domains=(3km.conus 3km.ak 2p5km.hi 2p5km.pr)
     count=0
     for domain in ${domains[@]}
     do
