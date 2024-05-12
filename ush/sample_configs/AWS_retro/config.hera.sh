@@ -9,8 +9,8 @@ TAG="c0v00"
 MODEL="test"
 RUN="test"
 
-STMP="/lfs/h2/emc/stmp/${USER}/proto_aws"
-PTMP="/lfs/h2/emc/ptmp/${USER}/proto_aws"
+STMP="/scratch2/NCEPDEV/stmp3/${USER}/proto_aws"
+PTMP="/scratch2/NCEPDEV/fv3-cam/${USER}/proto_aws"
 
 VERBOSE="TRUE"
 PRINT_ESMF="TRUE"
@@ -47,7 +47,8 @@ RUN_TASK_MAKE_GRID="FALSE"
 RUN_TASK_MAKE_OROG="FALSE"
 RUN_TASK_MAKE_SFC_CLIMO="FALSE"
 
-WTIME_RUN_FCST="00:30:00"
+WTIME_RUN_FCST="04:30:00"
+WTIME_PROC_BUFR="04:30:00"
 
 DO_NON_DA_RUN="FALSE"
 DO_RETRO="FALSE"
