@@ -31,7 +31,7 @@ if [[ $MACHINE == "jet" ]] ; then
   fi
 
 elif [[ $MACHINE == "hera" ]] ; then
-  ACCOUNT="zrtrr"
+  ACCOUNT="${ACCOUNT:-fv3-cam}"
   PARTITION_DEFAULT=""
   PARTITION_FCST=""
   QUEUE_ANALYSIS="batch"
