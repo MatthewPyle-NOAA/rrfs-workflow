@@ -1,0 +1,126 @@
+#!/bin/bash
+
+#-----------------------------------------------------------------------
+#
+# Source the variable definitions file and the bash utility functions.
+#
+#-----------------------------------------------------------------------
+#
+. ${GLOBAL_VAR_DEFNS_FP}
+. $USHdir/source_util_funcs.sh
+
+date
+export PS4='+ $SECONDS + '
+#
+#-----------------------------------------------------------------------
+#
+# Source the file defining the function that will be used to set various
+# external-model-associated variables.
+#
+#-----------------------------------------------------------------------
+#
+. $USHdir/get_extrn_mdl_file_dir_info.sh
+#
+#-----------------------------------------------------------------------
+#
+# Save current shell options (in a global array).  Then set new options
+# for this script/function.
+#
+#-----------------------------------------------------------------------
+#
+{ save_shell_opts; set -u -x; } > /dev/null 2>&1
+#
+#-----------------------------------------------------------------------
+#
+# Get the full path to the file in which this script/function is located 
+# (scrfunc_fp), the name of that file (scrfunc_fn), and the directory in
+# which the file is located (scrfunc_dir).
+#
+#-----------------------------------------------------------------------
+#
+# scrfunc_fp=$( readlink -f "${BASH_SOURCE[0]}" )
+# scrfunc_fn=$( basename "${scrfunc_fp}" )
+# echo past scrfunc_fn call
+# scrfunc_dir=$( dirname "${scrfunc_fp}" )
+# echo past scrfunc_dir call
+#
+#-----------------------------------------------------------------------
+#
+# Print message indicating entry into script.
+#
+#-----------------------------------------------------------------------
+#
+# print_info_msg "
+# ========================================================================
+# Entering script:  \"${scrfunc_fn}\"
+# In directory:     \"${scrfunc_dir}\"
+
+#
+#-----------------------------------------------------------------------
+#
+
+echo "{CYCLE_DIR}" ${CYCLE_DIR}
+# echo "SLASH_ENSMEM_SUBDIR: " ${SLASH_ENSMEM_SUBDIR}
+export ics_dir="${CYCLE_DIR}/ics"
+echo past ics_dir def
+mkdir -p "${ics_dir}"
+echo past ics_dir mkdir
+
+
+# export ics_nwges_dir="${NWGES_DIR}/ics"
+# mkdir -p "${ics_nwges_dir}"
+
+export workdir="${ics_dir}/tmp_ICS"
+mkdir -p "$workdir"
+cd $workdir
+
+#-----------------------------------------------------------------------
+#
+# Call the function that sets various external-model-associated variables.
+# See the function defintion file for the definitions of these variables.
+#
+#-----------------------------------------------------------------------
+#
+
+# $SCRIPTSdir/exrrfs_get_iclbc.sh 
+
+YY=`echo $CDATE | cut -c1-4`
+MM=`echo $CDATE | cut -c5-6`
+DD=`echo $CDATE | cut -c7-8`
+CC=`echo $CDATE | cut -c9-10`
+
+# aws s3 cp  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/ICS/ $workdir --recursive 
+
+
+which aws
+
+wget https://noaa-rrfs-pds.s3.amazonaws.com/retro_inputs/${CDATE}/ICS/coupler.res
+export err=$?; err_chk
+# aws s3 cp  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/LBCS/ $workdir --recursive 
+wget https://noaa-rrfs-pds.s3.amazonaws.com/retro_inputs/${CDATE}/LBCS/gfs_bndy.tile7.000.nc
+export err=$?; err_chk
+
+if [ -e "$pgmout" ]; then
+  cat $pgmout
+fi
+#
+#-----------------------------------------------------------------------
+#
+# Print exit message.
+#
+#-----------------------------------------------------------------------
+#
+# print_info_msg "
+# ========================================================================
+# Exiting script:  \"${scrfunc_fn}\"
+# In directory:    \"${scrfunc_dir}\"
+# ========================================================================"
+#
+#-----------------------------------------------------------------------
+#
+# Restore the shell options saved at the beginning of this script/function.
+#
+#-----------------------------------------------------------------------
+#
+{ restore_shell_opts; } > /dev/null 2>&1
+
