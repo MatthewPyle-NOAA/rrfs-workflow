@@ -201,6 +201,7 @@ settings="\
   'make_lbcs_tn': ${MAKE_LBCS_TN}
   'add_aerosol_tn': ${ADD_AEROSOL_TN}
   'run_fcst_tn': ${RUN_FCST_TN}
+  'run_get_tn': ${RUN_GET_TN}
   'run_post_tn': ${RUN_POST_TN}
   'run_prdgen_tn': ${RUN_PRDGEN_TN}
   'analysis_gsi': ${ANALYSIS_GSI_TN}

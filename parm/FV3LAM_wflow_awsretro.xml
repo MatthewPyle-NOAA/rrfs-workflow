@@ -27,6 +27,7 @@ Workflow task names.
 -->
 <!ENTITY RUN_FCST_TN       "{{ run_fcst_tn }}">
 <!ENTITY RUN_POST_TN       "{{ run_post_tn }}">
+<!ENTITY RUN_GET_TN       "{{ run_get_tn }}">
 <!ENTITY RUN_PRDGEN_TN     "{{ run_prdgen_tn }}">
 <!ENTITY RUN_BUFRSND_TN     "{{ run_bufrsnd_tn }}">
 
@@ -119,6 +120,7 @@ define resources used for each tasks
 <!ENTITY RESOURCES_MAKE_ICS "<nodes>{{ nnodes_make_ics }}:ppn={{ ppn_make_ics }}</nodes>">
 <!ENTITY RESOURCES_MAKE_LBCS "<nodes>{{ nnodes_make_lbcs }}:ppn={{ ppn_make_lbcs }}</nodes>">
 <!ENTITY RESOURCES_RUN_FCST "<nodes>{{ nnodes_run_fcst }}:ppn={{ ppn_run_fcst }}</nodes>">
+<!ENTITY RESOURCES_GETICS "<nodes>1:ppn=1</nodes>">
 <!ENTITY RESOURCES_RUN_POST "<nodes>{{ nnodes_run_post }}:ppn={{ ppn_run_post }}</nodes>">
 <!ENTITY RESOURCES_RUN_PRDGEN "<nodes>{{ nnodes_run_prdgen }}:ppn={{ ppn_run_prdgen }}</nodes>">
 <!ENTITY RESOURCES_RUN_BUFRSND  "<nodes>{{ nnodes_run_bufrsnd }}:ppn={{ ppn_run_bufrsnd }}:tpp={{ tpp_run_bufrsnd }}</nodes>">
@@ -149,7 +151,7 @@ define resources used for each tasks
 <!ENTITY WALL_LIMIT_BUFRSND '<deadline><cyclestr offset="&DEADLINE_POST;">@Y@m@d@H@M</cyclestr></deadline>'>
 ]>
 
-<workflow realtime="F" scheduler="&SCHED;" cyclethrottle="5">
+<workflow realtime="F" scheduler="&SCHED;" cyclethrottle="1">
 {# Double quotes are required inside the strftime! Expect an error from reading the template if using single quotes. #}
   <cycledef group="at_start">{{ cdate_first_cycl.strftime("%M %H %d %m %Y *") }}</cycledef>
 {% for c in cycl_hrs %}
@@ -199,8 +201,8 @@ MODULES_RUN_TASK_FP script.
 
 <task name="GET_ICLBCS" cycledefs="forecast" maxtries="2">
         &RSRV_DEFAULT;
-        <command>&LOAD_MODULES_RUN_TASK_FP; "&RUN_POST_TN;" "&JOBSdir;/JRRFS_GET_ICLBC"</command>
-        &RESOURCES_RUN_POST;
+        <command>&LOAD_MODULES_RUN_TASK_FP; "&RUN_GET_TN;" "&JOBSdir;/JRRFS_GET_ICLBC"</command>
+        &RESOURCES_GETICS;
         &NATIVE_ALL;
         <walltime>00:15:00</walltime>
         &NODESIZE_ALL;
