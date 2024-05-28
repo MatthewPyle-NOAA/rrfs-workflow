@@ -70,7 +70,7 @@ echo past ics_dir mkdir
 # export ics_nwges_dir="${NWGES_DIR}/ics"
 # mkdir -p "${ics_nwges_dir}"
 
-export workdir="${ics_dir}/tmp_ICS"
+export workdir="${ics_dir}/tmp_ICSLBCS"
 mkdir -p "$workdir"
 cd $workdir
 
@@ -89,17 +89,12 @@ MM=`echo $CDATE | cut -c5-6`
 DD=`echo $CDATE | cut -c7-8`
 CC=`echo $CDATE | cut -c9-10`
 
-aws s3 cp  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/ICS/ $workdir --recursive 
-
+aws s3 cp --recursive  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/ICS/ $workdir 
+export err=$?; err_chk
+aws s3 cp --recursive  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/LBCS/ $workdir 
 export err=$?; err_chk
 
 which aws
-
-# wget https://noaa-rrfs-pds.s3.amazonaws.com/retro_inputs/${CDATE}/ICS/coupler.res
-# export err=$?; err_chk
-# aws s3 cp  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/LBCS/ $workdir --recursive 
-# wget https://noaa-rrfs-pds.s3.amazonaws.com/retro_inputs/${CDATE}/LBCS/gfs_bndy.tile7.000.nc
-# export err=$?; err_chk
 
 if [ -e "$pgmout" ]; then
   cat $pgmout
