@@ -114,9 +114,9 @@ export err=$? # ; err_chk
 
 mv * ${fcst_input}/
 
-if [ -e "$pgmout" ]; then
-  cat $pgmout
-fi
+# if [ -e "$pgmout" ]; then
+#   cat $pgmout
+# fi
 #
 #-----------------------------------------------------------------------
 #
