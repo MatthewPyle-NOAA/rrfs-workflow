@@ -62,15 +62,15 @@ export PS4='+ $SECONDS + '
 echo "{CYCLE_DIR}" ${CYCLE_DIR}
 # echo "SLASH_ENSMEM_SUBDIR: " ${SLASH_ENSMEM_SUBDIR}
 export ics_dir="${CYCLE_DIR}/ics"
-echo past ics_dir def
+export fcst_input="${CYCLE_DIR}/fcst_fv3lam/INPUT"
 mkdir -p "${ics_dir}"
-echo past ics_dir mkdir
+mkdir -p "${fcst_input}"
 
 
 # export ics_nwges_dir="${NWGES_DIR}/ics"
 # mkdir -p "${ics_nwges_dir}"
 
-export workdir="${ics_dir}/tmp_ICSLBCS"
+export workdir="${ics_dir}/"
 mkdir -p "$workdir"
 cd $workdir
 
@@ -101,10 +101,10 @@ myCC=`echo $CDATE | cut -c9-10`
 which aws
 
 aws s3 cp --recursive --no-sign-request s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${myCC}/ICS/ $workdir 
-export err=$?; err_chk
+export err=$? # ; err_chk
 
 aws s3 cp --recursive --no-sign-request s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${myCC}/LBCS/ $workdir 
-export err=$?; err_chk
+export err=$? # ; err_chk
 
 # files="coupler.res fv_core.res.nc fv_core.res.tile1.nc  fv_srf_wnd.res.tile1.nc fv_tracer.res.tile1.nc gfs_ctrl.nc phy_data.nc sfc_data.nc"
 # for fl in $files
@@ -112,6 +112,7 @@ export err=$?; err_chk
 # wget  https://noaa-rrfs-pds.s3.amazonaws.com/retro_inputs/${YY}${MM}${DD}${myCC}/ICS/$fl 
 # done
 
+mv * ${fcst_input}/
 
 if [ -e "$pgmout" ]; then
   cat $pgmout
