@@ -548,12 +548,12 @@ elif [[ ${PREDEF_GRID_NAME} == "RRFS_NA_3km" ]] ; then
 
   elif [[ $MACHINE == "hera" ]] ; then
     CCPP_PHYS_SUITE="FV3_HRRR"
-    WRTCMP_write_groups="1"
+    WRTCMP_write_groups="3"
     WRTCMP_write_tasks_per_group="50"
     LAYOUT_X="50"
     LAYOUT_Y="20"
     PPN_RUN_FCST="10"
-    NNODES_RUN_FCST="105"
+    NNODES_RUN_FCST="115"
     TPP_RUN_FCST="4"
     PPN_RUN_NONVARCLDANL="10"
     NNODES_RUN_NONVARCLDANL="20"

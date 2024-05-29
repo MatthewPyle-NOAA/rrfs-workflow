@@ -1084,7 +1084,7 @@ file failed."
 
 fi
 
-if [[ "${DO_DACYCLE}" = "TRUE" || "${DO_ENKFUPDATE}" = "TRUE" ]]; then
+if [[ "${DO_DACYCLE}" = "TRUE" || "${DO_ENKFUPDATE}" = "TRUE" || "${SDF_USES_RUC_LSM}" = "TRUE" ]]; then
   if [ "${SDF_USES_RUC_LSM}" = "TRUE" ]; then
     lsoil="9"
   fi
