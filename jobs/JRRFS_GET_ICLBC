@@ -82,19 +82,36 @@ cd $workdir
 #-----------------------------------------------------------------------
 #
 
+module purge
+
+module use  /scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core/
+module load stack-intel
+module load awscli-v2
+
+module list
+
 # $SCRIPTSdir/exrrfs_get_iclbc.sh 
 
 YY=`echo $CDATE | cut -c1-4`
 MM=`echo $CDATE | cut -c5-6`
 DD=`echo $CDATE | cut -c7-8`
-CC=`echo $CDATE | cut -c9-10`
+myCC=`echo $CDATE | cut -c9-10`
 
-aws s3 cp --recursive  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/ICS/ $workdir 
-export err=$?; err_chk
-aws s3 cp --recursive  s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${CC}/LBCS/ $workdir 
-export err=$?; err_chk
 
 which aws
+
+aws s3 cp --recursive --no-sign-request s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${myCC}/ICS/ $workdir 
+export err=$?; err_chk
+
+aws s3 cp --recursive --no-sign-request s3://noaa-rrfs-pds/retro_inputs/${YY}${MM}${DD}${myCC}/LBCS/ $workdir 
+export err=$?; err_chk
+
+# files="coupler.res fv_core.res.nc fv_core.res.tile1.nc  fv_srf_wnd.res.tile1.nc fv_tracer.res.tile1.nc gfs_ctrl.nc phy_data.nc sfc_data.nc"
+# for fl in $files
+# do
+# wget  https://noaa-rrfs-pds.s3.amazonaws.com/retro_inputs/${YY}${MM}${DD}${myCC}/ICS/$fl 
+# done
+
 
 if [ -e "$pgmout" ]; then
   cat $pgmout
