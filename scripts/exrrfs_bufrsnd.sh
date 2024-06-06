@@ -212,6 +212,7 @@ echo starting with fhr $fhr
 INPUT_DATA=$run_dir
 ########################################################
 #  set to 15 minute output for subhour
+
 if [ "${NSOUT_MIN}" = "0" ]; then
   nsout_min=61
 else
@@ -310,6 +311,15 @@ ln -sf ./itag                              fort.11
   mv errfile errfile_rrfs_bufr
 
   echo DONE $fhr at `date`
+
+  echo DATA is $DATA
+  if [ -e $DATA/bufrpost/profilm.c1.${tmmark} ]
+then
+echo have file to move
+else
+echo lacking $DATA/bufrpost/profilm.c1.${tmmark} so quit
+exit 9
+fi
 
   mv $DATA/bufrpost/profilm.c1.${tmmark} $DATA/profilm.c1.${tmmark}.f${fhr}
   echo done > $DATA/sndpostdone${fhr}.${tmmark}

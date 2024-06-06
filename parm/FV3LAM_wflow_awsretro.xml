@@ -359,7 +359,6 @@ MODULES_RUN_TASK_FP script.
   <task name="&RUN_BUFRSND_TN;" cycledefs="forecast" maxtries="1">
 
         &RSRV_POST;
-        &WALL_LIMIT_BUFRSND;
         <command>&LOAD_MODULES_RUN_TASK_FP; "&RUN_BUFRSND_TN;" "&JOBSdir;/JRRFS_BUFRSND"</command>
         &RESOURCES_RUN_BUFRSND;
         <walltime>{{ wtime_run_bufrsnd }}</walltime>

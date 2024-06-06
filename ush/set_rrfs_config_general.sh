@@ -208,8 +208,8 @@ if [[ ${PREDEF_GRID_NAME} == "RRFS_CONUS_3km" ]] ; then
     NNODES_BLEND_ICS="1"
     NNODES_MAKE_LBCS="3"
     TPP_RUN_FCST="2"
-    PPN_RUN_POST="40"
-    NNODES_RUN_POST="2"
+    PPN_RUN_POST="20"
+    NNODES_RUN_POST="10"
     PPN_RUN_NONVARCLDANL="10"
     NNODES_RUN_NONVARCLDANL="10"
     PPN_RUN_GSIDIAG=40
@@ -432,11 +432,9 @@ elif [[ ${PREDEF_GRID_NAME} == "RRFS_CONUS_13km" ]] ; then
 elif [[ ${PREDEF_GRID_NAME} == "RRFS_NA_3km" ]] ; then 
   DT_ATMOS=36
   CCPP_PHYS_SUITE="FV3_HRRR_gf"
-  ADDNL_OUTPUT_GRIDS=( "hrrr" "hrrrak" )
-  TILE_LABELS="NA hrrr_regions1 hrrr_regions2 hrrr_tiles1 hrrr_tiles2 hrrr_tiles3 \
-    hrrr_tiles4 hrrrak_tiles"
-  TILE_SETS="full SE,SC,SW NE,NC,NW ATL,CA-NV,CentralCA CHI-DET,DCArea,EastCO \
-    GreatLakes,NYC-BOS,SEA-POR SouthCA,SouthFL,VortexSE AKRange,Anchorage,Juneau"
+  ADDNL_OUTPUT_GRIDS=()
+  TILE_LABELS="NA"
+  TILE_SETS=""
   PPN_RUN_POSTANAL="5"
 
   if [[ -n $RESERVATION ]] ; then
@@ -549,14 +547,16 @@ elif [[ ${PREDEF_GRID_NAME} == "RRFS_NA_3km" ]] ; then
   elif [[ $MACHINE == "hera" ]] ; then
     CCPP_PHYS_SUITE="FV3_HRRR"
     WRTCMP_write_groups="3"
-    WRTCMP_write_tasks_per_group="50"
-    LAYOUT_X="50"
-    LAYOUT_Y="20"
+    WRTCMP_write_tasks_per_group="80"
+    LAYOUT_X="25"
+    LAYOUT_Y="40"
     PPN_RUN_FCST="10"
-    NNODES_RUN_FCST="115"
+    NNODES_RUN_FCST="155"
     TPP_RUN_FCST="4"
     PPN_RUN_NONVARCLDANL="10"
     NNODES_RUN_NONVARCLDANL="20"
+    NNODES_RUN_POST="10"
+    PPN_RUN_POST="20"
     NATIVE_RUN_ANALYSIS="--cpus-per-task 4 --exclusive"
     PPN_RUN_GSIDIAG=40
   fi

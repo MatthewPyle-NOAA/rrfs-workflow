@@ -423,16 +423,16 @@ fi
 #   clean forecast netcdf files for saving space
 #-----------------------------------------------------------------------
 #
-indx="00 06 12 18"
-for i in $indx
-do
-  if [ "$cyc" == $i ]; then
-    echo "long forecast cycle, keep .nc for bufrsnd" 
-  else
-   rm -f ${dyn_file}
-   rm -f ${phy_file}
-  fi
-done
+# indx="00 06 12 18"
+# for i in $indx
+# do
+#  if [ "$cyc" == $i ]; then
+#    echo "long forecast cycle, keep .nc for bufrsnd" 
+#  else
+#   rm -f ${dyn_file}
+#   rm -f ${phy_file}
+#  fi
+# done
 #
 #-----------------------------------------------------------------------
 #
