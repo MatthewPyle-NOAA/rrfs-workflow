@@ -84,9 +84,23 @@ cd $workdir
 
 module purge
 
+if [ -e /scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.6.0 ]
+then
 module use  /scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core/
 module load stack-intel
 module load awscli-v2
+
+elif [ -e /work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.6.0/envs/unified-env ]
+then
+module use /work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core
+module load stack-intel
+module load awscli-v2
+
+else # assume wcoss2
+
+module load awscli/2.7.35
+fi
+
 
 module list
 
