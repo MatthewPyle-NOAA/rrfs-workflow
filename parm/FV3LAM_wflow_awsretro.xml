@@ -133,11 +133,14 @@ define resources used for each tasks
 <!ENTITY NATIVE_ALL    "">
 <!ENTITY NATIVE_RUN_FCST    "">
 {%- else %}
+<!ENTITY RESOURCES_GETICS "<nodes>1:ppn=1</nodes>">
 <!ENTITY RESOURCES_MAKE_ICS "<nodes>{{ nnodes_make_ics }}:ppn={{ ppn_make_ics }}</nodes>">
 <!ENTITY RESOURCES_MAKE_LBCS "<nodes>{{ nnodes_make_lbcs }}:ppn={{ ppn_make_lbcs }}</nodes>">
 <!ENTITY RESOURCES_RUN_FCST "<nodes>{{ nnodes_run_fcst }}:ppn={{ ppn_run_fcst }}</nodes>">
+<!ENTITY WALLTIME_FCST_PROD_LONG  "{{ wtime_run_fcst_long }}">
 <!ENTITY RESOURCES_RUN_POST "<nodes>{{ nnodes_run_post }}:ppn={{ ppn_run_post }}</nodes>">
 <!ENTITY RESOURCES_RUN_PRDGEN "<nodes>{{ nnodes_run_prdgen }}:ppn={{ ppn_run_prdgen }}</nodes>">
+<!ENTITY RESOURCES_RUN_BUFRSND  "<nodes>{{ nnodes_run_bufrsnd }}:ppn={{ ppn_run_bufrsnd }}:tpp={{ tpp_run_bufrsnd }}</nodes>">
 <!ENTITY NODESIZE_ALL    "<nodesize>{{ ncores_per_node }}</nodesize>">
 <!ENTITY PROCESS_BUFR_TN         "{{ process_bufr }}">
 <!ENTITY NATIVE_ALL    "">
