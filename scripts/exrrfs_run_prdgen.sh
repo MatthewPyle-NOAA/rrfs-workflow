@@ -300,34 +300,38 @@ if [ "${DO_PARALLEL_PRDGEN}" = "TRUE" ]; then
     sed -n -e '501,$p' $DATAprdgen/prslevf${fhr}.txt >& $DATAprdgen/hi_pr_2.txt
 
     # Create script to execute production generation tasks in parallel using CFP
-    echo "#!/bin/bash" > $DATAprdgen/poescript_${fhr}
-    echo "export DATA=${DATAprdgen}" >> $DATAprdgen/poescript_${fhr}
-    echo "export COMOUT=${COMOUT}" >> $DATAprdgen/poescript_${fhr}
+#tmp    echo "#!/bin/bash" > $DATAprdgen/poescript_${fhr}
+#    echo "export DATA=${DATAprdgen}" > $DATAprdgen/poescript_${fhr}
+#    echo "export COMOUT=${COMOUT}" >> $DATAprdgen/poescript_${fhr}
 
-    tasks=(4 4 2 2)
-    domains=(conus ak hi pr)
+    tasks=(2 4 4 2)
+    domains=(pr conus ak hi)
     count=0
     for domain in ${domains[@]}
     do
       for task in $(seq ${tasks[count]})
       do
         mkdir -p $DATAprdgen/prdgen_${domain}_${task}
-        echo "$USHrrfs/rrfs_prdgen_subpiece.sh $fhr $cyc $task $domain $prslev ${DATAprdgen} ${COMOUT} &" >> $DATAprdgen/poescript_${fhr}
+#tmp        echo "$USHrrfs/rrfs_prdgen_subpiece.sh $fhr $cyc $task $domain $prslev ${DATAprdgen} ${COMOUT}" >> $DATAprdgen/poescript_${fhr}
+# try running directly
+        $USHrrfs/rrfs_prdgen_subpiece.sh $fhr $cyc $task $domain $prslev ${DATAprdgen} ${COMOUT}
       done
       count=$count+1
     done
 
-    echo "wait" >> $DATAprdgen/poescript_${fhr}
+#    echo "wait" >> $DATAprdgen/poescript_${fhr}
     chmod 775 $DATAprdgen/poescript_${fhr}
 
     # Execute the script
     export CMDFILE=$DATAprdgen/poescript_${fhr} 
-    mpiexec -np 12 --cpu-bind core cfp $CMDFILE >>$pgmout 2>errfile
-    export err=$?; err_chk
+#    ./$CMDFILE >>$pgmout 2>errfile
+echo executing CMDFILE $CMDFILE
+#tmp    ./$CMDFILE 
+#tmp    export err=$?; err_chk
 
     # reassemble the output grids
-    tasks=(4 4 2 2)
-    domains=(conus ak hi pr)
+    tasks=(2 4 4 2)
+    domains=(pr conus ak hi)
     count=0
     for domain in ${domains[@]}
     do
@@ -366,7 +370,7 @@ if [ "${DO_PARALLEL_PRDGEN}" = "TRUE" ]; then
     #-- Upscale & subset FAA requested information
     #-- FAA grib2 output is not generated for ensemble forecasts
     
-     # echo "$USHrrfs/rrfs_prdgen_faa_subpiece.sh $fhr $cyc $prslev $natlev $ififip $aviati ${COMOUT} &" >> $DATAprdgen/poescript_faa_${fhr}
+     # echo "$USHrrfs/rrfs_prdgen_faa_subpiece.sh $fhr $cyc $prslev $natlev $ififip $aviati ${COMOUT}" >> $DATAprdgen/poescript_faa_${fhr}
 
     if [ ${DO_ENSFCST} = "FALSE" ]; then
       ${USHrrfs}/rrfs_prdgen_faa_subpiece.sh $fhr $cyc $prslev $natlev $ififip $aviati ${COMOUT} ${USHrrfs}
