@@ -4,10 +4,10 @@ ACCOUNT="fv3-cam"
 HPSS_ACCOUNT="fv3-cam"
 
 envir="test"
-NET="test"
+NET="rrfs"
 TAG="c0v00"
-MODEL="test"
-RUN="test"
+MODEL="rrfs"
+RUN="rrfs"
 
 STMP="/scratch2/NCEPDEV/stmp3/${USER}/proto_aws"
 PTMP="/scratch2/NCEPDEV/fv3-cam/${USER}/proto_aws"
