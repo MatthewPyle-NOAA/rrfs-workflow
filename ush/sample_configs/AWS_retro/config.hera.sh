@@ -3,7 +3,7 @@ EXPT_SUBDIR="proto_aws"
 ACCOUNT="fv3-cam"
 HPSS_ACCOUNT="fv3-cam"
 
-envir="test"
+envir="prod"
 NET="rrfs"
 TAG="c0v00"
 MODEL="rrfs"
