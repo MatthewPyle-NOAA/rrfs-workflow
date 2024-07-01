@@ -1,0 +1,1873 @@
+# This file contains input tuning parameter data for HRRRv3 NWP model
+# 1) Definitions of index names and units for three altitude regions (low, mid, high)
+# 2) Default (climatological) weights for each index for each region (low, mid, high)
+# 3) Default (climatological) weights for each index for each region (low, mid, high)
+# 4) Checklist for computation of each index and for inclusion in the GTG sum for each region (low, mid, high)
+# 5) Liner remap thresholds for each index for each region (low, mid, high)
+# 6) PDF fit parameters for each index for each region (low, mid, high)
+#
+# Incorporated changes by Y. Mao to include control parameters for execution within UPP
+# Incorporated changes to supprt CIT and improved LLT algorithms 2/2/2018
+# Copied from HRRR 5Q  RDS 04/12/2022
+# Copied from HRRR 5R  RDS 06/03/2022
+# Copied from HRRR 5T  RDS 09/07/2022
+# Copied from HRRR CIT2  RDS 10/27/2022
+# Copied from HRRR CIT4  RDS 01/24/2023
+# Copied from HRRR CIT4  RDS 02/22/2023
+# Updated based on preliminary conus calibration with GTG4.16 RDS 01/07/2024
+#
+#start section 1
+# input parameters for GTG indices driver
+ imodel             =RRFS_NA;     # input NWP model = N. AMERICA ROTLL 
+ icoord             =sigma;       # vertical coordinate (1=isentropic,2=sigma,3=p,4=z)
+ idomain            =1;           # identifies subdomains
+ map_proj           =PROJ_ROTLL;  # identifies map projection
+ dxm                =1924.871;    # model dx (m)
+ dym                =1924.871;    # model dy (m)
+ truelat1           =35.0;        # projection truelat1 -> pollat for PROJ_ROTLL
+ truelat2           =67.0;        # projection truelat2 -> pollon for PROJ_ROTLL
+ stdlon             =0.0;         # projection stand lon -> gridrot for PROJ_ROTLL
+ latinc             =2.50E-2;     # projection lat increment -> drrlat for PROJ_ROTLL
+ loninc             =2.50E-2;     # projection lon increment -> drrlon for PROJ_ROTLL
+ lat11              =-37.0;       # latitude(1,1) -> rlat(1,1) for PROJ_ROTLL
+ lon11              =-61.0;       # longitude(1,1) -> rlon(1,1) for PROJ_ROTLL
+#end section 1
+#
+# start section 2
+# Turbulence Index Names
+# Note Index numbers 400-470 are CAT indices, 471-485 are MWT indices, 486-495 are CIT indices, 496-500 reserved for GTG combos.
+turbIndexNames = (
+# CAT indices names   units            long names
+(400, "Brown1",    "1/s",            "Brown approximation to Richardson number tendency"),
+(401, "Brown2",    "m2/3 s-1",       "Eddy dissipation rate from Brown approximation to Richardson number tendency"),
+(402, "CP",        "m2 s-2",         "Colson-Panofsky Index"),
+(403, "Ellrod1",   "s-2",            "Ellrod Turbulence Index1"),
+(404, "Ellrod2",   "s-2",            "Ellrod Turbulence Index2"),
+(405, "1/Ri",      "ND",             "Inverse Dry Richardson Number"),
+(406, "Ellrod3",   "s-2",            "Ellrod-Knox Turbulence Index"),
+(407, "CCAT",      "s-3",            "NRL clear-air turbulence index"),
+(408, "MSEDR",     "m2/3 s-1",       "Moeng-Sullivan PBL EDR"),
+(409, "DTF3",      "m2/3 s-1",       "Marroquin EDR from diagnostic turbulence kinetic energy equation"),
+(410, "Fth/Ri",    "K m-1 s-1",      "Frontogenesis function /Richardson Number"),
+(411, "PBLEDR",    "m2/3 s-1",       "Munoz-Esparza EDR for planetary boundary layer"),
+(412, "Dutton",    "1/s",            "Dutton Empirical Index"),
+(413, "Endlich",   "deg/s",          "Endlich Index = speed x directional shear"),
+(414, "LAZ",       "m2/s2",          "Laikthman & Alter-Zalik TKE Index"),
+(415, "NGM1",      "m s-2",          "Total Deformation x Wind speed"),
+(416, "-NGM2",     "K m-2 s-2",      "Total Deformation x lapse Rate"),
+(417, "SCHGW",     "m2 s-4",         "Schumann gravity wave Index"),
+(418, "VWS",       "s-1",            "Vertical Wind Shear"),
+(419, "TROPVWS",   "s-1",            "Vertical Wind Shear at Tropopause"),
+(420, "HS",        "s-1",            "Horizontal Wind Shear"),
+(421, "STABADV",   "K m-1 s-1",      "Stability Advection"),
+(422, "DEFSQ",     "s-2",            "Total deformation squared"),
+(423, "|VORTZ|"    "s-1",            "Absolute value of vertical relative vorticity"),
+(424, "|DIV|",     "s-1",            "Absolute value of horizontal divergence"),
+(425, "EGR",       "day-1",          "Eady Growth Rate"),
+(426, "iawind",    "m s-1",          "Inertial Advective Wind"),
+(427, "AGI",       "hr-1",           "Anamolous Gradient Instability"),
+(428, "UBF/Ri",    "s-2",            "Unbalanced Flow Diagnostic/Richardson Number"),
+(429, "1/SATRi",   "ND",             "Inverse Saturated Richardson Number"),
+(430, "PVGRAD",    "PVUs/km",        "Horizontal gradient of Potential Vorticity"),
+(431, "EDRRCH",    "m2/3 s-1",       "EDR from Richardson Number Tendency"),
+(432, "EDR",       "m2/3 s-1",       "Average EDR from horizontal velocity structure functions"),
+(433, "EDRLL",     "m2/3 s-1",       "Longitudinal EDR from horizontal velocity structure function"),
+(434, "CTSQ",      "K2 m-2/3",       "Average Temperature structure function"),
+(435, "1/RiTW",    "ND",             "Inverse Richardson Number with shear based on thermal wind"),
+(436, "LHFK",      "m1/2 s-1/2",     "Lighthill-Ford-Knox Unbalanced Flow Index"),
+(437, "LHFK/Ri",   "m1/2 s-1/2",     "Lighthill-Ford-Knox Unbalanced Flow Index /Richardson Number"),
+(438, "TEMPG",     "K m-1",          "Horizontal temperature gradient"),
+(439, "CTSQ/Ri",   "K2 m-2/3",       "Temperature structure function/Richardson Number"),
+(440, "Brown1/Ri", "1/s",            "Brown approximation to Richardson number tendency /Richardson Number"),
+(441, "iawind/Ri", "m s-1",          "Inertial Advective Wind/Richardson Number"),
+(442, "NGM1/Ri",   "m/s2",           "Total Deformation * Wind speed /Richardson Number"),
+(443, "NGM2/Ri",   "K m-2 s-2",      "Total Deformation * lapse Rate /Richardson Number"),
+(444, "SCHGW/Ri",  "m2 s-4",         "Schumann gravity wave Index /Richardson Number"),
+(445, "TROPG/Z",   "ND",             "Tropopause horizontal gradient /tropopause height"),
+(446, "SPEED",     "m/s",            "Horizontal wind speed"),
+(447, "-Stone",    "s-2",            "Stone Inertial Instability Index"),
+(448, "-NVA",      "ND",             "Negative vorticity advection"),
+(449, "NCSU1",     "s-3",            "Kaplan/NCSU Turbulence Index1"),
+(450, "NCSU2/Ri",  "s-3",            "Kaplan/NCSU Turbulence Index2 /Richardson Number"),
+(451, "EDRLUN",    "m2/3 s-1",       "Lunnon approximation to Richardson number tendency"),
+(452, "wsq",       "m2/s2",          "Vertical velocity squared"),
+(453, "wsq/Ri",    "m2/s2",          "Vertical velocity squared /Richardson Number"),
+(454, "EDR/Ri",    "m4/3 s-2",       "Average EDR squared from horizontal velocity structure functions"),
+(455, "EDRLL/Ri",  "m4/3 s-2",       "Longitudinal EDR squared from horizontal velocity structure function"),
+(456, "SIGW",      "m2 s-2",         "Variance of vertical velocity from structure functions"),
+(457, "SIGW/Ri",   "m2 s-2",         "Variance of vertical velocity from structure functions/Richardson number"),
+(458, "F2D/Ri",    "K m-1 s-1",      "Two-dimensional Frontogenesis function/ Richardson Number"),
+(459, "F2DTW/Ri",  "K m-1 s-1",      "Two-dimensional Frontogenesis function using thermal wind /Richardson Number"),
+(460, "F3D/Ri",    "K m-1 s-1",      "Three-dimensional Frontogenesis function/ Richardson Number"),
+(461, "F3D",       "K m-1 s-1",      "Three-dimensional Frontogenesis function"),
+(462, "|THP/THB|", "ND",             "Relative potential temperature perturbation"),
+(463, "EDRM",      "m2 s-3",         "Energy dissipation rate output from NWP - ARPEGE and ARWRF ONLY"),
+(464, "SEDR",      "m2/3 s-1",       "Schumann EDR from TKE equation"),
+(465, "SGSTKE",    "m2 s-2",         "Subgrid scale turbulence kinetic energy output from NWP"),
+(466, "SGSTKE/Ri", "m2 s-2",         "Subgrid scale turbulence kinetic energy output from NWP / Richardson Number"),
+(467, "RTKE",      "m2 s-2",         "Resolved turbulent kinetic energy"),
+(468, "RTKE/Ri",   "m2 s-2",         "Resolved turbulent kinetic energy /Richardson Number"),
+(469, "VARE",      "m2 s-2",         "Variance of turbulent kinetic energy"),
+(470, "VARE/Ri",   "m2 s-2",         "Variance of turbulent kinetic energy /Richardson Number"),
+# MWT indices (units of MWT scale factor (mws) are m/s)
+(471, "MWT1",      "m3 s-3",         "MWT scale factor x vertical velocity squared"),
+(472, "MWT2",      "K2 m1/3 s-1",    "MWT scale factor x Temperature structure function"),
+(473, "MWT3",      "K s-2",          "MWT scale factor x Three-dimensional Frontogenesis function"),
+(474, "MWT4",      "m3 s-3",         "MWT scale factor x Resolved turbulent kinetic energy"),
+(475, "MWT5",      "m5/3 s-2",       "MWT scale factor x Richardson Number Tendency"),
+(476, "MWT13",     "m s-3",          "MWT scale factor x Total deformation squared"),
+(477, "MWT14",     "m s-2",          "MWT scale factor x Horizontal divergence"),
+(478, "TKE_GWB",   "m2 s-2",         "Turbulence kinetic energy from Palmer gravity wave drag"),
+(479, "MWT6",      "m s-2",          "MWT scale factor x Absolute value or vertical relative vorticity"),
+(480, "MWT7",      "m3 s-3",         "MWT scale factor x Variance of vertical velocity from structure functions"),
+(481, "MWT8",      "m s-3",          "MWT scale factor x Ellrod Turbulence Index2"),
+(482, "MWT9",      "ND",             "MWT scale factor x Relative potential temperature perturbation"),
+(483, "MWT10",     "m7/3 s-3",       "MWT scale factor x Average EDR from structure functions"),
+(484, "MWT11",     "m3 s-5",         "MWT scale factor x Schumann gravity wave Index"),
+(485, "MWT12",     "K s-1",          "MWT scale factor x Absolute value of horizontal temperature gradient"),
+# CIT indices
+(486, "CONDHEAT",  "K s-1",          "In-cloud Latent Heating Rate"),
+(487, "CLDGRADW",  "ms-1 km-1",      "In-cloud w horizontal gradient"),
+(488, "CLDWSQ",    "m2 s-2",         "In-cloud vertical velocity squared"),
+(489, "CLDSIGW",   "m2 s-2",         "In-cloud sigmaw"),
+(490, "CLDDEFSQ",  "s-2",            "In-cloud total deformation squared"),
+(491, "CLDEDR",    "m4/3 s-2",       "In-cloud (eps^2/3)avg"),
+(492, "CLDIWP",    "kg",             "In-cloud ice water path"),
+(493, "CLDIFLX",   "kg m-2 s-1",     "In-cloud ice mass flux"),
+(494, "CLDRTKE",   "m2 s-2",         "In-cloud resolved turbulent kinetic energy"),
+(495, "CLDF3D",    "K m-1 s-1",      "In-cloud 3D Frontogenesis function"),
+# GTG indices
+(496, "GTGDEF",    "m2/3 s-1",       "Graphical Turbulence Guidance - CAT"),
+(497, "GTGMWT",    "m2/3 s-1",       "Graphical Turbulence Guidance - MWT"),
+(498, "GTGCIT",    "m2/3 s-1",       "Graphical Turbulence Guidance - CIT"),
+(499, "GTGMAX2",   "m2/3 s-1",       "MAX(Graphical Turbulence Guidance CAT,MWT)"),
+(500, "GTGMAX3",   "m2/3 s-1",       "MAX(Graphical Turbulence Guidance CAT,MWT,CIT)")
+);
+# Region identification numbers (region 1=low-levels, 2=mid-levels, 3=upper levels)
+# Region altitude boundaries = region=(0-BLTOP, BLTOP-TROPOPAUSE, TROPOPAUSE-80000) ft
+# Index static weights [region(low,mid,high) ,stability(1=Stable,2=Unstable), index number, Weight]
+regionIndexWeights = (
+# CAT/LLT index weights: low-levels, stable ABL
+(1, 1, 400,  1.000),    #  Brown1
+(1, 1, 401,  1.000),    #  Brown2
+(1, 1, 402,  1.000),    #  CP
+(1, 1, 403,  1.000),    #  Ellrod1
+(1, 1, 404,  1.000),    #  Ellrod2
+(1, 1, 405,  1.000),    #  1/Ri
+(1, 1, 406,  1.000),    #  Ellrod3
+(1, 1, 407,  1.000),    #  CCAT
+(1, 1, 408,  1.000),    #  MSEDR
+(1, 1, 409,  1.000),    #  DTF3
+(1, 1, 410,  1.000),    #  Fth/Ri
+(1, 1, 411,  1.000),    #  PBLEDR
+(1, 1, 412,  1.000),    #  Dutton
+(1, 1, 413,  1.000),    #  Endlich
+(1, 1, 414,  1.000),    #  LAZ
+(1, 1, 415,  1.000),    #  NGM1
+(1, 1, 416,  1.000),    #  -NGM2
+(1, 1, 417,  1.000),    #  SCHGW
+(1, 1, 418,  1.000),    #  VWS
+(1, 1, 419,  0.000),    #  TROPVWS (Don't use at low)
+(1, 1, 420,  1.000),    #  HS
+(1, 1, 421,  1.000),    #  STABADV
+(1, 1, 422,  1.000),    #  EGR
+(1, 1, 423,  1.000),    #  |VORTZ|
+(1, 1, 424,  1.000),    #  |DIV|
+(1, 1, 425,  1.000),    #  EGR
+(1, 1, 426,  1.000),    #  iawind
+(1, 1, 427,  1.000),    #  AGI
+(1, 1, 428,  1.000),    #  UBF/Ri
+(1, 1, 429,  1.000),    #  1/SATRi
+(1, 1, 430,  1.000),    #  PVGRAD
+(1, 1, 431,  1.000),    #  EDRRCH
+(1, 1, 432,  1.000),    #  EDR
+(1, 1, 433,  1.000),    #  EDRLL
+(1, 1, 434,  1.000),    #  CTSQ
+(1, 1, 435,  1.000),    #  1/RiTW
+(1, 1, 436,  1.000),    #  LHFK
+(1, 1, 437,  1.000),    #  LHFK/Ri
+(1, 1, 438,  1.000),    #  TEMPG
+(1, 1, 439,  1.000),    #  CTSQ/Ri
+(1, 1, 440,  1.000),    #  Brown1/Ri
+(1, 1, 441,  1.000),    #  iawind/Ri
+(1, 1, 442,  1.000),    #  NGM1/Ri
+(1, 1, 443,  1.000),    #  NGM2/Ri
+(1, 1, 444,  1.000),    #  SCHGW/Ri
+(1, 1, 445,  0.000),    #  TROPG/Z (Don't use at low)
+(1, 1, 446,  1.000),    #  SPEED
+(1, 1, 447,  1.000),    #  -Stone
+(1, 1, 448,  1.000),    #  -NVA
+(1, 1, 449,  1.000),    #  NCSU1
+(1, 1, 450,  1.000),    #  NCSU2/Ri
+(1, 1, 451,  1.000),    #  EDRLUN
+(1, 1, 452,  1.000),    #  wsq
+(1, 1, 453,  1.000),    #  wsq/Ri
+(1, 1, 454,  1.000),    #  EDR/Ri
+(1, 1, 455,  1.000),    #  EDRLL/Ri
+(1, 1, 456,  1.000),    #  SIGW
+(1, 1, 457,  1.000),    #  SIGW/Ri
+(1, 1, 458,  1.000),    #  F2D/Ri
+(1, 1, 459,  1.000),    #  F2DTW/Ri
+(1, 1, 460,  1.000),    #  F3D/Ri
+(1, 1, 461,  1.000),    #  F3D
+(1, 1, 462,  1.000),    #  |THP/THB|
+(1, 1, 463,  1.000),    #  EDRM (ARPEGE and ARWRF ONLY)
+(1, 1, 464,  1.000),    #  SEDR
+(1, 1, 465,  1.000),    #  SGSTKE
+(1, 1, 466,  1.000),    #  SGSTKE/Ri
+(1, 1, 467,  1.000),    #  RTKE
+(1, 1, 468,  1.000),    #  RTKE/Ri
+(1, 1, 469,  1.000),    #  VARE
+(1, 1, 470,  1.000),    #  VARE/Ri
+# MWT index weights: low-levels
+(1, 1, 471,  1.000),    #  MWT1
+(1, 1, 472,  1.000),    #  MWT2
+(1, 1, 473,  1.000),    #  MWT3
+(1, 1, 474,  1.000),    #  MWT4
+(1, 1, 475,  1.000),    #  MWT5
+(1, 1, 476,  1.000),    #  MWT13
+(1, 1, 477,  1.000),    #  MWT14
+(1, 1, 478,  1.000),    #  TKE_GWB/SGSTKE
+(1, 1, 479,  1.000),    #  MWT6
+(1, 1, 480,  1.000),    #  MWT7
+(1, 1, 481,  1.000),    #  MWT8
+(1, 1, 482,  1.000),    #  MWT9
+(1, 1, 483,  1.000),    #  MWT10
+(1, 1, 484,  1.000),    #  MWT11
+(1, 1, 485,  1.000),    #  MWT12
+# CIT indices: low-levels
+(1, 1, 486,  1.000),    #  CNDHEAT
+(1, 1, 487,  1.000),    #  CLDGRADW
+(1, 1, 488,  1.000),    #  CLDWSQ
+(1, 1, 489,  1.000),    #  CLDSIGW
+(1, 1, 490,  1.000),    #  CLDDEFSQ
+(1, 1, 491,  1.000),    #  CLDEDR
+(1, 1, 492,  1.000),    #  CLDIWP
+(1, 1, 493,  1.000),    #  CLDIFLX
+(1, 1, 494,  1.000),    #  CLDRTKE
+(1, 1, 495,  1.000),    #  CLDF3D
+# GTG combinations - Set weights to -1
+(1, 1, 496,    -1.),    #  GTGDEF
+(1, 1, 497,    -1.),    #  GTGMWT
+(1, 1, 498,    -1.),    #  GTGCIT
+(1, 1, 499,    -1.),    #  GTGMAX2 (Unused)
+(1, 1, 500,    -1.),    #  GTGMAX3
+# CAT/LLT index weights: low-levels, unstable ABL
+(1, 2, 400,  1.000),    #  Brown1
+(1, 2, 401,  1.000),    #  Brown2
+(1, 2, 402,  1.000),    #  CP
+(1, 2, 403,  1.000),    #  Ellrod1
+(1, 2, 404,  1.000),    #  Ellrod2
+(1, 2, 405,  1.000),    #  1/Ri
+(1, 2, 406,  1.000),    #  Ellrod3
+(1, 2, 407,  1.000),    #  CCAT
+(1, 2, 408,  1.000),    #  MSEDR
+(1, 2, 409,  1.000),    #  DTF3
+(1, 2, 410,  1.000),    #  Fth/Ri
+(1, 2, 411,  1.000),    #  PBLEDR
+(1, 2, 412,  1.000),    #  Dutton
+(1, 2, 413,  1.000),    #  Endlich
+(1, 2, 414,  1.000),    #  LAZ
+(1, 2, 415,  1.000),    #  NGM1
+(1, 2, 416,  1.000),    #  -NGM2
+(1, 2, 417,  1.000),    #  SCHGW
+(1, 2, 418,  1.000),    #  VWS
+(1, 2, 419,  0.000),    #  TROPVWS (Don't use at low)
+(1, 2, 420,  1.000),    #  HS
+(1, 2, 421,  1.000),    #  STABADV
+(1, 2, 422,  1.000),    #  DEFSQ
+(1, 2, 423,  1.000),    #  |VORTZ|
+(1, 2, 424,  1.000),    #  |DIV|
+(1, 2, 425,  1.000),    #  DEFSQ/Ri
+(1, 2, 426,  1.000),    #  iawind
+(1, 2, 427,  1.000),    #  AGI
+(1, 2, 428,  1.000),    #  UBF/Ri
+(1, 2, 429,  1.000),    #  1/SATRi
+(1, 2, 430,  1.000),    #  PVGRAD
+(1, 2, 431,  1.000),    #  EDRRCH
+(1, 2, 432,  1.000),    #  EDR
+(1, 2, 433,  1.000),    #  EDRLL
+(1, 2, 434,  1.000),    #  CTSQ
+(1, 2, 435,  1.000),    #  1/RiTW
+(1, 2, 436,  1.000),    #  LHFK
+(1, 2, 437,  1.000),    #  LHFK/Ri
+(1, 2, 438,  1.000),    #  TEMPG
+(1, 2, 439,  1.000),    #  CTSQ/Ri
+(1, 2, 440,  1.000),    #  Brown1/Ri
+(1, 2, 441,  1.000),    #  iawind/Ri
+(1, 2, 442,  1.000),    #  NGM1/Ri
+(1, 2, 443,  1.000),    #  NGM2/Ri
+(1, 2, 444,  1.000),    #  SCHGW/Ri
+(1, 2, 445,  0.000),    #  TROPG/Z (Don't use at low)
+(1, 2, 446,  1.000),    #  SPEED
+(1, 2, 447,  1.000),    #  -Stone
+(1, 2, 448,  1.000),    #  -NVA
+(1, 2, 449,  1.000),    #  NCSU1
+(1, 2, 450,  1.000),    #  NCSU2/Ri
+(1, 2, 451,  1.000),    #  EDRLUN
+(1, 2, 452,  1.000),    #  wsq
+(1, 2, 453,  1.000),    #  wsq/Ri
+(1, 2, 454,  1.000),    #  EDR/Ri
+(1, 2, 455,  1.000),    #  EDRLL/Ri
+(1, 2, 456,  1.000),    #  SIGW
+(1, 2, 457,  1.000),    #  SIGW/Ri
+(1, 2, 458,  1.000),    #  F2D/Ri
+(1, 2, 459,  1.000),    #  F2DTW/Ri
+(1, 2, 460,  1.000),    #  F3D/Ri
+(1, 2, 461,  1.000),    #  F3D
+(1, 2, 462,  1.000),    #  |THP/THB|
+(1, 2, 463,  1.000),    #  EDRM (ARPEGE and ARWRF ONLY)
+(1, 2, 464,  1.000),    #  SEDR
+(1, 2, 465,  1.000),    #  SGSTKE
+(1, 2, 466,  1.000),    #  SGSTKE/Ri
+(1, 2, 467,  1.000),    #  RTKE
+(1, 2, 468,  1.000),    #  RTKE/Ri
+(1, 2, 469,  1.000),    #  VARE
+(1, 2, 470,  1.000),    #  VARE/Ri
+# MWT index weights: low-levels
+(1, 2, 471,  1.000),    #  MWT1
+(1, 2, 472,  1.000),    #  MWT2
+(1, 2, 473,  1.000),    #  MWT3
+(1, 2, 474,  1.000),    #  MWT4
+(1, 2, 475,  1.000),    #  MWT5
+(1, 2, 476,  1.000),    #  MWT13
+(1, 2, 477,  1.000),    #  MWT14
+(1, 2, 478,  1.000),    #  TKE_GWB/SGSTKE
+(1, 2, 479,  1.000),    #  MWT6
+(1, 2, 480,  1.000),    #  MWT7
+(1, 2, 481,  1.000),    #  MWT8
+(1, 2, 482,  1.000),    #  MWT9
+(1, 2, 483,  1.000),    #  MWT10
+(1, 2, 484,  1.000),    #  MWT11
+(1, 2, 485,  1.000),    #  MWT12
+# CIT indices: low-levels
+(1, 2, 486,  1.000),    #  CNDHEAT
+(1, 2, 487,  1.000),    #  CLDGRADW
+(1, 2, 488,  1.000),    #  CLDWSQ
+(1, 2, 489,  1.000),    #  CLDSIGW
+(1, 2, 490,  1.000),    #  CLDDEFSQ
+(1, 2, 491,  1.000),    #  CLDEDR
+(1, 2, 492,  1.000),    #  CLDIWP
+(1, 2, 493,  1.000),    #  CLDIFLX
+(1, 2, 494,  1.000),    #  CLDRTKE
+(1, 2, 495,  1.000),    #  CLDF3D
+# GTG combinations - Set weights to -1
+(1, 2, 496,    -1.),    #  GTGDEF
+(1, 2, 497,    -1.),    #  GTGMWT
+(1, 2, 498,    -1.),    #  GTGCIT
+(1, 2, 499,    -1.),    #  GTGMAX2 (Unused)
+(1, 2, 500,    -1.),    #  GTGMAX3
+# CAT index weights: mid-levels, stable
+(2, 1, 400,  1.000),    #  Brown1
+(2, 1, 401,  1.000),    #  Brown2
+(2, 1, 402,  1.000),    #  CP
+(2, 1, 403,  1.000),    #  Ellrod1
+(2, 1, 404,  1.000),    #  Ellrod2
+(2, 1, 405,  1.000),    #  1/Ri
+(2, 1, 406,  1.000),    #  Ellrod3
+(2, 1, 407,  1.000),    #  CCAT
+(2, 1, 408,  1.000),    #  MSEDR
+(2, 1, 409,  1.000),    #  DTF3
+(2, 1, 410,  1.000),    #  Fth/Ri
+(2, 1, 411,  1.000),    #  PBLEDR
+(2, 1, 412,  1.000),    #  Dutton
+(2, 1, 413,  1.000),    #  Endlich
+(2, 1, 414,  1.000),    #  LAZ
+(2, 1, 415,  1.000),    #  NGM1
+(2, 1, 416,  1.000),    #  -NGM2
+(2, 1, 417,  1.000),    #  SCHGW
+(2, 1, 418,  1.000),    #  VWS
+(2, 1, 419,  1.000),    #  TROPVWS
+(2, 1, 420,  1.000),    #  HS
+(2, 1, 421,  1.000),    #  STABADV
+(2, 1, 422,  1.000),    #  DEFSQ
+(2, 1, 423,  1.000),    #  |VORTZ|
+(2, 1, 424,  1.000),    #  |DIV|
+(2, 1, 425,  1.000),    #  EGR
+(2, 1, 426,  1.000),    #  iawind
+(2, 1, 427,  1.000),    #  AGI
+(2, 1, 428,  1.000),    #  UBF/Ri
+(2, 1, 429,  1.000),    #  1/SATRi
+(2, 1, 430,  1.000),    #  PVGRAD
+(2, 1, 431,  1.000),    #  EDRRCH
+(2, 1, 432,  1.000),    #  EDR
+(2, 1, 433,  1.000),    #  EDRLL
+(2, 1, 434,  1.000),    #  CTSQ
+(2, 1, 435,  1.000),    #  1/RiTW
+(2, 1, 436,  1.000),    #  LHFK
+(2, 1, 437,  1.000),    #  LHFK/Ri
+(2, 1, 438,  1.000),    #  TEMPG
+(2, 1, 439,  1.000),    #  CTSQ/Ri
+(2, 1, 440,  1.000),    #  Brown1/Ri
+(2, 1, 441,  1.000),    #  iawind/Ri
+(2, 1, 442,  1.000),    #  NGM1/Ri
+(2, 1, 443,  1.000),    #  NGM2/Ri
+(2, 1, 444,  1.000),    #  SCHGW/Ri
+(2, 1, 445,  1.000),    #  TROPG/Z
+(2, 1, 446,  1.000),    #  SPEED
+(2, 1, 447,  1.000),    #  -Stone
+(2, 1, 448,  1.000),    #  -NVA
+(2, 1, 449,  1.000),    #  NCSU1
+(2, 1, 450,  1.000),    #  NCSU2/Ri
+(2, 1, 451,  1.000),    #  EDRLUN
+(2, 1, 452,  1.000),    #  wsq
+(2, 1, 453,  1.000),    #  wsq/Ri
+(2, 1, 454,  1.000),    #  EDR/Ri
+(2, 1, 455,  1.000),    #  EDRLL/Ri
+(2, 1, 456,  1.000),    #  SIGW
+(2, 1, 457,  1.000),    #  SIGW/Ri
+(2, 1, 458,  1.000),    #  F2D/Ri
+(2, 1, 459,  1.000),    #  F2DTW/Ri
+(2, 1, 460,  1.000),    #  F3D/Ri
+(2, 1, 461,  1.000),    #  F3D
+(2, 1, 462,  1.000),    #  |THP/THB|
+(2, 1, 463,  1.000),    #  EDRM (ARPEGE and ARWRF ONLY)
+(2, 1, 464,  1.000),    #  SEDR
+(2, 1, 465,  1.000),    #  SGSTKE
+(2, 1, 466,  1.000),    #  SGSTKE/Ri
+(2, 1, 467,  1.000),    #  RTKE
+(2, 1, 468,  1.000),    #  RTKE/Ri
+(2, 1, 469,  1.000),    #  VARE
+(2, 1, 470,  1.000),    #  VARE/Ri
+# MWT index weights: mid-levels
+(2, 1, 471,  1.000),    #  MWT1
+(2, 1, 472,  1.000),    #  MWT2
+(2, 1, 473,  1.000),    #  MWT3
+(2, 1, 474,  1.000),    #  MWT4
+(2, 1, 475,  1.000),    #  MWT5
+(2, 1, 476,  1.000),    #  MWT13
+(2, 1, 477,  1.000),    #  MWT14
+(2, 1, 478,  1.000),    #  TKE_GWB/SGSTKE
+(2, 1, 479,  1.000),    #  MWT6
+(2, 1, 480,  1.000),    #  MWT7
+(2, 1, 481,  1.000),    #  MWT8
+(2, 1, 482,  1.000),    #  MWT9
+(2, 1, 483,  1.000),    #  MWT10
+(2, 1, 484,  1.000),    #  MWT11
+(2, 1, 485,  1.000),    #  MWT12
+# CIT indices: mid-levels
+(2, 1, 486,  1.000),    #  CNDHEAT
+(2, 1, 487,  1.000),    #  CLDGRADW
+(2, 1, 488,  1.000),    #  CLDWSQ
+(2, 1, 489,  1.000),    #  CLDSIGW
+(2, 1, 490,  1.000),    #  CLDDEFSQ
+(2, 1, 491,  1.000),    #  CLDEDR
+(2, 1, 492,  1.000),    #  CLDIWP
+(2, 1, 493,  1.000),    #  CLDIFLX
+(2, 1, 494,  1.000),    #  CLDRTKE
+(2, 1, 495,  1.000),    #  CLDF3D
+# GTG combinations - Set weights to -1
+(2, 1, 496,    -1.),    #  GTGDEF
+(2, 1, 497,    -1.),    #  GTGMWT
+(2, 1, 498,    -1.),    #  GTGCIT
+(2, 1, 499,    -1.),    #  GTGMAX2 (Unused)
+(2, 1, 500,    -1.),    #  GTGMAX3
+# CAT index weights - upper-levels, stable
+(3, 1, 400,  1.000),    #  Brown1
+(3, 1, 401,  1.000),    #  Brown2
+(3, 1, 402,  1.000),    #  CP
+(3, 1, 403,  1.000),    #  Ellrod1
+(3, 1, 404,  1.000),    #  Ellrod2
+(3, 1, 405,  1.000),    #  1/Ri
+(3, 1, 406,  1.000),    #  Ellrod3
+(3, 1, 407,  1.000),    #  CCAT
+(3, 1, 408,  1.000),    #  MSEDR
+(3, 1, 409,  1.000),    #  DTF3
+(3, 1, 410,  1.000),    #  Fth/Ri
+(3, 1, 411,  1.000),    #  PBLEDR
+(3, 1, 412,  1.000),    #  Dutton
+(3, 1, 413,  1.000),    #  Endlich
+(3, 1, 414,  1.000),    #  LAZ
+(3, 1, 415,  1.000),    #  NGM1
+(3, 1, 416,  1.000),    #  -NGM2
+(3, 1, 417,  1.000),    #  SCHGW
+(3, 1, 418,  1.000),    #  VWS
+(3, 1, 419,  1.000),    #  TROPVWS
+(3, 1, 420,  1.000),    #  HS
+(3, 1, 421,  1.000),    #  STABADV
+(3, 1, 422,  1.000),    #  DEFSQ
+(3, 1, 423,  1.000),    #  |VORTZ|
+(3, 1, 424,  1.000),    #  |DIV|
+(3, 1, 425,  1.000),    #  DEFSQ/Ri
+(3, 1, 426,  1.000),    #  iawind
+(3, 1, 427,  1.000),    #  AGI
+(3, 1, 428,  1.000),    #  UBF/Ri
+(3, 1, 429,  1.000),    #  1/SATRi
+(3, 1, 430,  1.000),    #  PVGRAD
+(3, 1, 431,  1.000),    #  EDRRCH
+(3, 1, 432,  1.000),    #  EDR
+(3, 1, 433,  1.000),    #  EDRLL
+(3, 1, 434,  1.000),    #  CTSQ
+(3, 1, 435,  1.000),    #  1/RiTW
+(3, 1, 436,  1.000),    #  LHFK
+(3, 1, 437,  1.000),    #  LHFK/Ri
+(3, 1, 438,  1.000),    #  TEMPG
+(3, 1, 439,  1.000),    #  CTSQ/Ri
+(3, 1, 440,  1.000),    #  Brown1/Ri
+(3, 1, 441,  1.000),    #  iawind/Ri
+(3, 1, 442,  1.000),    #  NGM1/Ri
+(3, 1, 443,  1.000),    #  NGM2/Ri
+(3, 1, 444,  1.000),    #  SCHGW/Ri
+(3, 1, 445,  1.000),    #  TROPG/Z
+(3, 1, 446,  1.000),    #  SPEED
+(3, 1, 447,  1.000),    #  -Stone
+(3, 1, 448,  1.000),    #  -NVA
+(3, 1, 449,  1.000),    #  NCSU1
+(3, 1, 450,  1.000),    #  NCSU2/Ri
+(3, 1, 451,  1.000),    #  EDRLUN
+(3, 1, 452,  1.000),    #  wsq
+(3, 1, 453,  1.000),    #  wsq/Ri
+(3, 1, 454,  1.000),    #  EDR/Ri
+(3, 1, 455,  1.000),    #  EDRLL/Ri
+(3, 1, 456,  1.000),    #  SIGW
+(3, 1, 457,  1.000),    #  SIGW/Ri
+(3, 1, 458,  1.000),    #  F2D/Ri
+(3, 1, 459,  1.000),    #  F2DTW/Ri
+(3, 1, 460,  1.000),    #  F3D/Ri
+(3, 1, 461,  1.000),    #  F3D
+(3, 1, 462,  1.000),    #  |THP/THB|
+(3, 1, 463,  1.000),    #  EDRM (ARPEGE and ARWRF ONLY)
+(3, 1, 464,  1.000),    #  SEDR
+(3, 1, 465,  1.000),    #  SGSTKE
+(3, 1, 466,  1.000),    #  SGSTKE/Ri
+(3, 1, 467,  1.000),    #  RTKE
+(3, 1, 468,  1.000),    #  RTKE/Ri
+(3, 1, 469,  1.000),    #  VARE
+(3, 1, 470,  1.000),    #  VARE/Ri
+# MWT index weights - upper-levels
+(3, 1, 471,  1.000),    #  MWT1
+(3, 1, 472,  1.000),    #  MWT2
+(3, 1, 473,  1.000),    #  MWT3
+(3, 1, 474,  1.000),    #  MWT4
+(3, 1, 475,  1.000),    #  MWT5
+(3, 1, 476,  1.000),    #  MWT13
+(3, 1, 477,  1.000),    #  MWT14
+(3, 1, 478,  1.000),    #  TKE_GWB/SGSTKE
+(3, 1, 479,  1.000),    #  MWT6
+(3, 1, 480,  1.000),    #  MWT7
+(3, 1, 481,  1.000),    #  MWT8
+(3, 1, 482,  1.000),    #  MWT9
+(3, 1, 483,  1.000),    #  MWT10
+(3, 1, 484,  1.000),    #  MWT11
+(3, 1, 485,  1.000),    #  MWT12
+# CIT indices: upper levels
+(3, 1, 486,  1.000),    #  CNDHEAT
+(3, 1, 487,  1.000),    #  CLDGRADW
+(3, 1, 488,  1.000),    #  CLDWSQ
+(3, 1, 489,  1.000),    #  CLDSIGW
+(3, 1, 490,  1.000),    #  CLDDEFSQ
+(3, 1, 491,  1.000),    #  CLDEDR
+(3, 1, 492,  1.000),    #  CLDIWP
+(3, 1, 493,  1.000),    #  CLDIFLX
+(3, 1, 494,  1.000),    #  CLDRTKE
+(3, 1, 495,  1.000),    #  CLDF3D
+# GTG combinations - Set weights to -1
+(3, 1, 496,    -1.),    #  GTGDEF
+(3, 1, 497,    -1.),    #  GTGMWT
+(3, 1, 498,    -1.),    #  GTGCIT
+(3, 1, 499,    -1.),    #  GTGMAX2 (Unused)
+(3, 1, 500,    -1.)     #  GTGMAX3
+);
+# Set ipickindx which specifies which indices to compute
+#     ipickgtg which specifies indices to use in the GTG weighted sum
+#  (Region, Stability, Index, ipickindx, ipickgtg)
+regionIndicesSelect = (
+# Specify CAT/LLT indices to compute/use in CAT/LLT combination: low-levels, stable ABL -> Munoz-Esparza and Sharman, JAMC(2018)
+(1, 1, 400,  1,   0),    #  Brown1
+(1, 1, 401,  1,   0),    #  Brown2
+(1, 1, 402,  1,   0),    #  CP
+(1, 1, 403,  1,   0),    #  Ellrod1
+(1, 1, 404,  1,   1),    #  Ellrod2
+(1, 1, 405,  1,   0),    #  1/Ri
+(1, 1, 406,  1,   0),    #  Ellrod3
+(1, 1, 407,  1,   0),    #  CCAT
+(1, 1, 408,  1,   0),    #  MSEDR
+(1, 1, 409,  1,   0),    #  DTF3
+(1, 1, 410,  1,   0),    #  Fth/Ri
+(1, 1, 411,  1,   0),    #  PBLEDR
+(1, 1, 412,  0,   0),    #  Dutton
+(1, 1, 413,  1,   0),    #  Endlich
+(1, 1, 414,  1,   0),    #  LAZ
+(1, 1, 415,  1,   1),    #  NGM1
+(1, 1, 416,  1,   1),    #  -NGM2
+(1, 1, 417,  1,   1),    #  SCHGW
+(1, 1, 418,  1,   0),    #  VWS
+(1, 1, 419,  0,   0),    #  TROPVWS (Don't use at low)
+(1, 1, 420,  1,   0),    #  HS
+(1, 1, 421,  1,   0),    #  STABADV
+(1, 1, 422,  1,   0),    #  DEFSQ
+(1, 1, 423,  1,   0),    #  |VORTZ|
+(1, 1, 424,  1,   0),    #  |DIV|
+(1, 1, 425,  1,   0),    #  EGR
+(1, 1, 426,  1,   0),    #  iawind
+(1, 1, 427,  1,   0),    #  AGI
+(1, 1, 428,  1,   0),    #  UBF/Ri
+(1, 1, 429,  1,   0),    #  1/SATRi
+(1, 1, 430,  1,   0),    #  PVGRAD (PVUs)
+(1, 1, 431,  1,   0),    #  EDRRCH
+(1, 1, 432,  1,   0),    #  EDR
+(1, 1, 433,  1,   0),    #  EDRLL
+(1, 1, 434,  1,   0),    #  CTSQ
+(1, 1, 435,  1,   0),    #  1/RiTW
+(1, 1, 436,  1,   0),    #  LHFK
+(1, 1, 437,  1,   0),    #  LHFK/Ri
+(1, 1, 438,  1,   0),    #  TEMPG
+(1, 1, 439,  1,   1),    #  CTSQ/Ri
+(1, 1, 440,  1,   0),    #  Brown1/Ri
+(1, 1, 441,  1,   0),    #  iawind/Ri
+(1, 1, 442,  1,   0),    #  NGM1/Ri
+(1, 1, 443,  1,   0),    #  NGM2/Ri
+(1, 1, 444,  1,   0),    #  SCHGW/Ri
+(1, 1, 445,  0,   0),    #  TROPG/Z (Don't use at low)
+(1, 1, 446,  1,   0),    #  SPEED
+(1, 1, 447,  1,   0),    #  -Stone
+(1, 1, 448,  1,   0),    #  -NVA
+(1, 1, 449,  1,   1),    #  NCSU1
+(1, 1, 450,  1,   0),    #  NCSU2/Ri
+(1, 1, 451,  1,   0),    #  EDRLUN
+(1, 1, 452,  1,   0),    #  wsq
+(1, 1, 453,  1,   0),    #  wsq/Ri
+(1, 1, 454,  1,   0),    #  EDR/Ri
+(1, 1, 455,  1,   0),    #  EDRLL/Ri
+(1, 1, 456,  1,   0),    #  SIGW
+(1, 1, 457,  1,   0),    #  SIGW/Ri
+(1, 1, 458,  1,   0),    #  F2D/Ri
+(1, 1, 459,  1,   0),    #  F2DTW/Ri
+(1, 1, 460,  1,   1),    #  F3D/Ri
+(1, 1, 461,  1,   0),    #  F3D
+(1, 1, 462,  1,   0),    #  |THP/THB|
+(1, 1, 463,  0,   0),    #  EDRM (ARPEGE and ARWRF ONLY)
+(1, 1, 464,  1,   0),    #  SEDR
+(1, 1, 465,  1,   0),    #  SGSTKE
+(1, 1, 466,  0,   0),    #  SGSTKE/Ri
+(1, 1, 467,  1,   0),    #  RTKE
+(1, 1, 468,  1,   0),    #  RTKE/Ri
+(1, 1, 469,  1,   0),    #  VARE
+(1, 1, 470,  1,   0),    #  VARE/Ri
+# Specify MWT indices to compute/use in MWT combination: low-levels
+(1, 1, 471,  1,   0),    #  MWT1
+(1, 1, 472,  1,   0),    #  MWT2
+(1, 1, 473,  1,   0),    #  MWT3
+(1, 1, 474,  1,   0),    #  MWT4
+(1, 1, 475,  1,   1),    #  MWT5
+(1, 1, 476,  1,   0),    #  MWT13
+(1, 1, 477,  1,   0),    #  MWT14
+(1, 1, 478,  0,   0),    #  TKE_GWB/SGSTKE
+(1, 1, 479,  1,   0),    #  MWT6
+(1, 1, 480,  1,   0),    #  MWT7
+(1, 1, 481,  1,   0),    #  MWT8
+(1, 1, 482,  1,   0),    #  MWT9
+(1, 1, 483,  1,   0),    #  MWT10
+(1, 1, 484,  1,   1),    #  MWT11
+(1, 1, 485,  1,   0),    #  MWT12
+# Specify CIT indices: low-levels, stable
+(1, 1, 486,  1,   1),    #  CNDHEAT
+(1, 1, 487,  1,   1),    #  CLDGRADW
+(1, 1, 488,  1,   1),    #  CLDWSQ
+(1, 1, 489,  1,   1),    #  CLDSIGW
+(1, 1, 490,  1,   1),    #  CLDDEFSQ
+(1, 1, 491,  1,   1),    #  CLDEDR
+(1, 1, 492,  1,   1),    #  CLDIWP
+(1, 1, 493,  1,   1),    #  CLDIFLX
+(1, 1, 494,  1,   1),    #  CLDRTKE
+(1, 1, 495,  1,   1),    #  CLDF3D
+# GTG combinations - Set ipickindx and ipickgtg to 0
+(1, 1, 496,  0,   0),    #  GTGDEF
+(1, 1, 497,  0,   0),    #  GTGMWT
+(1, 1, 498,  0,   0),    #  GTGCIT 
+(1, 1, 499,  0,   0),    #  GTGMAX2 (Unused)
+(1, 1, 500,  0,   0),    #  GTGMAX3
+# Specify CAT/LLT indices to compute/use in CAT/LLT combination: low-levels, unstable ABL
+(1, 2, 400,  1,   0),    #  Brown1
+(1, 2, 401,  1,   0),    #  Brown2
+(1, 2, 402,  1,   0),    #  CP
+(1, 2, 403,  1,   0),    #  Ellrod1
+(1, 2, 404,  1,   0),    #  Ellrod2
+(1, 2, 405,  0,   0),    #  1/Ri
+(1, 2, 406,  1,   1),    #  Ellrod3
+(1, 2, 407,  0,   0),    #  CCAT
+(1, 2, 408,  1,   1),    #  MSEDR
+(1, 2, 409,  0,   0),    #  DTF3
+(1, 2, 410,  0,   0),    #  Fth/Ri
+(1, 2, 411,  1,   1),    #  PBLEDR
+(1, 2, 412,  0,   0),    #  Dutton
+(1, 2, 413,  1,   0),    #  Endlich
+(1, 2, 414,  1,   1),    #  LAZ
+(1, 2, 415,  1,   0),    #  NGM1
+(1, 2, 416,  1,   0),    #  -NGM2
+(1, 2, 417,  1,   0),    #  SCHGW
+(1, 2, 418,  1,   1),    #  VWS
+(1, 2, 419,  0,   0),    #  TROPVWS (Don't use at low)
+(1, 2, 420,  0,   0),    #  HS
+(1, 2, 421,  1,   0),    #  STABADV
+(1, 2, 422,  1,   0),    #  DEFSQ
+(1, 2, 423,  1,   0),    #  |VORTZ|
+(1, 2, 424,  1,   0),    #  |DIV|
+(1, 2, 425,  0,   0),    #  DEFSQ/Ri
+(1, 2, 426,  1,   1),    #  iawind
+(1, 2, 427,  1,   0),    #  AGI
+(1, 2, 428,  0,   0),    #  UBF/Ri
+(1, 2, 429,  0,   0),    #  1/SATRi
+(1, 2, 430,  1,   0),    #  PVGRAD (PVUs)
+(1, 2, 431,  1,   0),    #  EDRRCH
+(1, 2, 432,  1,   1),    #  EDR
+(1, 2, 433,  1,   0),    #  EDRLL
+(1, 2, 434,  1,   1),    #  CTSQ
+(1, 2, 435,  1,   0),    #  1/RiTW
+(1, 2, 436,  1,   0),    #  LHFK
+(1, 2, 437,  0,   0),    #  LHFK/Ri
+(1, 2, 438,  0,   0),    #  TEMPG
+(1, 2, 439,  0,   0),    #  CTSQ/Ri
+(1, 2, 440,  0,   0),    #  Brown1/Ri
+(1, 2, 441,  0,   0),    #  iawind/Ri
+(1, 2, 442,  0,   0),    #  NGM1/Ri
+(1, 2, 443,  0,   0),    #  NGM2/Ri
+(1, 2, 444,  0,   0),    #  SCHGW/Ri
+(1, 2, 445,  0,   0),    #  TROPG/Z (Don't use at low)
+(1, 2, 446,  1,   1),    #  SPEED
+(1, 2, 447,  0,   0),    #  -Stone
+(1, 2, 448,  1,   0),    #  -NVA
+(1, 2, 449,  1,   0),    #  NCSU1
+(1, 2, 450,  0,   0),    #  NCSU2/Ri
+(1, 2, 451,  1,   1),    #  EDRLUN
+(1, 2, 452,  1,   0),    #  wsq
+(1, 2, 453,  0,   0),    #  wsq/Ri
+(1, 2, 454,  0,   0),    #  EDR/Ri
+(1, 2, 455,  0,   0),    #  EDRLL/Ri
+(1, 2, 456,  1,   0),    #  SIGW
+(1, 2, 457,  0,   0),    #  SIGW/Ri
+(1, 2, 458,  1,   0),    #  F2D/Ri
+(1, 2, 459,  1,   0),    #  F2DTW/Ri
+(1, 2, 460,  1,   0),    #  F3D/Ri
+(1, 2, 461,  1,   0),    #  F3D
+(1, 2, 462,  1,   0),    #  |THP/THB|
+(1, 2, 463,  0,   0),    #  EDRM (ARPEGE and ARWRF ONLY)
+(1, 2, 464,  1,   0),    #  SEDR
+(1, 2, 465,  1,   0),    #  SGSTKE
+(1, 2, 466,  1,   0),    #  SGSTKE/Ri
+(1, 2, 467,  1,   1),    #  RTKE
+(1, 2, 468,  0,   0),    #  RTKE/Ri
+(1, 2, 469,  1,   0),    #  VARE
+(1, 2, 470,  0,   0),    #  VARE/Ri
+# Specify MWT indices to compute/use in MWT combination: low-levels, unstable ABL
+(1, 2, 471,  1,   0),    #  MWT1
+(1, 2, 472,  1,   1),    #  MWT2
+(1, 2, 473,  1,   1),    #  MWT3
+(1, 2, 474,  1,   0),    #  MWT4
+(1, 2, 475,  1,   1),    #  MWT5
+(1, 2, 476,  1,   0),    #  MWT13
+(1, 2, 477,  1,   0),    #  MWT14
+(1, 2, 478,  1,   0),    #  TKE_GWB/SGSTKE
+(1, 2, 479,  1,   1),    #  MWT6
+(1, 2, 480,  1,   0),    #  MWT7
+(1, 2, 481,  1,   1),    #  MWT8
+(1, 2, 482,  1,   1),    #  MWT9
+(1, 2, 483,  1,   0),    #  MWT10
+(1, 2, 484,  1,   0),    #  MWT11
+(1, 2, 485,  1,   1),    #  MWT12
+# Specify CIT indices
+(1, 2, 486,  1,   1),    #  CNDHEAT
+(1, 2, 487,  1,   1),    #  CLDGRADW
+(1, 2, 488,  1,   1),    #  CLDWSQ
+(1, 2, 489,  1,   1),    #  CLDSIGW
+(1, 2, 490,  1,   1),    #  CLDDEFSQ
+(1, 2, 491,  1,   1),    #  CLDEDR
+(1, 2, 492,  1,   1),    #  CLDIWP
+(1, 2, 493,  1,   1),    #  CLDIFLX
+(1, 2, 494,  1,   1),    #  CLDRTKE
+(1, 2, 495,  1,   1),    #  CLDF3D
+# GTG combinations - Set ipickindx and ipickgtg to 0
+(1, 2, 496,  0,   0),    #  GTGDEF
+(1, 2, 497,  0,   0),    #  GTGMWT
+(1, 2, 498,  0,   0),    #  GTGCIT
+(1, 2, 499,  0,   0),    #  GTGMAX2 (Unused)
+(1, 2, 500,  0,   0),    #  GTGMAX3
+# Specify CAT indices to compute/use in CAT combination: mid-levels
+(2, 1, 400,  1,   0),    #  Brown1
+(2, 1, 401,  1,   1),    #  Brown2
+(2, 1, 402,  1,   0),    #  CP
+(2, 1, 403,  1,   1),    #  Ellrod1
+(2, 1, 404,  1,   0),    #  Ellrod2
+(2, 1, 405,  1,   0),    #  1/Ri
+(2, 1, 406,  1,   0),    #  Ellrod3
+(2, 1, 407,  0,   0),    #  CCAT
+(2, 1, 408,  1,   0),    #  MSEDR
+(2, 1, 409,  1,   1),    #  DTF3
+(2, 1, 410,  1,   0),    #  Fth/Ri
+(2, 1, 411,  0,   0),    #  PBLEDR
+(2, 1, 412,  0,   0),    #  Dutton
+(2, 1, 413,  1,   0),    #  Endlich
+(2, 1, 414,  1,   0),    #  LAZ
+(2, 1, 415,  1,   0),    #  NGM1
+(2, 1, 416,  1,   0),    #  -NGM2
+(2, 1, 417,  1,   0),    #  SCHGW
+(2, 1, 418,  1,   0),    #  VWS
+(2, 1, 419,  1,   1),    #  TROPVWS
+(2, 1, 420,  1,   0),    #  HS
+(2, 1, 421,  1,   0),    #  STABADV
+(2, 1, 422,  1,   0),    #  DEFSQ
+(2, 1, 423,  1,   0),    #  |VORTZ|
+(2, 1, 424,  1,   0),    #  |DIV|
+(2, 1, 425,  1,   1),    #  EGR
+(2, 1, 426,  1,   0),    #  iawind
+(2, 1, 427,  1,   0),    #  AGI
+(2, 1, 428,  1,   1),    #  UBF/Ri
+(2, 1, 429,  1,   1),    #  1/SATRi
+(2, 1, 430,  1,   0),    #  PVGRAD (PVUs)
+(2, 1, 431,  1,   0),    #  EDRRCH
+(2, 1, 432,  1,   0),    #  EDR
+(2, 1, 433,  1,   0),    #  EDRLL
+(2, 1, 434,  1,   0),    #  CTSQ
+(2, 1, 435,  0,   0),    #  1/RiTW
+(2, 1, 436,  1,   0),    #  LHFK
+(2, 1, 437,  1,   1),    #  LHFK/Ri
+(2, 1, 438,  1,   0),    #  TEMPG
+(2, 1, 439,  1,   0),    #  CTSQ/Ri
+(2, 1, 440,  1,   0),    #  Brown1/Ri
+(2, 1, 441,  1,   1),    #  iawind/Ri
+(2, 1, 442,  1,   0),    #  NGM1/Ri
+(2, 1, 443,  1,   0),    #  NGM2/Ri
+(2, 1, 444,  1,   0),    #  SCHGW/Ri
+(2, 1, 445,  1,   0),    #  TROPG/Z
+(2, 1, 446,  1,   0),    #  SPEED
+(2, 1, 447,  1,   0),    #  -Stone
+(2, 1, 448,  1,   0),    #  -NVA
+(2, 1, 449,  1,   0),    #  NCSU1
+(2, 1, 450,  1,   0),    #  NCSU2/Ri
+(2, 1, 451,  1,   0),    #  EDRLUN
+(2, 1, 452,  1,   0),    #  wsq
+(2, 1, 453,  1,   0),    #  wsq/Ri
+(2, 1, 454,  1,   1),    #  EDR/Ri
+(2, 1, 455,  1,   0),    #  EDRLL/Ri
+(2, 1, 456,  1,   0),    #  SIGW
+(2, 1, 457,  1,   0),    #  SIGW/Ri
+(2, 1, 458,  1,   0),    #  F2D/Ri
+(2, 1, 459,  1,   0),    #  F2DTW/Ri
+(2, 1, 460,  1,   1),    #  F3D/Ri
+(2, 1, 461,  1,   0),    #  F3D
+(2, 1, 462,  1,   0),    #  |THP/THB|
+(2, 1, 463,  0,   0),    #  EDRM (ARPEGE and ARWRF ONLY)
+(2, 1, 464,  1,   1),    #  SEDR
+(2, 1, 465,  1,   1),    #  SGSTKE
+(2, 1, 466,  1,   0),    #  SGSTKE/Ri
+(2, 1, 467,  1,   0),    #  RTKE
+(2, 1, 468,  1,   0),    #  RTKE/Ri
+(2, 1, 469,  1,   0),    #  VARE
+(2, 1, 470,  1,   1),    #  VARE/Ri
+# Specify MWT indices to compute/use in MWT combination: mid-levels
+(2, 1, 471,  1,   0),    #  MWT1
+(2, 1, 472,  1,   0),    #  MWT2
+(2, 1, 473,  1,   0),    #  MWT3
+(2, 1, 474,  1,   1),    #  MWT4
+(2, 1, 475,  1,   1),    #  MWT5
+(2, 1, 476,  1,   1),    #  MWT13
+(2, 1, 477,  1,   1),    #  MWT14
+(2, 1, 478,  1,   0),    #  TKE_GWB/SGSTKE
+(2, 1, 479,  1,   0),    #  MWT6
+(2, 1, 480,  1,   1),    #  MWT7
+(2, 1, 481,  1,   1),    #  MWT8
+(2, 1, 482,  1,   1),    #  MWT9
+(2, 1, 483,  1,   1),    #  MWT10
+(2, 1, 484,  1,   1),    #  MWT11
+(2, 1, 485,  1,   0),    #  MWT12
+# Specify CIT indices to compute/use in CIT combination: mid-levels
+(2, 1, 486,  1,   1),    #  CNDHEAT
+(2, 1, 487,  1,   1),    #  CLDGRADW
+(2, 1, 488,  1,   1),    #  CLDWSQ
+(2, 1, 489,  1,   1),    #  CLDSIGW
+(2, 1, 490,  1,   1),    #  CLDDEFSQ
+(2, 1, 491,  1,   1),    #  CLDEDR
+(2, 1, 492,  1,   1),    #  CLDIWP
+(2, 1, 493,  1,   1),    #  CLDIFLX
+(2, 1, 494,  1,   1),    #  CLDRTKE
+(2, 1, 495,  1,   1),    #  CLDF3D
+# GTG combinations - Set ipickindx and ipickgtg to 0
+(2, 1, 496,  0,   0),    #  GTGDEF
+(2, 1, 497,  0,   0),    #  GTGMWT
+(2, 1, 498,  0,   0),    #  GTGCIT
+(2, 1, 499,  0,   0),    #  GTGMAX2	(Unused)
+(2, 1, 500,  0,   0),    #  GTGMAX3
+# Specify CAT indices to compute/use in CAT combination: upper-levels
+(3, 1, 400,  1,   0),    #  Brown1
+(3, 1, 401,  1,   0),    #  Brown2
+(3, 1, 402,  1,   0),    #  CP
+(3, 1, 403,  1,   0),    #  Ellrod1
+(3, 1, 404,  1,   0),    #  Ellrod2
+(3, 1, 405,  1,   0),    #  1/Ri
+(3, 1, 406,  1,   1),    #  Ellrod3
+(3, 1, 407,  0,   0),    #  CCAT
+(3, 1, 408,  0,   0),    #  MSEDR
+(3, 1, 409,  1,   0),    #  DTF3
+(3, 1, 410,  1,   1),    #  Fth/Ri
+(3, 1, 411,  0,   0),    #  PBLEDR
+(3, 1, 412,  0,   0),    #  Dutton
+(3, 1, 413,  1,   0),    #  Endlich
+(3, 1, 414,  1,   0),    #  LAZ
+(3, 1, 415,  1,   0),    #  NGM1
+(3, 1, 416,  0,   0),    #  -NGM2
+(3, 1, 417,  1,   0),    #  SCHGW
+(3, 1, 418,  1,   0),    #  VWS
+(3, 1, 419,  1,   1),    #  TROPVWS
+(3, 1, 420,  1,   0),    #  HS
+(3, 1, 421,  1,   0),    #  STABADV
+(3, 1, 422,  1,   0),    #  DEFSQ
+(3, 1, 423,  1,   1),    #  |VORTZ|
+(3, 1, 424,  1,   0),    #  |DIV|
+(3, 1, 425,  1,   0),    #  DEFSQ/Ri
+(3, 1, 426,  1,   0),    #  iawind
+(3, 1, 427,  1,   0),    #  AGI
+(3, 1, 428,  1,   0),    #  UBF/Ri
+(3, 1, 429,  1,   1),    #  1/SATRi
+(3, 1, 430,  1,   0),    #  PVGRAD (PVUs)
+(3, 1, 431,  1,   0),    #  EDRRCH
+(3, 1, 432,  1,   0),    #  EDR
+(3, 1, 433,  1,   0),    #  EDRLL
+(3, 1, 434,  1,   0),    #  CTSQ
+(3, 1, 435,  0,   0),    #  1/RiTW
+(3, 1, 436,  1,   0),    #  LHFK
+(3, 1, 437,  1,   1),    #  LHFK/Ri
+(3, 1, 438,  1,   0),    #  TEMPG
+(3, 1, 439,  1,   0),    #  CTSQ/Ri
+(3, 1, 440,  1,   1),    #  Brown1/Ri
+(3, 1, 441,  1,   0),    #  iawind/Ri
+(3, 1, 442,  1,   1),    #  NGM1/Ri
+(3, 1, 443,  1,   0),    #  NGM2/Ri
+(3, 1, 444,  1,   0),    #  SCHGW/Ri
+(3, 1, 445,  1,   0),    #  TROPG/Z
+(3, 1, 446,  1,   0),    #  SPEED
+(3, 1, 447,  1,   0),    #  -Stone
+(3, 1, 448,  1,   0),    #  -NVA
+(3, 1, 449,  1,   0),    #  NCSU1
+(3, 1, 450,  1,   1),    #  NCSU2/Ri
+(3, 1, 451,  1,   0),    #  EDRLUN
+(3, 1, 452,  1,   0),    #  wsq
+(3, 1, 453,  1,   0),    #  wsq/Ri
+(3, 1, 454,  1,   1),    #  EDR/Ri
+(3, 1, 455,  1,   0),    #  EDRLL/Ri
+(3, 1, 456,  1,   0),    #  SIGW
+(3, 1, 457,  1,   0),    #  SIGW/Ri
+(3, 1, 458,  1,   0),    #  F2D/Ri
+(3, 1, 459,  1,   0),    #  F2DTW/Ri
+(3, 1, 460,  1,   0),    #  F3D/Ri
+(3, 1, 461,  1,   0),    #  F3D
+(3, 1, 462,  1,   0),    #  |THP/THB|
+(3, 1, 463,  0,   0),    #  EDRM (ARPEGE and ARWRF ONLY)
+(3, 1, 464,  1,   1),    #  SEDR
+(3, 1, 465,  1,   0),    #  SGSTKE
+(3, 1, 466,  1,   0),    #  SGSTKE/Ri
+(3, 1, 467,  1,   0),    #  RTKE
+(3, 1, 468,  1,   1),    #  RTKE/Ri
+(3, 1, 469,  1,   0),    #  VARE
+(3, 1, 470,  1,   0),    #  VARE/Ri
+# Specify MWT indices to compute/use in MWT combination: upper-levels
+(3, 1, 471,  1,   0),    #  MWT1
+(3, 1, 472,  1,   1),    #  MWT2
+(3, 1, 473,  1,   1),    #  MWT3
+(3, 1, 474,  1,   1),    #  MWT4
+(3, 1, 475,  1,   0),    #  MWT5
+(3, 1, 476,  1,   0),    #  MWT13
+(3, 1, 477,  1,   0),    #  MWT14
+(3, 1, 478,  1,   0),    #  TKE_GWB/SGSTKE
+(3, 1, 479,  1,   0),    #  MWT6
+(3, 1, 480,  1,   1),    #  MWT7
+(3, 1, 481,  1,   1),    #  MWT8
+(3, 1, 482,  1,   0),    #  MWT9
+(3, 1, 483,  1,   1),    #  MWT10
+(3, 1, 484,  1,   1),    #  MWT11
+(3, 1, 485,  1,   0),    #  MWT12
+# Specify CIT indices to compute/use in CIT combination: upper-levels
+(3, 1, 486,  1,   1),    #  CNDHEAT
+(3, 1, 487,  1,   1),    #  CLDGRADW
+(3, 1, 488,  1,   1),    #  CLDWSQ
+(3, 1, 489,  1,   1),    #  CLDSIGW
+(3, 1, 490,  1,   1),    #  CLDDEFSQ
+(3, 1, 491,  1,   1),    #  CLDEDR
+(3, 1, 492,  1,   1),    #  CLDIWP
+(3, 1, 493,  1,   1),    #  CLDIFLX
+(3, 1, 494,  1,   1),    #  CLDRTKE
+(3, 1, 495,  1,   1),    #  CLDF3D
+# GTG combinations
+(3, 1, 496,  0,   0),    #  GTGDEF
+(3, 1, 497,  0,   0),    #  GTGMWT
+(3, 1, 498,  0,   0),    #  GTGCIT
+(3, 1, 499,  0,   0),    #  GTGMAX2 (Unused)
+(3, 1, 500,  0,   0)     #  GTGMAX3
+);
+#
+# remap_option              =2;             | 1=linear piecewise,2=PDF fit
+#
+#
+# Set edr (eps^1/3) thresholds for null,light,moderate,severe,extreme, resp.
+RemapThresholds = (0.0, 0.15,0.22,0.34,1.00);  # Based on DAL737,UAL757 PIREP-edr comparisons - DAL Triggered
+#
+# Index linear remaps for null,light,moderate,severe,extreme, resp. for each index
+regionLinearRemap = (
+# Specify CAT/LLT percentile thresholds:  region= 1, stable  , outcloud based on lt,mod,sev,ext percentiles= 0.0,80.00,94.00,99.50,99.99
+(1, 1, 400,  0.0,  3.40E-04,  6.38E-04,  1.42E-03,  2.38E-03),  # Brown1        20240103
+(1, 1, 401,  0.0,  0.12    ,  0.20    ,  0.40    ,  0.68    ),  # Brown2        20240103
+(1, 1, 402,  0.0,   6.9    ,   15.    ,   43.    ,   75.    ),  # CP            20240103
+(1, 1, 403,  0.0,  5.92E-06,  1.64E-05,  6.23E-05,  1.39E-04),  # Ellrod1       20240103
+(1, 1, 404,  0.0,  6.86E-06,  2.04E-05,  8.56E-05,  2.32E-04),  # Ellrod2       20240103
+(1, 1, 405,  0.0,   2.7    ,   12.    ,  1.61E+02,  9.50E+02),  # 1/Ri          20240103
+(1, 1, 406,  0.0,  6.49E-06,  1.77E-05,  6.62E-05,  1.49E-04),  # Ellrod3       20240103
+(1, 1, 407,  0.0,  1.79E-07,  6.27E-07,  3.82E-06,  1.10E-05),  # CCAT          20240103
+(1, 1, 408,  0.0,  0.14    ,  0.22    ,  0.38    ,  0.61    ),  # MSEDR         20240103
+(1, 1, 409,  0.0,  0.32    ,  0.61    ,   1.3    ,   2.0    ),  # DTF3          20240103
+(1, 1, 410,  0.0,  4.79E-07,  2.90E-06,  4.03E-05,  1.75E-04),  # Fth/Ri        20240103
+(1, 1, 411,  0.0,  6.42E-02,  0.12    ,  0.23    ,  0.42    ),  # PBLEDR        20240103
+(1, 1, 412,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # Dutton        20240103
+(1, 1, 413,  0.0,  0.17    ,  0.29    ,  0.55    ,  0.70    ),  # Endlich       20240103
+(1, 1, 414,  0.0,  3.17E+02,  2.54E+03,  1.02E+04,  2.53E+04),  # LAZ           20240103
+(1, 1, 415,  0.0,  2.75E-03,  5.83E-03,  1.70E-02,  4.70E-02),  # NGM1          20240103
+(1, 1, 416,  0.0,  1.53E-06,  3.13E-06,  7.67E-06,  1.76E-05),  # -NGM2         20240103
+(1, 1, 417,  0.0,  1.12E-06,  6.24E-06,  7.47E-05,  4.01E-04),  # SCHGW         20240103
+(1, 1, 418,  0.0,  2.49E-02,  6.49E-02,  0.16    ,  0.25    ),  # VWS           20240103
+(1, 1, 419,  0.0,  7.63E-04,  7.79E-04,  7.83E-04,  7.83E-04),  # TROPVWS # Do not use at low
+(1, 1, 420,  0.0,  1.49E-04,  3.09E-04,  7.77E-04,  1.50E-03),  # HS            20240103
+(1, 1, 421,  0.0,  5.11E-08,  1.45E-07,  6.95E-07,  1.24E-06),  # STABADV       20240103
+(1, 1, 422,  0.0,  1.08E-07,  3.98E-07,  2.11E-06,  7.62E-06),  # DEFSQ         20240103
+(1, 1, 423,  0.0,  1.89E-04,  3.89E-04,  9.53E-04,  1.89E-03),  # |VORTZ|       20240103
+(1, 1, 424,  0.0,  1.83E-04,  3.72E-04,  1.01E-03,  2.31E-03),  # |DIV|         20240103
+(1, 1, 425,  0.0,   2.1    ,   3.1    ,   3.9    ,   4.0    ),  # EGR           20240103
+(1, 1, 426,  0.0,   16.    ,   32.    ,   93.    ,  2.48E+02),  # iawind        20240103
+(1, 1, 427,  0.0,  0.12    ,  0.29    ,  0.86    ,   2.2    ),  # AGI           20240103
+(1, 1, 428,  0.0,  1.15E+02,  4.47E+02,  6.26E+03,  3.36E+04),  # UBF/Ri        20240103
+(1, 1, 429,  0.0,   4.0    ,   38.    ,  7.17E+02,  9.39E+02),  # 1/SATRi       20240103
+(1, 1, 430,  0.0,  0.19    ,  0.58    ,   2.5    ,   5.0    ),  # PVGRAD        20240103
+(1, 1, 431,  0.0,  4.54E-02,  7.46E-02,  0.15    ,  0.32    ),  # EDRRCH        20240103
+(1, 1, 432,  0.0,  8.75E-02,  0.14    ,  0.27    ,  0.50    ),  # EDR           20240103
+(1, 1, 433,  0.0,  9.18E-02,  0.16    ,  0.32    ,  0.63    ),  # EDRLL         20240103
+(1, 1, 434,  0.0,  4.14E-03,  1.49E-02,  6.82E-02,  0.27    ),  # CTSQ          20240103
+(1, 1, 435,  0.0,   8.8    ,   38.    ,   96.    ,   97.    ),  # 1/RiTW        20240103
+(1, 1, 436,  0.0,  5.27E-05,  7.79E-05,  1.62E-04,  2.65E-04),  # LHFK          20240103
+(1, 1, 437,  0.0,  1.23E-04,  4.35E-04,  5.72E-03,  2.40E-02),  # LHFK/Ri       20240103
+(1, 1, 438,  0.0,  8.23E-05,  1.67E-04,  4.53E-04,  1.06E-03),  # TEMPG         20240103
+(1, 1, 439,  0.0,  5.50E-03,  2.89E-02,  0.27    ,   1.1    ),  # CTSQ/Ri       20240103
+(1, 1, 440,  0.0,  7.53E-04,  2.97E-03,  3.39E-02,  0.21    ),  # Brown1/Ri     20240103
+(1, 1, 441,  0.0,   35.    ,  1.42E+02,  1.82E+03,  1.88E+04),  # iawind/Ri     20240103
+(1, 1, 442,  0.0,  5.74E-03,  2.30E-02,  0.28    ,   1.8    ),  # NGM1/Ri       20240103
+(1, 1, 443,  0.0,  2.58E-06,  1.34E-05,  2.55E-04,  1.61E-03),  # NGM2/Ri       20240103
+(1, 1, 444,  0.0,  2.60E-06,  2.40E-05,  5.56E-04,  8.22E-03),  # SCHGW/Ri      20240103
+(1, 1, 445,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # TROPG/Z # Do not use at low
+(1, 1, 446,  0.0,   13.    ,   18.    ,   26.    ,   35.    ),  # SPEED         20240103
+(1, 1, 447,  0.0,  2.67E-08,  1.07E-07,  1.63E-06,  1.04E-05),  # -Stone        20240103
+(1, 1, 448,  0.0,  1.12E-07,  3.09E-07,  1.39E-06,  5.76E-06),  # -NVA          20240103
+(1, 1, 449,  0.0,  1.02E-10,  6.43E-10,  1.08E-08,  1.34E-07),  # NCSU1         20240103
+(1, 1, 450,  0.0,  6.32E-09,  6.71E-08,  4.16E-06,  5.05E-05),  # NCSU2/Ri      20240103
+(1, 1, 451,  0.0,  3.61E-02,  5.92E-02,  0.12    ,  0.26    ),  # EDRLUN        20240103
+(1, 1, 452,  0.0,  7.88E-03,  4.59E-02,  0.49    ,   2.1    ),  # wsq           20240103
+(1, 1, 453,  0.0,  8.31E-03,  6.04E-02,  0.92    ,   4.7    ),  # wsq/Ri        20240103
+(1, 1, 454,  0.0,  1.18E-02,  5.69E-02,  0.66    ,   9.8    ),  # EDR/Ri        20240103
+(1, 1, 455,  0.0,  1.26E-02,  6.52E-02,  0.81    ,   13.    ),  # EDRLL/Ri      20240103
+(1, 1, 456,  0.0,  6.26E-02,  0.32    ,   2.3    ,   9.2    ),  # SIGW          20240103
+(1, 1, 457,  0.0,  6.98E-02,  0.47    ,   5.7    ,   19.    ),  # SIGW/Ri       20240103
+(1, 1, 458,  0.0,  1.85E-08,  8.99E-08,  8.88E-07,  6.11E-06),  # F2D/Ri        20240103
+(1, 1, 459,  0.0,  3.88E-08,  2.44E-07,  4.51E-06,  4.53E-05),  # F2DTW/Ri      20240103
+(1, 1, 460,  0.0,  1.86E-08,  1.12E-07,  1.31E-06,  6.16E-06),  # F3D/Ri        20240103
+(1, 1, 461,  0.0,  1.17E-08,  4.62E-08,  3.20E-07,  1.70E-06),  # F3D           20240103
+(1, 1, 462,  0.0,  7.93E-04,  1.89E-03,  5.07E-03,  8.60E-03),  # |THP/THB|     20240103
+(1, 1, 463,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # EDRM (ARPEGE and ARWRF ONLY)
+(1, 1, 464,  0.0,  6.77E-02,  0.40    ,   1.5    ,   3.4    ),  # SEDR          20240103
+(1, 1, 465,  0.0,  0.74    ,   1.5    ,   3.6    ,   5.4    ),  # SGSTKE        20240103
+(1, 1, 466,  0.0,  0.61    ,   6.5    ,  1.88E+02,  1.87E+03),  # SGSTKE/Ri     20240103
+(1, 1, 467,  0.0,  0.93    ,   3.5    ,   15.    ,   33.    ),  # RTKE          20240103
+(1, 1, 468,  0.0,   1.3    ,   6.2    ,   69.    ,  4.14E+02),  # RTKE/Ri       20240103
+(1, 1, 469,  0.0,   12.    ,   24.    ,   62.    ,  1.38E+02),  # VARE          20240103
+(1, 1, 470,  0.0,   23.    ,   84.    ,  9.79E+02,  6.38E+03),  # VARE/Ri       20240103
+# Specify MWT percentile thresholds:  stable, outcloud based on lt,mod,sev,ext percentiles= 0.0,80,94,99.5,99.99
+(1, 1, 471,  0.0,  1.27E-02,  0.12    ,   2.1    ,   13.    ),  # MWT1          20240103
+(1, 1, 472,  0.0,  5.19E-03,  2.00E-02,  0.13    ,  0.66    ),  # MWT2          20240103
+(1, 1, 473,  0.0,  1.82E-08,  8.87E-08,  7.90E-07,  2.62E-06),  # MWT3          20240103
+(1, 1, 474,  0.0,   12.    ,   38.    ,  1.77E+02,  3.94E+02),  # MWT4          20240103
+(1, 1, 475,  0.0,  2.24E-02,  5.55E-02,  0.20    ,  0.68    ),  # MWT5          20240103
+(1, 1, 476,  0.0,  1.42E-07,  6.87E-07,  5.70E-06,  2.73E-05),  # MWT13         20240103
+(1, 1, 477,  0.0,  1.69E-04,  5.54E-04,  2.62E-03,  7.30E-03),  # MWT14         20240103
+(1, 1, 478,  0.0,  0.30    ,  0.92    ,   2.9    ,   7.8    ),  # TKE_GWB       20240103
+(1, 1, 479,  0.0,  1.62E-04,  4.84E-04,  1.95E-03,  4.47E-03),  # MWT6          20240103
+(1, 1, 480,  0.0,  0.15    ,  0.86    ,   7.7    ,   22.    ),  # MWT7          20240103
+(1, 1, 481,  0.0,  4.60E-06,  1.84E-05,  1.16E-04,  3.64E-04),  # MWT8          20240103
+(1, 1, 482,  0.0,  7.67E-04,  2.28E-03,  9.23E-03,  2.14E-02),  # MWT9          20240103
+(1, 1, 483,  0.0,  9.31E-03,  3.17E-02,  0.16    ,  0.49    ),  # MWT10         20240103
+(1, 1, 484,  0.0,  1.76E-06,  1.57E-05,  2.60E-04,  9.68E-04),  # MWT11         20240103
+(1, 1, 485,  0.0,  6.73E-05,  2.03E-04,  9.60E-04,  2.72E-03),  # MWT12         20240103
+# Specify CIT percentile thresholds:  region= 1, stable  , incloud based on lt,mod,sev,ext percentiles= 0.0,80.00,94.00,99.50,99.99
+(1, 1, 486,  0.0,  1.05E-03,  2.35E-03,  7.13E-03,  1.29E-02),  # CONDHEAT      20240104
+(1, 1, 487,  0.0,  2.99E-02,  7.78E-02,  0.24    ,  0.37    ),  # CLDGRADW      20240104
+(1, 1, 488,  0.0,  1.26E-02,  7.45E-02,  0.56    ,  0.94    ),  # CLDWSQ        20240104
+(1, 1, 489,  0.0,  0.12    ,  0.61    ,   3.5    ,   6.6    ),  # CLDSIGW       20240104
+(1, 1, 490,  0.0,  9.52E-08,  3.21E-07,  1.62E-06,  3.56E-06),  # CLDDEFSQ      20240104
+(1, 1, 491,  0.0,  7.60E-03,  2.14E-02,  9.36E-02,  0.35    ),  # CLDEDR        20240104
+(1, 1, 492,  0.0,  1.30E+05,  2.87E+05,  5.74E+05,  6.43E+05),  # CLDIWP        20240104
+(1, 1, 493,  0.0,  1.96E-04,  4.69E-04,  1.19E-03,  1.51E-03),  # CLDIFLX       20240104
+(1, 1, 494,  0.0,  0.91    ,   3.5    ,   17.    ,   28.    ),  # CLDRTKE       20240104
+(1, 1, 495,  0.0,  8.82E-09,  3.00E-08,  1.56E-07,  3.21E-07),  # CLDF3D        20240104
+# Specify GTG percentile thresholds: region= 1, stable  , inoutcloud based on lt,mod,sev,ext percentiles= 0.0,80,94,99.5,99.99
+(1, 1, 496,  0.0,  0.20    ,  0.25    ,  0.35    ,  0.49    ),  # GTGDEF        20240103
+(1, 1, 497,  0.0,  0.12    ,  0.16    ,  0.24    ,  0.31    ),  # GTGMWT        20240103
+(1, 1, 498,  0.0,  0.10    ,  0.15    ,  0.22    ,  0.33    ),  # GTGCIT        20240104
+(1, 1, 499,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # GTGMAX2 # No longer used
+(1, 1, 500,  0.0,  0.20    ,  0.25    ,  0.35    ,  0.49    ),  # GTGMAX3       20240103
+# Specify CAT/LLT percentile thresholds: region= 1, unstable, outcloud based on lt,mod,sev,ext percentiles= 0.0,72,96,99.9,99.99
+(1, 2, 400,  0.0,  1.66E-04,  4.17E-04,  1.33E-03,  2.19E-03),  # Brown1        20240103
+(1, 2, 401,  0.0,  4.22E-02,  0.10    ,  0.31    ,  0.44    ),  # Brown2        20240103
+(1, 2, 402,  0.0,   2.0    ,   13.    ,   59.    ,   95.    ),  # CP            20240103
+(1, 2, 403,  0.0,  9.17E-07,  4.48E-06,  3.93E-05,  9.22E-05),  # Ellrod1       20240103
+(1, 2, 404,  0.0,  9.85E-07,  5.20E-06,  5.03E-05,  1.33E-04),  # Ellrod2       20240103
+(1, 2, 405,  0.0,   12.    ,  9.71E+02,  9.94E+02,  9.95E+02),  # 1/Ri          20240103
+(1, 2, 406,  0.0,  1.04E-06,  4.96E-06,  4.35E-05,  1.14E-04),  # Ellrod3       20240103
+(1, 2, 407,  0.0,  3.10E-08,  1.63E-07,  2.13E-06,  7.72E-06),  # CCAT          20240103
+(1, 2, 408,  0.0,  0.15    ,  0.24    ,  0.46    ,  0.54    ),  # MSEDR         20240103
+(1, 2, 409,  0.0,  0.20    ,  0.68    ,   1.9    ,   2.1    ),  # DTF3          20240103
+(1, 2, 410,  0.0,  3.41E-07,  1.08E-04,  6.32E-03,  3.83E-02),  # Fth/Ri        20240103
+(1, 2, 411,  0.0,  8.13E-02,  0.14    ,  0.29    ,  0.38    ),  # PBLEDR        20240103
+(1, 2, 412,  0.0,  230.0   ,  774.0   ,  1.82E3  ,  4.16E3  ),  # Dutton        20240103
+(1, 2, 413,  0.0,  0.10    ,  0.30    ,  0.71    ,  0.98    ),  # Endlich       20240103
+(1, 2, 414,  0.0,   21.    ,  1.79E+03,  1.12E+04,  1.84E+04),  # LAZ           20240103
+(1, 2, 415,  0.0,  1.02E-03,  3.45E-03,  1.78E-02,  3.45E-02),  # NGM1          20240103
+(1, 2, 416,  0.0,  1.00E-06,  3.04E-06,  1.11E-05,  2.23E-05),  # -NGM2         20240103
+(1, 2, 417,  0.0,  5.97E-08,  1.02E-06,  5.72E-05,  2.32E-04),  # SCHGW         20240103
+(1, 2, 418,  0.0,  7.65E-03,  2.57E-02,  0.13    ,  0.19    ),  # VWS           20240103
+(1, 2, 419,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # TROPVWS # Do not use at low
+(1, 2, 420,  0.0,  6.51E-05,  1.94E-04,  7.04E-04,  1.22E-03),  # HS            20240103
+(1, 2, 421,  0.0,  1.48E-08,  5.83E-08,  3.27E-07,  8.53E-07),  # STABADV       20240103
+(1, 2, 422,  0.0,  2.50E-08,  1.69E-07,  1.81E-06,  5.51E-06),  # DEFSQ         20240103
+(1, 2, 423,  0.0,  7.98E-05,  2.38E-04,  8.70E-04,  1.45E-03),  # |VORTZ|       20240103
+(1, 2, 424,  0.0,  9.37E-05,  2.63E-04,  1.00E-03,  1.81E-03),  # |DIV|         20240103
+(1, 2, 425,  0.0,  0.94    ,   2.0    ,   3.7    ,   3.9    ),  # EGR           20240103
+(1, 2, 426,  0.0,   6.8    ,   22.    ,  1.11E+02,  1.95E+02),  # iawind        20240103
+(1, 2, 427,  0.0,  4.73E-02,  0.20    ,  0.81    ,   1.4    ),  # AGI           20240103
+(1, 2, 428,  0.0,  3.01E+02,  3.55E+04,  1.81E+05,  4.05E+05),  # UBF/Ri        20240103
+(1, 2, 429,  0.0,  5.22E+02,  9.37E+02,  9.51E+02,  9.51E+02),  # 1/SATRi       20240103
+(1, 2, 430,  0.0,  4.35E-02,  0.20    ,   1.7    ,   4.0    ),  # PVGRAD        20240103
+(1, 2, 431,  0.0,  2.76E-02,  5.68E-02,  0.13    ,  0.21    ),  # EDRRCH        20240103
+(1, 2, 432,  0.0,  4.20E-02,  9.88E-02,  0.27    ,  0.38    ),  # EDR           20240103
+(1, 2, 433,  0.0,  4.42E-02,  0.11    ,  0.33    ,  0.51    ),  # EDRLL         20240103
+(1, 2, 434,  0.0,  1.02E-03,  7.22E-03,  7.13E-02,  0.18    ),  # CTSQ          20240103
+(1, 2, 435,  0.0,   3.7    ,   23.    ,   96.    ,   97.    ),  # 1/RiTW        20240103
+(1, 2, 436,  0.0,  3.62E-05,  6.60E-05,  1.85E-04,  2.52E-04),  # LHFK          20240103
+(1, 2, 437,  0.0,  9.94E-04,  3.25E-02,  9.82E-02,  0.16    ),  # LHFK/Ri       20240103
+(1, 2, 438,  0.0,  4.57E-05,  1.22E-04,  4.79E-04,  8.03E-04),  # TEMPG         20240103
+(1, 2, 439,  0.0,  2.62E-03,   1.6    ,   29.    ,   82.    ),  # CTSQ/Ri       20240103
+(1, 2, 440,  0.0,  1.62E-03,  0.16    ,  0.69    ,   1.2    ),  # Brown1/Ri     20240103
+(1, 2, 441,  0.0,   58.    ,  6.25E+03,  3.98E+04,  8.94E+04),  # iawind/Ri     20240103
+(1, 2, 442,  0.0,  8.66E-03,  0.98    ,   6.3    ,   14.    ),  # NGM1/Ri       20240103
+(1, 2, 443,  0.0,  1.56E-05,  1.68E-03,  8.71E-03,  1.95E-02),  # NGM2/Ri       20240103
+(1, 2, 444,  0.0,  2.30E-07,  4.05E-05,  6.94E-03,  6.46E-02),  # SCHGW/Ri      20240103
+(1, 2, 445,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # TROPG/Z # Do not use at low
+(1, 2, 446,  0.0,   9.1    ,   16.    ,   27.    ,   33.    ),  # SPEED         20240103
+(1, 2, 447,  0.0,  1.40E-06,  8.59E-06,  1.16E-05,  1.17E-05),  # -Stone        20240103
+(1, 2, 448,  0.0,  3.17E-08,  1.47E-07,  1.20E-06,  3.21E-06),  # -NVA          20240103
+(1, 2, 449,  0.0,  7.77E-11,  9.55E-09,  3.49E-07,  1.60E-06),  # NCSU1         20240103
+(1, 2, 450,  0.0,  3.59E-08,  2.23E-06,  5.25E-05,  1.88E-04),  # NCSU2/Ri      20240103
+(1, 2, 451,  0.0,  1.52E-02,  3.85E-02,  9.94E-02,  0.16    ),  # EDRLUN        20240103
+(1, 2, 452,  0.0,  3.04E-03,  4.14E-02,  0.98    ,   2.8    ),  # wsq           20240103
+(1, 2, 453,  0.0,  1.67E-02,   2.4    ,  1.35E+02,  3.68E+02),  # wsq/Ri        20240103
+(1, 2, 454,  0.0,  5.79E-03,   1.9    ,   27.    ,   69.    ),  # EDR/Ri        20240103
+(1, 2, 455,  0.0,  6.39E-03,   2.3    ,   39.    ,  1.08E+02),  # EDRLL/Ri      20240103
+(1, 2, 456,  0.0,  2.19E-02,  0.30    ,   4.6    ,   8.8    ),  # SIGW          20240103
+(1, 2, 457,  0.0,  9.25E-02,   21.    ,  7.77E+02,  2.01E+03),  # SIGW/Ri       20240103
+(1, 2, 458,  0.0,  2.58E-08,  3.39E-06,  5.79E-05,  1.70E-04),  # F2D/Ri        20240103
+(1, 2, 459,  0.0,  2.46E-08,  4.28E-06,  1.23E-04,  3.59E-04),  # F2DTW/Ri      20240103
+(1, 2, 460,  0.0,  2.30E-08,  3.67E-06,  7.04E-05,  2.53E-04),  # F3D/Ri        20240103
+(1, 2, 461,  0.0,  3.02E-09,  1.99E-08,  2.82E-07,  8.36E-07),  # F3D           20240103
+(1, 2, 462,  0.0,  3.34E-04,  1.43E-03,  6.70E-03,  1.05E-02),  # |THP/THB|     20240103
+(1, 2, 463,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # EDRM  (ARPEGE and ARWRF ONLY)
+(1, 2, 464,  0.0,  1.38E-02,  0.21    ,   1.4    ,   2.4    ),  # SEDR          20240103
+(1, 2, 465,  0.0,   1.2    ,   3.0    ,   5.9    ,   6.3    ),  # SGSTKE        20240103
+(1, 2, 466,  0.0,   8.4    ,  1.80E+03,  4.79E+03,  6.35E+03),  # SGSTKE/Ri     20240103
+(1, 2, 467,  0.0,  0.25    ,   2.3    ,   19.    ,   38.    ),  # RTKE          20240103
+(1, 2, 468,  0.0,   1.5    ,  1.49E+02,  2.76E+03,  7.28E+03),  # RTKE/Ri       20240103
+(1, 2, 469,  0.0,   4.0    ,   15.    ,   77.    ,  1.31E+02),  # VARE          20240103
+(1, 2, 470,  0.0,   37.    ,  3.43E+03,  2.21E+04,  4.40E+04),  # VARE/Ri       20240103
+# Specify MWT percentile thresholds:  region= 1, unstable, outcloud based on lt,mod,sev,ext percentiles= 0.0,72,96,99.9,99.99
+(1, 2, 471,  0.0,  4.01E-03,  0.15    ,   5.5    ,   12.    ),  # MWT1          20240103
+(1, 2, 472,  0.0,  8.75E-04,  8.17E-03,  0.15    ,  0.47    ),  # MWT2          20240103
+(1, 2, 473,  0.0,  3.66E-09,  4.09E-08,  9.23E-07,  1.75E-06),  # MWT3          20240103
+(1, 2, 474,  0.0,   3.2    ,   29.    ,  2.83E+02,  4.28E+02),  # MWT4          20240103
+(1, 2, 475,  0.0,  8.87E-03,  3.92E-02,  0.24    ,  0.52    ),  # MWT5          20240103
+(1, 2, 476,  0.0,  2.76E-08,  3.68E-07,  6.55E-06,  1.46E-05),  # MWT13         20240103
+(1, 2, 477,  0.0,  6.56E-05,  4.50E-04,  3.45E-03,  5.52E-03),  # MWT14         20240103
+(1, 2, 478,  0.0,   1.6    ,   3.8    ,   6.8    ,   9.1    ),  # TKE_GWB       20240103
+(1, 2, 479,  0.0,  5.41E-05,  3.30E-04,  1.97E-03,  2.74E-03),  # MWT6          20240103
+(1, 2, 480,  0.0,  5.79E-02,   1.2    ,   20.    ,   29.    ),  # MWT7          20240103
+(1, 2, 481,  0.0,  5.42E-07,  5.40E-06,  1.03E-04,  2.59E-04),  # MWT8          20240103
+(1, 2, 482,  0.0,  2.97E-04,  1.82E-03,  1.23E-02,  1.80E-02),  # MWT9          20240103
+(1, 2, 483,  0.0,  1.88E-03,  1.70E-02,  0.24    ,  0.49    ),  # MWT10         20240103
+(1, 2, 484,  0.0,  9.25E-08,  4.44E-06,  3.76E-04,  1.15E-03),  # MWT11         20240103
+(1, 2, 485,  0.0,  2.81E-05,  1.46E-04,  1.27E-03,  2.08E-03),  # MWT12         20240103
+# Specify CIT percentile thresholds:  region= 1, unstable, incloud based on lt,mod,sev,ext percentiles= 0.0,72.00,96.00,99.90,99.99
+(1, 2, 486,  0.0,  6.96E-04,  3.01E-03,  2.76E-02,  5.57E-02),  # CONDHEAT      20240104
+(1, 2, 487,  0.0,  2.03E-02,  9.69E-02,  0.44    ,  0.69    ),  # CLDGRADW      20240104
+(1, 2, 488,  0.0,  6.43E-03,  0.13    ,   2.5    ,   4.1    ),  # CLDWSQ        20240104
+(1, 2, 489,  0.0,  6.36E-02,  0.90    ,   9.3    ,   9.8    ),  # CLDSIGW       20240104
+(1, 2, 490,  0.0,  5.78E-08,  3.95E-07,  2.62E-06,  3.51E-06),  # CLDDEFSQ      20240104
+(1, 2, 491,  0.0,  3.98E-03,  2.01E-02,  7.77E-02,  8.69E-02),  # CLDEDR        20240104
+(1, 2, 492,  0.0,  1.15E+05,  5.07E+05,  1.51E+06,  1.66E+06),  # CLDIWP        20240104
+(1, 2, 493,  0.0,  1.38E-04,  6.82E-04,  2.75E-03,  3.43E-03),  # CLDIFLX       20240104
+(1, 2, 494,  0.0,  0.59    ,   5.0    ,   30.    ,   37.    ),  # CLDRTKE       20240104
+(1, 2, 495,  0.0,  5.81E-09,  3.79E-08,  3.45E-07,  5.32E-07),  # CLDF3D        20240104
+# Specify GTG percentile thresholds:  region= 1, unstable, inoutcloud based on lt,mod,sev,ext percentiles= 0.0,72.00,96.00,99.90,99.99
+(1, 2, 496,  0.0,  0.13    ,  0.17    ,  0.28    ,  0.37    ),  # GTGDEF        20240103
+(1, 2, 497,  0.0,  0.12    ,  0.14    ,  0.24    ,  0.28    ),  # GTGMWT        20240103
+(1, 2, 498,  0.0,  8.66E-02,  0.16    ,  0.27    ,  0.34    ),  # GTGCIT        20240104
+(1, 2, 499,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # GTGMAX2 # No longer used
+(1, 2, 500,  0.0,  0.13    ,  0.17    ,  0.28    ,  0.37    ),  # GTGMAX3       20240103
+# Specify CAT/LLT percentile thresholds:  region= 2, stable  , outcloud based on lt,mod,sev,ext percentiles= 0.0,95,99,99.9,99.99
+(2, 1, 400,  0.0,  2.89E-04,  5.03E-04,  1.01E-03,  1.79E-03),  # Brown1        20240103
+(2, 1, 401,  0.0,  5.95E-02,  0.11    ,  0.26    ,  0.44    ),  # Brown2        20240103
+(2, 1, 402,  0.0,   72.    ,  1.53E+02,  3.05E+02,  4.88E+02),  # CP            20240103
+(2, 1, 403,  0.0,  1.99E-06,  5.82E-06,  2.69E-05,  8.08E-05),  # Ellrod1       20240103
+(2, 1, 404,  0.0,  2.29E-06,  6.94E-06,  3.42E-05,  1.11E-04),  # Ellrod2       20240103
+(2, 1, 405,  0.0,   1.2    ,  9.35E+02,  9.88E+02,  9.94E+02),  # 1/Ri          20240103
+(2, 1, 406,  0.0,  2.26E-06,  6.43E-06,  2.89E-05,  8.64E-05),  # Ellrod3       20240103
+(2, 1, 407,  0.0,  6.19E-08,  2.08E-07,  1.20E-06,  5.29E-06),  # CCAT          20240103
+(2, 1, 408,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # MSEDR # Do not use at mid
+(2, 1, 409,  0.0,  0.20    ,  0.48    ,   1.2    ,   1.9    ),  # DTF3          20240103
+(2, 1, 410,  0.0,  1.43E-07,  1.90E-05,  6.00E-04,  6.08E-03),  # Fth/Ri        20240103
+(2, 1, 411,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # PBLEDR # Do not use at mid
+(2, 1, 412,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # Dutton # No fit
+(2, 1, 413,  0.0,  0.60    ,  0.92    ,   1.4    ,   2.0    ),  # Endlich       20240103
+(2, 1, 414,  0.0,  3.51E+03,  1.03E+04,  2.32E+04,  3.53E+04),  # LAZ           20240103
+(2, 1, 415,  0.0,  5.82E-03,  1.06E-02,  2.03E-02,  3.42E-02),  # NGM1          20240103
+(2, 1, 416,  0.0,  1.68E-06,  3.05E-06,  6.42E-06,  1.21E-05),  # -NGM2         20240103
+(2, 1, 417,  0.0,  5.51E-07,  3.64E-06,  3.22E-05,  1.73E-04),  # SCHGW         20240103
+(2, 1, 418,  0.0,  1.11E-02,  2.43E-02,  9.85E-02,  0.19    ),  # VWS           20240103
+(2, 1, 419,  0.0,  2.41E-03,  3.78E-03,  5.95E-03,  8.18E-03),  # TROPVWS       20240103
+(2, 1, 420,  0.0,  1.35E-04,  2.52E-04,  5.36E-04,  9.87E-04),  # HS            20240103
+(2, 1, 421,  0.0,  2.38E-08,  5.91E-08,  2.42E-07,  9.10E-07),  # STABADV       20240103
+(2, 1, 422,  0.0,  8.06E-08,  2.48E-07,  1.01E-06,  3.30E-06),  # DEFSQ         20240103
+(2, 1, 423,  0.0,  1.70E-04,  3.19E-04,  6.72E-04,  1.21E-03),  # |VORTZ|       20240103
+(2, 1, 424,  0.0,  1.70E-04,  3.14E-04,  6.94E-04,  1.34E-03),  # |DIV|         20240103
+(2, 1, 425,  0.0,   1.5    ,   2.4    ,   3.5    ,   3.9    ),  # EGR           20240103
+(2, 1, 426,  0.0,   34.    ,   68.    ,  1.49E+02,  2.61E+02),  # iawind        20240103
+(2, 1, 427,  0.0,  0.11    ,  0.23    ,  0.56    ,   1.1    ),  # AGI           20240103
+(2, 1, 428,  0.0,   62.    ,  2.23E+04,  6.34E+04,  1.78E+05),  # UBF/Ri        20240103
+(2, 1, 429,  0.0,   3.3    ,  9.51E+02,  9.90E+02,  9.94E+02),  # 1/SATRi       20240103
+(2, 1, 430,  0.0,  0.14    ,  0.33    ,   1.1    ,   3.3    ),  # PVGRAD        20240103
+(2, 1, 431,  0.0,  3.98E-02,  6.08E-02,  0.10    ,  0.17    ),  # EDRRCH        20240103
+(2, 1, 432,  0.0,  7.93E-02,  0.13    ,  0.24    ,  0.36    ),  # EDR           20240103
+(2, 1, 433,  0.0,  8.64E-02,  0.15    ,  0.27    ,  0.44    ),  # EDRLL         20240103
+(2, 1, 434,  0.0,  2.01E-03,  7.46E-03,  3.50E-02,  0.11    ),  # CTSQ          20240103
+(2, 1, 435,  0.0,   7.8    ,   29.    ,   96.    ,   99.    ),  # 1/RiTW        20240103
+(2, 1, 436,  0.0,  9.89E-05,  1.44E-04,  2.27E-04,  3.14E-04),  # LHFK          20240103
+(2, 1, 437,  0.0,  7.59E-05,  2.08E-02,  4.90E-02,  9.74E-02),  # LHFK/Ri       20240103
+(2, 1, 438,  0.0,  7.25E-05,  1.36E-04,  3.18E-04,  6.40E-04),  # TEMPG         20240103
+(2, 1, 439,  0.0,  1.43E-03,  0.27    ,   6.4    ,   28.    ),  # CTSQ/Ri       20240103
+(2, 1, 440,  0.0,  2.88E-04,  8.38E-02,  0.31    ,  0.68    ),  # Brown1/Ri     20240103
+(2, 1, 441,  0.0,   24.    ,  2.84E+03,  1.34E+04,  3.89E+04),  # iawind/Ri     20240103
+(2, 1, 442,  0.0,  3.99E-03,  0.44    ,   2.2    ,   6.2    ),  # NGM1/Ri       20240103
+(2, 1, 443,  0.0,  1.42E-06,  7.63E-04,  3.48E-03,  8.57E-03),  # NGM2/Ri       20240103
+(2, 1, 444,  0.0,  5.44E-07,  1.23E-05,  5.20E-04,  7.10E-03),  # SCHGW/Ri      20240103
+(2, 1, 445,  0.0,  5.84E-06,  1.32E-05,  4.16E-05,  7.39E-05),  # TROPG/Z       20240103
+(2, 1, 446,  0.0,   42.    ,   55.    ,   70.    ,   80.    ),  # SPEED         20240103
+(2, 1, 447,  0.0,  3.88E-08,  6.72E-06,  1.07E-05,  1.21E-05),  # -Stone        20240103
+(2, 1, 448,  0.0,  1.77E-07,  3.99E-07,  1.05E-06,  2.47E-06),  # -NVA          20240103
+(2, 1, 449,  0.0,  6.27E-11,  2.47E-09,  4.68E-08,  3.47E-07),  # NCSU1         20240103
+(2, 1, 450,  0.0,  4.03E-09,  6.09E-07,  9.58E-06,  5.42E-05),  # NCSU2/Ri      20240103
+(2, 1, 451,  0.0,  2.60E-02,  4.26E-02,  7.67E-02,  0.13    ),  # EDRLUN        20240103
+(2, 1, 452,  0.0,  4.31E-02,  0.21    ,   1.3    ,   4.3    ),  # wsq           20240103
+(2, 1, 453,  0.0,  2.01E-02,  0.44    ,   17.    ,  1.31E+02),  # wsq/Ri        20240103
+(2, 1, 454,  0.0,  4.56E-03,  0.53    ,   6.6    ,   27.    ),  # EDR/Ri        20240103
+(2, 1, 455,  0.0,  5.09E-03,  0.56    ,   8.5    ,   37.    ),  # EDRLL/Ri      20240103
+(2, 1, 456,  0.0,  0.27    ,   1.4    ,   7.6    ,   9.4    ),  # SIGW          20240103
+(2, 1, 457,  0.0,  0.13    ,   3.7    ,  1.34E+02,  7.56E+02),  # SIGW/Ri       20240103
+(2, 1, 458,  0.0,  8.88E-09,  8.95E-07,  1.23E-05,  5.65E-05),  # F2D/Ri        20240103
+(2, 1, 459,  0.0,  8.37E-09,  1.09E-06,  2.20E-05,  1.21E-04),  # F2DTW/Ri      20240103
+(2, 1, 460,  0.0,  7.16E-09,  9.36E-07,  1.42E-05,  6.86E-05),  # F3D/Ri        20240103
+(2, 1, 461,  0.0,  8.48E-09,  2.85E-08,  1.41E-07,  5.52E-07),  # F3D           20240103
+(2, 1, 462,  0.0,  8.87E-04,  2.13E-03,  4.89E-03,  8.61E-03),  # |THP/THB|     20240103
+(2, 1, 463,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # EDRM (ARPEGE and ARWRF ONLY)
+(2, 1, 464,  0.0,  1.61E-02,  0.12    ,  0.84    ,   1.9    ),  # SEDR          20240103
+(2, 1, 465,  0.0,   2.7    ,   4.3    ,   6.4    ,   7.7    ),  # SGSTKE        20240103
+(2, 1, 466,  0.0,  0.28    ,  7.75E+02,  2.89E+03,  4.73E+03),  # SGSTKE/Ri     20240103
+(2, 1, 467,  0.0,   1.1    ,   3.9    ,   13.    ,   31.    ),  # RTKE          20240103
+(2, 1, 468,  0.0,  0.77    ,   38.    ,  5.99E+02,  2.69E+03),  # RTKE/Ri       20240103
+(2, 1, 469,  0.0,   26.    ,   48.    ,   98.    ,  1.65E+02),  # VARE          20240103
+(2, 1, 470,  0.0,   19.    ,  1.59E+03,  7.70E+03,  2.19E+04),  # VARE/Ri       20240103
+# Specify MWT percentile thresholds: region= 2, stable, outcloud based on lt,mod,sev,ext percentiles= 0.0,95,99,99.90,99.99
+(2, 1, 471,  0.0,  0.10    ,  0.93    ,   8.1    ,   25.    ),  # MWT1          20240103
+(2, 1, 472,  0.0,  2.61E-03,  1.43E-02,  8.75E-02,  0.34    ),  # MWT2          20240103
+(2, 1, 473,  0.0,  1.48E-08,  8.26E-08,  5.75E-07,  2.35E-06),  # MWT3          20240103
+(2, 1, 474,  0.0,   28.    ,   92.    ,  2.92E+02,  4.98E+02),  # MWT4          20240103
+(2, 1, 475,  0.0,  3.16E-02,  7.59E-02,  0.20    ,  0.43    ),  # MWT5          20240103
+(2, 1, 476,  0.0,  1.11E-07,  5.72E-07,  3.55E-06,  1.45E-05),  # MWT13         20240103
+(2, 1, 477,  0.0,  2.20E-04,  7.11E-04,  2.47E-03,  5.75E-03),  # MWT14         20240103
+(2, 1, 478,  0.0,   1.8    ,   3.4    ,   5.4    ,   7.7    ),  # TKE_GWB       20240103
+(2, 1, 479,  0.0,  1.58E-04,  4.71E-04,  1.59E-03,  3.77E-03),  # MWT6          20240103
+(2, 1, 480,  0.0,  0.90    ,   6.1    ,   26.    ,   38.    ),  # MWT7          20240103
+(2, 1, 481,  0.0,  2.23E-06,  9.94E-06,  5.84E-05,  2.30E-04),  # MWT8          20240103
+(2, 1, 482,  0.0,  1.35E-03,  3.99E-03,  1.25E-02,  2.46E-02),  # MWT9          20240103
+(2, 1, 483,  0.0,  7.76E-03,  3.30E-02,  0.16    ,  0.49    ),  # MWT10         20240103
+(2, 1, 484,  0.0,  1.63E-06,  1.63E-05,  1.93E-04,  1.05E-03),  # MWT11         20240103
+(2, 1, 485,  0.0,  8.78E-05,  2.81E-04,  1.05E-03,  2.79E-03),  # MWT12         20240103
+# Specify CIT percentile thresholds:  region= 2, stable, incloud based on lt,mod,sev,ext percentiles= 0.0,95,99,99.90,99.99
+(2, 1, 486,  0.0,  1.86E-03,  5.04E-03,  2.27E-02,  6.35E-02),  # CONDHEAT      20240104
+(2, 1, 487,  0.0,  9.28E-02,  0.24    ,   1.0    ,   2.7    ),  # CLDGRADW      20240104
+(2, 1, 488,  0.0,  0.16    ,  0.92    ,   13.    ,  1.07E+02),  # CLDWSQ        20240104
+(2, 1, 489,  0.0,   1.1    ,   6.9    ,   9.5    ,   9.6    ),  # CLDSIGW       20240104
+(2, 1, 490,  0.0,  3.99E-07,  1.28E-06,  4.47E-06,  1.09E-05),  # CLDDEFSQ      20240104
+(2, 1, 491,  0.0,  2.16E-02,  5.70E-02,  0.16    ,  0.35    ),  # CLDEDR        20240104
+(2, 1, 492,  0.0,  1.39E+06,  4.42E+06,  9.99E+06,  2.09E+07),  # CLDIWP        20240104
+(2, 1, 493,  0.0,  5.37E-04,  1.82E-03,  1.12E-02,  4.67E-02),  # CLDIFLX       20240104
+(2, 1, 494,  0.0,   3.7    ,   12.    ,   44.    ,  1.22E+02),  # CLDRTKE       20240104
+(2, 1, 495,  0.0,  2.93E-08,  9.98E-08,  4.62E-07,  1.47E-06),  # CLDF3D        20240104
+# Specify GTG percentile thresholds: region= 2, stable, outcloud based on lt,mod,sev,ext percentiles= 0.0,95,99,99.90,99.99
+(2, 1, 496,  0.0,  0.15    ,  0.20    ,  0.29    ,  0.39    ),  # GTGDEF        20240103
+(2, 1, 497,  0.0,  0.13    ,  0.17    ,  0.24    ,  0.30    ),  # GTGMWT        20240103
+(2, 1, 498,  0.0,  0.18    ,  0.25    ,  0.37    ,  0.49    ),  # GTGCIT        20240104
+(2, 1, 499,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # GTGMAX2 # No longer used
+(2, 1, 500,  0.0,  0.15    ,  0.20    ,  0.29    ,  0.39    ),  # GTGMAX3       20240103
+# Specify CAT/LLT percentile thresholds: region= 3, stable, outcloud based on lt,mod,sev,ext percentiles= 0.0,98,99.6,99.90,99.99
+(3, 1, 400,  0.0,  3.00E-04,  5.47E-04,  7.84E-04,  1.27E-03),  # Brown1        20240103
+(3, 1, 401,  0.0,  5.63E-02,  8.10E-02,  0.10    ,  0.13    ),  # Brown2        20240103
+(3, 1, 402,  0.0,  2.27E+02,  4.11E+02,  5.61E+02,  8.12E+02),  # CP            20240103
+(3, 1, 403,  0.0,  1.93E-06,  4.48E-06,  7.35E-06,  1.52E-05),  # Ellrod1       20240103
+(3, 1, 404,  0.0,  2.40E-06,  5.93E-06,  1.03E-05,  2.29E-05),  # Ellrod2       20240103
+(3, 1, 405,  0.0,  0.22    ,  0.44    ,  0.71    ,   1.2    ),  # 1/Ri          20240103
+(3, 1, 406,  0.0,  2.17E-06,  4.99E-06,  8.13E-06,  1.65E-05),  # Ellrod3       20240103
+(3, 1, 407,  0.0,  8.31E-08,  2.28E-07,  4.48E-07,  1.28E-06),  # CCAT          20240103
+(3, 1, 408,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # MSEDR # Do not use at high
+(3, 1, 409,  0.0,  0.17    ,  0.21    ,  0.24    ,  0.28    ),  # DTF3          20240103
+(3, 1, 410,  0.0,  4.27E-08,  1.54E-07,  3.17E-07,  8.50E-07),  # Fth/Ri        20240103
+(3, 1, 411,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # PBLEDR # Do not use at high
+(3, 1, 412,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # Dutton # No fit
+(3, 1, 413,  0.0,   1.0    ,   1.5    ,   1.9    ,   2.5    ),  # Endlich       20240103
+(3, 1, 414,  0.0,  6.61E+03,  2.02E+04,  2.94E+04,  4.11E+04),  # LAZ           20240103
+(3, 1, 415,  0.0,  8.36E-03,  1.62E-02,  2.35E-02,  3.89E-02),  # NGM1          20240103
+(3, 1, 416,  0.0,  7.07E-07,  1.47E-06,  2.25E-06,  4.27E-06),  # -NGM2         20240103
+(3, 1, 417,  0.0,  5.97E-07,  4.41E-06,  1.39E-05,  7.01E-05),  # SCHGW         20240103
+(3, 1, 418,  0.0,  1.04E-02,  1.48E-02,  1.81E-02,  2.35E-02),  # VWS           20240103
+(3, 1, 419,  0.0,  2.01E-03,  3.98E-03,  5.61E-03,  8.22E-03),  # TROPVWS       20240103
+(3, 1, 420,  0.0,  1.41E-04,  2.65E-04,  3.78E-04,  6.16E-04),  # HS            20240103
+(3, 1, 421,  0.0,  3.30E-08,  6.76E-08,  1.03E-07,  1.91E-07),  # STABADV       20240103
+(3, 1, 422,  0.0,  9.03E-08,  3.23E-07,  6.85E-07,  1.95E-06),  # DEFSQ         20240103
+(3, 1, 423,  0.0,  1.60E-04,  3.02E-04,  4.34E-04,  7.38E-04),  # |VORTZ|       20240103
+(3, 1, 424,  0.0,  2.13E-04,  4.37E-04,  6.50E-04,  1.08E-03),  # |DIV|         20240103
+(3, 1, 425,  0.0,   1.0    ,   1.5    ,   2.0    ,   2.8    ),  # EGR           20240103
+(3, 1, 426,  0.0,   51.    ,  1.13E+02,  1.78E+02,  3.13E+02),  # iawind        20240103
+(3, 1, 427,  0.0,  0.14    ,  0.30    ,  0.45    ,  0.75    ),  # AGI           20240103
+(3, 1, 428,  0.0,   11.    ,   36.    ,   71.    ,  1.67E+02),  # UBF/Ri        20240103
+(3, 1, 429,  0.0,  0.29    ,  0.60    ,  0.93    ,   1.6    ),  # 1/SATRi       20240103
+(3, 1, 430,  0.0,   1.3    ,   3.0    ,   4.9    ,   9.1    ),  # PVGRAD        20240103
+(3, 1, 431,  0.0,  5.01E-02,  7.90E-02,  0.10    ,  0.16    ),  # EDRRCH        20240103
+(3, 1, 432,  0.0,  8.88E-02,  0.17    ,  0.24    ,  0.41    ),  # EDR           20240103
+(3, 1, 433,  0.0,  0.10    ,  0.21    ,  0.31    ,  0.54    ),  # EDRLL         20240103
+(3, 1, 434,  0.0,  4.42E-03,  1.74E-02,  3.87E-02,  0.12    ),  # CTSQ          20240103
+(3, 1, 435,  0.0,   8.6    ,   33.    ,   71.    ,   98.    ),  # 1/RiTW        20240103
+(3, 1, 436,  0.0,  1.17E-04,  1.76E-04,  2.22E-04,  3.13E-04),  # LHFK          20240103
+(3, 1, 437,  0.0,  1.86E-05,  4.93E-05,  8.40E-05,  1.40E-04),  # LHFK/Ri       20240103
+(3, 1, 438,  0.0,  1.80E-04,  3.65E-04,  5.39E-04,  8.94E-04),  # TEMPG         20240103
+(3, 1, 439,  0.0,  3.80E-04,  2.15E-03,  5.99E-03,  2.45E-02),  # CTSQ/Ri       20240103
+(3, 1, 440,  0.0,  4.38E-05,  1.33E-04,  2.54E-04,  5.58E-04),  # Brown1/Ri     20240103
+(3, 1, 441,  0.0,   7.3    ,   24.    ,   44.    ,   95.    ),  # iawind/Ri     20240103
+(3, 1, 442,  0.0,  1.28E-03,  4.35E-03,  8.44E-03,  1.89E-02),  # NGM1/Ri       20240103
+(3, 1, 443,  0.0,  9.58E-08,  3.35E-07,  6.74E-07,  1.71E-06),  # NGM2/Ri       20240103
+(3, 1, 444,  0.0,  1.08E-07,  1.19E-06,  4.70E-06,  3.20E-05),  # SCHGW/Ri      20240103
+(3, 1, 445,  0.0,  6.33E-06,  2.10E-05,  4.06E-05,  7.57E-05),  # TROPG/Z       20240103
+(3, 1, 446,  0.0,   52.    ,   68.    ,   76.    ,   84.    ),  # SPEED         20240103
+(3, 1, 447,  0.0,  5.22E-09,  1.50E-08,  2.72E-08,  5.98E-08),  # -Stone        20240103
+(3, 1, 448,  0.0,  2.14E-07,  5.01E-07,  8.15E-07,  1.59E-06),  # -NVA          20240103
+(3, 1, 449,  0.0,  1.36E-11,  8.59E-11,  2.35E-10,  8.99E-10),  # NCSU1         20240103
+(3, 1, 450,  0.0,  1.54E-10,  9.53E-10,  3.17E-09,  1.96E-08),  # NCSU2/Ri      20240103
+(3, 1, 451,  0.0,  2.82E-02,  4.47E-02,  5.77E-02,  8.14E-02),  # EDRLUN        20240103
+(3, 1, 452,  0.0,  5.87E-02,  0.34    ,  0.90    ,   3.0    ),  # wsq           20240103
+(3, 1, 453,  0.0,  5.05E-03,  3.74E-02,  0.12    ,  0.47    ),  # wsq/Ri        20240103
+(3, 1, 454,  0.0,  8.35E-04,  4.89E-03,  1.43E-02,  6.17E-02),  # EDR/Ri        20240103
+(3, 1, 455,  0.0,  1.07E-03,  6.41E-03,  1.86E-02,  8.17E-02),  # EDRLL/Ri      20240103
+(3, 1, 456,  0.0,  0.35    ,   2.0    ,   4.7    ,   8.9    ),  # SIGW          20240103
+(3, 1, 457,  0.0,  2.97E-02,  0.23    ,  0.65    ,   2.3    ),  # SIGW/Ri       20240103
+(3, 1, 458,  0.0,  2.59E-09,  1.39E-08,  3.80E-08,  1.59E-07),  # F2D/Ri        20240103
+(3, 1, 459,  0.0,  9.09E-10,  3.41E-09,  6.94E-09,  1.70E-08),  # F2DTW/Ri      20240103
+(3, 1, 460,  0.0,  2.29E-09,  1.22E-08,  3.42E-08,  1.52E-07),  # F3D/Ri        20240103
+(3, 1, 461,  0.0,  2.47E-08,  1.07E-07,  2.42E-07,  7.14E-07),  # F3D           20240103
+(3, 1, 462,  0.0,  1.36E-03,  3.19E-03,  4.73E-03,  7.68E-03),  # |THP/THB|     20240103
+(3, 1, 463,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # EDRM  (ARPEGE and ARWRF ONLY)
+(3, 1, 464,  0.0,  5.67E-03,  1.45E-02,  2.48E-02,  4.81E-02),  # SEDR          20240103
+(3, 1, 465,  0.0,  0.16    ,  0.16    ,  0.16    ,  0.16    ),  # SGSTKE        20240103
+(3, 1, 466,  0.0,  2.45E-05,  5.89E-05,  1.14E-04,  7.73E-03),  # SGSTKE/Ri     20240103
+(3, 1, 467,  0.0,   1.0    ,   4.1    ,   8.3    ,   21.    ),  # RTKE          20240103
+(3, 1, 468,  0.0,  9.09E-02,  0.54    ,   1.5    ,   5.3    ),  # RTKE/Ri       20240103
+(3, 1, 469,  0.0,   38.    ,   79.    ,  1.16E+02,  1.80E+02),  # VARE          20240103
+(3, 1, 470,  0.0,   5.9    ,   22.    ,   47.    ,  1.20E+02),  # VARE/Ri       20240103
+# Specify MWT percentile thresholds:  region= 3, stable, outcloud based on lt,mod,sev,ext percentiles= 0.0,98,99.6,99.90,99.99
+(3, 1, 471,  0.0,  0.14    ,   1.3    ,   3.9    ,   11.    ),  # MWT1          20240103
+(3, 1, 472,  0.0,  8.52E-03,  5.19E-02,  0.13    ,  0.29    ),  # MWT2          20240103
+(3, 1, 473,  0.0,  5.66E-08,  3.64E-07,  9.64E-07,  2.85E-06),  # MWT3          20240103
+(3, 1, 474,  0.0,   51.    ,  1.81E+02,  3.27E+02,  5.21E+02),  # MWT4          20240103
+(3, 1, 475,  0.0,  5.93E-02,  0.16    ,  0.29    ,  0.61    ),  # MWT5          20240103
+(3, 1, 476,  0.0,  1.63E-07,  9.81E-07,  2.54E-06,  7.13E-06),  # MWT13         20240103
+(3, 1, 477,  0.0,  3.57E-04,  1.23E-03,  2.30E-03,  4.06E-03),  # MWT14         20240103
+(3, 1, 478,  0.0,  0.19    ,  0.64    ,   1.2    ,   2.5    ),  # TKE_GWB       20240103
+(3, 1, 479,  0.0,  1.74E-04,  5.67E-04,  1.10E-03,  2.30E-03),  # MWT6          20240103
+(3, 1, 480,  0.0,  0.98    ,   7.2    ,   18.    ,   37.    ),  # MWT7          20240103
+(3, 1, 481,  0.0,  3.07E-06,  1.40E-05,  3.31E-05,  9.73E-05),  # MWT8          20240103
+(3, 1, 482,  0.0,  2.45E-03,  7.69E-03,  1.29E-02,  1.88E-02),  # MWT9          20240103
+(3, 1, 483,  0.0,  1.31E-02,  7.97E-02,  0.21    ,  0.56    ),  # MWT10         20240103
+(3, 1, 484,  0.0,  1.41E-06,  1.58E-05,  5.61E-05,  2.06E-04),  # MWT11         20240103
+(3, 1, 485,  0.0,  3.02E-04,  1.02E-03,  1.94E-03,  3.92E-03),  # MWT12         20240103
+# Specify CIT percentile thresholds:  region= 3, stable, incloud based on lt,mod,sev,ext percentiles= 0.0,98.00,99.50,99.90,99.99
+(3, 1, 486,  0.0,  1.59E-04,  3.65E-04,  4.77E-04,  5.34E-04),  # CONDHEAT      20240104
+(3, 1, 487,  0.0,  7.06E-02,  0.21    ,  0.40    ,  0.76    ),  # CLDGRADW      20240104
+(3, 1, 488,  0.0,  0.11    ,  0.80    ,   2.9    ,   17.    ),  # CLDWSQ        20240104
+(3, 1, 489,  0.0,  0.70    ,   5.0    ,   9.2    ,   9.6    ),  # CLDSIGW       20240104
+(3, 1, 490,  0.0,  3.37E-07,  1.18E-06,  1.84E-06,  2.22E-06),  # CLDDEFSQ      20240104
+(3, 1, 491,  0.0,  1.99E-02,  5.95E-02,  8.29E-02,  9.56E-02),  # CLDEDR        20240104
+(3, 1, 492,  0.0,  3.60E+05,  1.60E+06,  2.24E+06,  2.55E+06),  # CLDIWP        20240104
+(3, 1, 493,  0.0,  1.02E-04,  5.34E-04,  7.70E-04,  8.88E-04),  # CLDIFLX       20240104
+(3, 1, 494,  0.0,   3.0    ,   14.    ,   38.    ,   91.    ),  # CLDRTKE       20240104
+(3, 1, 495,  0.0,  5.89E-08,  3.47E-07,  1.08E-06,  2.96E-06),  # CLDF3D        20240104
+# Specify GTG percentile thresholds:  region= 3, stable, outcloud based on lt,mod,sev,ext percentiles= 0.0,98.00,99.50,99.90,99.99
+(3, 1, 496,  0.0,  0.13    ,  0.17    ,  0.21    ,  0.27    ),  # GTGDEF        20240103
+(3, 1, 497,  0.0,  0.14    ,  0.21    ,  0.26    ,  0.30    ),  # GTGMWT        20240103
+(3, 1, 498,  0.0,  0.13    ,  0.22    ,  0.27    ,  0.29    ),  # GTGCIT        20240104
+(3, 1, 499,  0.0,   0.0    ,   0.0    ,   0.0    ,   0.0    ),  # GTGMAX2 # No longer used
+(3, 1, 500,  0.0,  0.13    ,  0.19    ,  0.23    ,  0.29    ),  # GTGMAX3       20240103
+);
+#
+regionPDFfits = (
+# Specify diagnostic fit parameters: low-levels, stable ABL
+# Lognormal fitting: alpha=0.
+# ln(epsilon^(1/3)) = a + b ln(x)
+# fitparm1=<ln x>, fitparm2=SD[ln(x)]
+# index           a           b         fitparm1     fitparm2         x1            x2     <ln(edrclimo)> SD[ln(edrclimo)]  fitrmse
+# Specify CAT/LLT dignostic fit parameters:  region= 1, stable  , inoutcloud
+ (1, 1, 400,     2.943    ,  0.6108    ,  -8.420    ,  0.6548    ,  1.0000E-04,  5.0000E-03,  -2.20    ,  0.400    ,  1.0057E-01),  # Brown1        20240103
+ (1, 1, 401,   -0.5222    ,  0.6140    ,  -2.732    ,  0.6514    ,  1.0000E-02,   2.000    ,  -2.20    ,  0.400    ,  2.9937E-02),  # Brown2        20240103
+ (1, 1, 402,    -3.192    ,  0.5835    ,   1.700    ,  0.6855    ,   3.000    ,   1000.    ,  -2.20    ,  0.400    ,  1.6368E-01),  # CP            20240103
+ (1, 1, 403,     2.126    ,  0.3298    ,  -13.11    ,   1.213    ,  1.0000E-07,  2.0000E-04,  -2.20    ,  0.400    ,  1.6476E-02),  # Ellrod1       20240103
+ (1, 1, 404,     1.376    ,  0.2739    ,  -13.05    ,   1.460    ,  1.0000E-07,  2.0000E-04,  -2.20    ,  0.400    ,  8.8170E-03),  # Ellrod2       20240103
+ (1, 1, 405,    -2.183    ,  0.2376    , -7.2611E-02,   1.683    ,  5.0000E-03,   100.0    ,  -2.20    ,  0.400    ,  2.4347E-02),  # 1/Ri          20240103
+ (1, 1, 406,     2.171    ,  0.3367    ,  -12.98    ,   1.188    ,  1.0000E-07,  5.0000E-04,  -2.20    ,  0.400    ,  1.5736E-02),  # Ellrod3       20240103
+ (1, 1, 407,     2.093    ,  0.2585    ,  -16.61    ,   1.547    ,  1.0000E-09,  5.0000E-06,  -2.20    ,  0.400    ,  2.0388E-02),  # CCAT          20240103
+ (1, 1, 408,   -0.2606    ,  0.7651    ,  -2.535    ,  0.5228    ,  2.0000E-02,   1.000    ,  -2.20    ,  0.400    ,  1.4770E-01),  # MSEDR         20240103
+ (1, 1, 409,   -0.8999    ,  0.7713    ,  -1.686    ,  0.5186    ,  4.0000E-02,  0.4000    ,  -2.20    ,  0.400    ,  3.2783E-02),  # DTF3          20240103
+ (1, 1, 410,    0.5108    ,  0.1662    ,  -16.32    ,   2.407    ,  1.0000E-10,  1.0000E-04,  -2.20    ,  0.400    ,  7.3705E-03),  # Fth/Ri        20240103
+ (1, 1, 411,    0.3923    ,   1.140    ,  -2.275    ,  0.3510    ,  5.0000E-02,   1.000    ,  -2.20    ,  0.400    ,  4.1390E-01),  # PBLEDR        20240103
+ (1, 1, 412,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # Dutton # No fit
+ (1, 1, 413,   -0.6702    ,  0.6136    ,  -2.493    ,  0.6519    ,  2.0000E-02,   2.000    ,  -2.20    ,  0.400    ,  9.7394E-02),  # Endlich       20240103
+ (1, 1, 414,    -3.060    ,  0.2242    ,   3.834    ,   1.784    ,   1.000    ,  5.0000E+04,  -2.20    ,  0.400    ,  5.0649E-02),  # LAZ           20240103
+ (1, 1, 415,    0.5571    ,  0.4085    ,  -6.749    ,  0.9791    ,  1.0000E-05,  7.0000E-02,  -2.20    ,  0.400    ,  6.2978E-03),  # NGM1          20240103
+ (1, 1, 416,     4.769    ,  0.4944    ,  -14.10    ,  0.8090    ,  1.0000E-07,  5.0000E-05,  -2.20    ,  0.400    ,  5.6072E-02),  # -NGM2         20240103
+ (1, 1, 417,    0.7753    ,  0.1946    ,  -15.29    ,   2.055    ,  1.0000E-09,  1.0000E-03,  -2.20    ,  0.400    ,  1.0684E-02),  # SCHGW         20240103
+ (1, 1, 418,   -0.5245    ,  0.3860    ,  -4.341    ,   1.036    ,  5.0000E-04,  0.2000    ,  -2.20    ,  0.400    ,  3.9351E-02),  # VWS           20240103
+ (1, 1, 419,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.70    ,  0.760    , -9.9990E+03),  # TROPVWS # Do not use at low
+ (1, 1, 420,     1.888    ,  0.4296    ,  -9.518    ,  0.9312    ,  5.0000E-06,  1.0000E-03,  -2.20    ,  0.400    ,  2.5855E-02),  # HS            20240103
+ (1, 1, 421,     2.702    ,  0.2741    ,  -17.88    ,   1.459    ,  1.0000E-09,  1.0000E-06,  -2.20    ,  0.400    ,  1.0414E-02),  # STABADV       20240103
+ (1, 1, 422,     2.380    ,  0.2648    ,  -17.30    ,   1.511    ,  5.0000E-10,  1.0000E-04,  -2.20    ,  0.400    ,  1.9330E-02),  # DEFSQ         20240103
+ (1, 1, 423,     2.121    ,  0.4598    ,  -9.397    ,  0.8699    ,  5.0000E-06,  1.0000E-02,  -2.20    ,  0.400    ,  1.6329E-02),  # |VORTZ|       20240103
+ (1, 1, 424,     2.136    ,  0.4673    ,  -9.279    ,  0.8560    ,  5.0000E-06,  5.0000E-03,  -2.20    ,  0.400    ,  2.0874E-02),  # |DIV|         20240103
+ (1, 1, 425,    -2.275    ,  0.4330    ,  0.1738    ,  0.9238    ,  0.1000    ,   3.000    ,  -2.20    ,  0.400    ,  3.7629E-02),  # EGR           20240103
+ (1, 1, 426,    -3.183    ,  0.4564    ,   2.154    ,  0.8763    ,  0.2000    ,   500.0    ,  -2.20    ,  0.400    ,  2.6116E-02),  # iawind        20240103
+ (1, 1, 427,   -0.9776    ,  0.4532    ,  -2.697    ,  0.8827    ,  1.0000E-02,   5.000    ,  -2.20    ,  0.400    ,  9.5001E-02),  # AGI           20240103
+ (1, 1, 428,    -2.986    ,  0.2186    ,   3.593    ,   1.830    ,   1.000    ,  1.0000E+05,  -2.20    ,  0.400    ,  2.1603E-02),  # UBF/Ri        20240103
+ (1, 1, 429,    -2.239    ,  0.2755    ,  0.1406    ,   1.452    ,  2.0000E-02,   5.000    ,  -2.20    ,  0.400    ,  2.5037E-02),  # 1/SATRi       20240103
+ (1, 1, 430,    -1.439    ,  0.2834    ,  -2.686    ,   1.411    ,  1.0000E-03,   5.000    ,  -2.20    ,  0.400    ,  2.6518E-02),  # PVGRAD        20240103
+ (1, 1, 431,   -0.2934    ,  0.4895    ,  -3.895    ,  0.8171    ,  3.0000E-03,  0.3000    ,  -2.20    ,  0.400    ,  7.5523E-02),  # EDRRCH        20240103
+ (1, 1, 432,   -0.3949    ,  0.5972    ,  -3.023    ,  0.6698    ,  1.0000E-03,  0.5000    ,  -2.20    ,  0.400    ,  2.4315E-02),  # EDR           20240103
+ (1, 1, 433,   -0.5866    ,  0.5248    ,  -3.074    ,  0.7622    ,  1.0000E-03,  0.6000    ,  -2.20    ,  0.400    ,  1.1020E-02),  # EDRLL         20240103
+ (1, 1, 434,   -0.4045    ,  0.2529    ,  -7.098    ,   1.581    ,  1.0000E-05,  0.5000    ,  -2.20    ,  0.400    ,  1.5114E-02),  # CTSQ          20240103
+ (1, 1, 435,    -2.402    ,  0.2976    ,  0.6776    ,   1.344    ,  2.0000E-02,   10.00    ,  -2.20    ,  0.400    ,  2.1899E-02),  # 1/RiTW        20240103
+ (1, 1, 436,     5.588    ,  0.7639    ,  -10.19    ,  0.5236    ,  1.0000E-05,  1.0000E-03,  -2.20    ,  0.400    ,  8.5614E-02),  # LHFK          20240103
+ (1, 1, 437,    7.2665E-02,  0.2236    ,  -10.17    ,   1.789    ,  5.0000E-07,  1.0000E-02,  -2.20    ,  0.400    ,  1.9708E-02),  # LHFK/Ri       20240103
+ (1, 1, 438,     2.145    ,  0.4307    ,  -10.09    ,  0.9287    ,  2.0000E-06,  1.0000E-03,  -2.20    ,  0.400    ,  1.8600E-02),  # TEMPG         20240103
+ (1, 1, 439,   -0.9931    ,  0.1663    ,  -7.258    ,   2.406    ,  1.0000E-06,   1.000    ,  -2.20    ,  0.400    ,  4.0151E-03),  # CTSQ/Ri       20240103
+ (1, 1, 440,   -0.4021    ,  0.2066    ,  -8.701    ,   1.936    ,  5.0000E-07,  5.0000E-02,  -2.20    ,  0.400    ,  8.9102E-03),  # Brown1/Ri     20240103
+ (1, 1, 441,    -2.576    ,  0.1885    ,   1.994    ,   2.122    ,  0.1000    ,  1.0000E+04,  -2.20    ,  0.400    ,  1.2945E-02),  # iawind/Ri     20240103
+ (1, 1, 442,   -0.9176    ,  0.1879    ,  -6.826    ,   2.129    ,  5.0000E-06,   1.000    ,  -2.20    ,  0.400    ,  8.5065E-03),  # NGM1/Ri       20240103
+ (1, 1, 443,    0.3003    ,  0.1692    ,  -14.77    ,   2.363    ,  1.0000E-09,  1.0000E-04,  -2.20    ,  0.400    ,  1.9491E-02),  # NGM2/Ri       20240103
+ (1, 1, 444,   -0.2046    ,  0.1306    ,  -15.28    ,   3.064    ,  1.0000E-10,  1.0000E-02,  -2.20    ,  0.400    ,  3.2255E-03),  # SCHGW/Ri      20240103
+ (1, 1, 445,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.70    ,  0.760    , -9.9990E+03),  # TROPG/Z # Do not use at low
+ (1, 1, 446,    -5.537    ,   1.385    ,   2.409    ,  0.2887    ,   6.000    ,   50.00    ,  -2.20    ,  0.400    ,  3.2319E-01),  # SPEED         20240103
+ (1, 1, 447,     1.124    ,  0.1729    ,  -19.23    ,   2.314    ,  1.0000E-10,  1.0000E-05,  -2.20    ,  0.400    ,  1.8683E-02),  # -Stone        20240103
+ (1, 1, 448,     2.918    ,  0.2974    ,  -17.21    ,   1.345    ,  1.0000E-09,  5.0000E-05,  -2.20    ,  0.400    ,  1.1319E-02),  # -NVA          20240103
+ (1, 1, 449,     1.597    ,  0.1515    ,  -25.06    ,   2.641    ,  1.0000E-14,  1.0000E-07,  -2.20    ,  0.400    ,  6.3994E-03),  # NCSU1         20240103
+ (1, 1, 450,    0.8219    ,  0.1452    ,  -20.81    ,   2.754    ,  1.0000E-13,  1.0000E-06,  -2.20    ,  0.400    ,  1.1431E-02),  # NCSU2/Ri      20240103
+ (1, 1, 451,   -0.1704    ,  0.4920    ,  -4.126    ,  0.8131    ,  2.0000E-03,  0.2000    ,  -2.20    ,  0.400    ,  6.6494E-02),  # EDRLUN        20240103
+ (1, 1, 452,   -0.9478    ,  0.1957    ,  -6.399    ,   2.044    ,  5.0000E-05,   10.00    ,  -2.20    ,  0.400    ,  1.9654E-02),  # wsq           20240103
+ (1, 1, 453,    -1.063    ,  0.1707    ,  -6.662    ,   2.343    ,  1.0000E-06,   100.0    ,  -2.20    ,  0.400    ,  6.9025E-03),  # wsq/Ri        20240103
+ (1, 1, 454,    -1.066    ,  0.1756    ,  -6.458    ,   2.278    ,  1.0000E-06,   20.00    ,  -2.20    ,  0.400    ,  9.2148E-03),  # EDR/Ri        20240103
+ (1, 1, 455,    -1.105    ,  0.1699    ,  -6.445    ,   2.354    ,  1.0000E-06,   100.0    ,  -2.20    ,  0.400    ,  7.5966E-03),  # EDRLL/Ri      20240103
+ (1, 1, 456,    -1.376    ,  0.1794    ,  -4.593    ,   2.230    ,  2.0000E-05,   5.000    ,  -2.20    ,  0.400    ,  1.4725E-02),  # SIGW          20240103
+ (1, 1, 457,    -1.476    ,  0.1616    ,  -4.482    ,   2.476    ,  2.0000E-05,   20.00    ,  -2.20    ,  0.400    ,  8.7899E-03),  # SIGW/Ri       20240103
+ (1, 1, 458,     1.201    ,  0.1721    ,  -19.77    ,   2.325    ,  1.0000E-12,  2.0000E-06,  -2.20    ,  0.400    ,  5.4211E-03),  # F2D/Ri        20240103
+ (1, 1, 459,    0.7514    ,  0.1566    ,  -18.84    ,   2.554    ,  1.0000E-10,  5.0000E-05,  -2.20    ,  0.400    ,  1.6098E-02),  # F2DTW/Ri      20240103
+ (1, 1, 460,     1.059    ,  0.1658    ,  -19.66    ,   2.413    ,  1.0000E-12,  2.0000E-06,  -2.20    ,  0.400    ,  5.3259E-03),  # F3D/Ri        20240103
+ (1, 1, 461,     2.527    ,  0.2426    ,  -19.48    ,   1.649    ,  1.0000E-10,  5.0000E-06,  -2.20    ,  0.400    ,  1.9476E-02),  # F3D           20240103
+ (1, 1, 462,     1.133    ,  0.4147    ,  -8.036    ,  0.9646    ,  5.0000E-05,  1.0000E-02,  -2.20    ,  0.400    ,  4.8193E-02),  # |THP/THB|     20240103
+ (1, 1, 463,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.70    ,  0.760    , -9.9990E+03),  # EDRM  (ARPEGE and ARWRF ONLY)
+ (1, 1, 464,    -1.186    ,  0.2189    ,  -4.633    ,   1.827    ,  5.0000E-05,   5.000    ,  -2.20    ,  0.400    ,  2.2453E-02),  # SEDR          20240103
+ (1, 1, 465,    -1.727    ,  0.4894    , -0.9676    ,  0.8174    ,  0.1000    ,   10.00    ,  -2.20    ,  0.400    ,  7.7343E-01),  # SGSTKE        20240103
+ (1, 1, 466,    -1.760    ,  0.1006    ,  -4.373    ,   3.976    ,  5.0000E-03,   1000.    ,  -2.20    ,  0.400    ,  2.4708E-02),  # SGSTKE/Ri     20240103
+ (1, 1, 467,    -1.874    ,  0.3088    ,  -1.056    ,   1.295    ,  5.0000E-02,   100.0    ,  -2.20    ,  0.400    ,  6.2941E-02),  # RTKE          20240103
+ (1, 1, 468,    -1.853    ,  0.1780    ,  -1.951    ,   2.247    ,  1.0000E-04,  1.0000E+04,  -2.20    ,  0.400    ,  9.9877E-03),  # RTKE/Ri       20240103
+ (1, 1, 469,    -2.918    ,  0.4410    ,   1.628    ,  0.9070    ,  0.1000    ,   200.0    ,  -2.20    ,  0.400    ,  1.2506E-02),  # VARE          20240103
+ (1, 1, 470,    -2.489    ,  0.1912    ,   1.511    ,   2.092    ,  5.0000E-02,   5000.    ,  -2.20    ,  0.400    ,  1.1318E-02),  # VARE/Ri       20240103
+# Specify MWT dignostic fit parameters:  region= 1, stable, outcloud  
+ (1, 1, 471,    -1.203    ,  0.1488    ,  -6.697    ,   2.688    ,  1.0000E-05,   100.0    ,  -2.20    ,  0.400    ,  1.1336E-02),  # MWT1          20240103
+ (1, 1, 472,   -0.7731    ,  0.2022    ,  -7.058    ,   1.979    ,  1.0000E-05,  0.5000    ,  -2.20    ,  0.400    ,  6.6826E-03),  # MWT2          20240103
+ (1, 1, 473,     1.751    ,  0.2023    ,  -19.53    ,   1.978    ,  1.0000E-10,  5.0000E-05,  -2.20    ,  0.400    ,  1.1733E-02),  # MWT3          20240103
+ (1, 1, 474,    -2.672    ,  0.3081    ,   1.533    ,   1.298    ,   1.000    ,   500.0    ,  -2.20    ,  0.400    ,  3.8691E-02),  # MWT4          20240103
+ (1, 1, 475,   -0.4110    ,  0.3956    ,  -4.523    ,   1.011    ,  1.0000E-03,   2.000    ,  -2.20    ,  0.400    ,  5.0963E-02),  # MWT5          20240103
+ (1, 1, 476,     1.411    ,  0.2076    ,  -17.40    ,   1.927    ,  1.0000E-09,  5.0000E-05,  -2.20    ,  0.400    ,  1.8756E-02),  # MWT13         20240103
+ (1, 1, 477,    0.6845    ,  0.2964    ,  -9.733    ,   1.350    ,  7.0000E-06,  1.0000E-02,  -2.20    ,  0.400    ,  3.5521E-02),  # MWT14         20240103
+ (1, 1, 478,    -1.505    ,  0.3268    ,  -2.127    ,   1.224    ,  0.1000    ,   10.00    ,  -2.20    ,  0.400    ,  6.5969E-02),  # TKE_GWB       20240103
+ (1, 1, 479,    0.7037    ,  0.2879    ,  -10.09    ,   1.389    ,  2.0000E-06,  2.0000E-02,  -2.20    ,  0.400    ,  2.1369E-02),  # MWT6          20240103
+ (1, 1, 480,    -1.555    ,  0.1572    ,  -4.101    ,   2.545    ,  5.0000E-04,   20.00    ,  -2.20    ,  0.400    ,  5.0605E-03),  # MWT7          20240103
+ (1, 1, 481,     1.072    ,  0.2379    ,  -13.75    ,   1.682    ,  5.0000E-08,  5.0000E-03,  -2.20    ,  0.400    ,  2.1214E-02),  # MWT8          20240103
+ (1, 1, 482,    0.3291    ,  0.3010    ,  -8.401    ,   1.329    ,  2.0000E-05,  3.0000E-02,  -2.20    ,  0.400    ,  3.9160E-02),  # MWT9          20240103
+ (1, 1, 483,   -0.7825    ,  0.2286    ,  -6.200    ,   1.749    ,  2.0000E-04,  0.5000    ,  -2.20    ,  0.400    ,  8.3199E-03),  # MWT10         20240103
+ (1, 1, 484,    0.2557    ,  0.1619    ,  -15.17    ,   2.471    ,  1.0000E-08,  1.0000E-02,  -2.20    ,  0.400    ,  1.6810E-02),  # MWT11         20240103
+ (1, 1, 485,    0.9377    ,  0.2922    ,  -10.74    ,   1.369    ,  2.0000E-06,  5.0000E-03,  -2.20    ,  0.400    ,  1.8348E-02),  # MWT12         20240103
+# Specify CIT dignostic fit parameters:  region= 1, stable, incloud   
+ (1, 1, 486,    0.8315    ,  0.3869    ,  -7.836    ,   1.034    ,  5.0000E-05,  2.0000E-02,  -2.20    ,  0.400    ,  3.4415E-02),  # CONDHEAT      20240104
+ (1, 1, 487,   -0.4944    ,  0.3967    ,  -4.300    ,   1.008    ,  1.0000E-03,   1.000    ,  -2.20    ,  0.400    ,  1.2065E-01),  # CLDGRADW      20240104
+ (1, 1, 488,    -1.015    ,  0.1859    ,  -6.373    ,   2.152    ,  1.0000E-05,   10.00    ,  -2.20    ,  0.400    ,  1.2390E-02),  # CLDWSQ        20240104
+ (1, 1, 489,    -1.490    ,  0.1785    ,  -3.975    ,   2.241    ,  2.0000E-05,   5.000    ,  -2.20    ,  0.400    ,  2.0116E-02),  # CLDSIGW       20240104
+ (1, 1, 490,     1.929    ,  0.2356    ,  -17.53    ,   1.698    ,  1.0000E-09,  2.0000E-06,  -2.20    ,  0.400    ,  3.9968E-03),  # CLDDEFSQ      20240104
+ (1, 1, 491,   -0.4896    ,  0.2860    ,  -5.980    ,   1.398    ,  2.0000E-04,  0.3000    ,  -2.20    ,  0.400    ,  1.5657E-02),  # CLDEDR        20240104
+ (1, 1, 492,    -7.651    ,  0.4941    ,   11.03    ,  0.8096    ,  5.0000E+04,  1.0000E+06,  -2.20    ,  0.400    ,  1.3148E-01),  # CLDIWP        20240104
+ (1, 1, 493,     1.279    ,  0.3586    ,  -9.702    ,   1.116    ,  1.0000E-05,  5.0000E-03,  -2.20    ,  0.400    ,  1.1966E-01),  # CLDIFLX       20240104
+ (1, 1, 494,    -1.872    ,  0.2201    ,  -1.490    ,   1.817    ,  1.0000E-02,   25.00    ,  -2.20    ,  0.400    ,  1.0268E-02),  # CLDRTKE       20240104
+ (1, 1, 495,     3.550    ,  0.2941    ,  -19.55    ,   1.360    ,  5.0000E-10,  1.0000E-06,  -2.20    ,  0.400    ,  3.0495E-02),  # CLDF3D        20240104
+# Specify GTG diagnostic fit parameters:  region= 1, stable  , inoutcloud
+ (1, 1, 496,   -0.1462    ,   1.018    ,  -2.018    ,  0.3930    ,  4.0000E-02,  0.5000    ,  -2.20    ,  0.400    ,  1.3349E-01),  # GTGDEF        20240103
+ (1, 1, 497,    0.4909    ,   1.098    ,  -2.450    ,  0.3642    ,  5.0000E-02,  0.5000    ,  -2.20    ,  0.400    ,  1.2419E-01),  # GTGMWT        20240103
+ (1, 1, 498,    0.7607    ,   1.231    ,  -2.405    ,  0.3249    ,  5.0000E-02,  0.4000    ,  -2.20    ,  0.400    ,  2.6315E-01),  # GTGCIT        20240104
+ (1, 1, 499,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.20    ,  0.40     , -9.9990E+03),  # GTGMAX2 # No longer used
+ (1, 1, 500,   -0.1452    ,   1.020    ,  -2.015    ,  0.3923    ,  4.0000E-02,  0.5000    ,  -2.20    ,  0.400    ,  1.3263E-01),  # GTGMAX3       20240103
+# Specify diagnostic fit parameters: low-levels, unstable ABL
+# LogWeibull fit: alpha=25.
+# ln(epsilon^(1/3)) = a + b (ln(x)-alpha)
+# fitparm1=lambda, fitparm2=k  (MunozEsparza&Sharman JAMC 2018)
+# Use insitu fits 0-11000 ft, heartbeats+triggered: avg=-2.20, sd=0.32
+# index           a            b       fitparm1       fitparm2         x1           x2   <ln(edrclimo)> SD[ln(edrclimo)]  fitrmse
+# Specify CAT/LLT dignostic fit parameters:  region= 1, stable  , outcloud  
+ (1, 2, 400,     4.107    ,  0.1807    ,  -34.09    ,  -26.04    ,  8.0000E-05,  3.0000E-03,  -2.20    ,  0.320    ,  1.4844E-01),  # Brown1        20240103
+ (1, 2, 401,     4.069    ,  0.2160    ,  -28.34    ,  -25.89    ,  2.0000E-02,  0.8000    ,  -2.20    ,  0.320    ,  1.0933E-01),  # Brown2        20240103
+ (1, 2, 402,     1.749    ,  0.1603    ,  -23.71    ,  -16.61    ,  0.5000    ,   500.0    ,  -2.20    ,  0.320    ,  6.3620E-02),  # CP            20240103
+ (1, 2, 403,     1.283    ,  8.3291E-02,  -40.06    ,  -14.75    ,  3.0000E-07,  1.0000E-04,  -2.20    ,  0.320    ,  8.3457E-02),  # Ellrod1       20240103
+ (1, 2, 404,     1.293    ,  8.3887E-02,  -39.89    ,  -14.79    ,  3.0000E-07,  1.0000E-04,  -2.20    ,  0.320    ,  7.3955E-02),  # Ellrod2       20240103
+ (1, 2, 405,     1.198    ,  0.1216    ,  -26.74    ,  -14.41    ,  5.0000E-02,   2.000    ,  -2.20    ,  0.320    ,  1.7286E-02),  # 1/Ri          20240103
+ (1, 2, 406,     1.374    ,  8.5965E-02,  -39.87    ,  -15.11    ,  3.0000E-07,  1.0000E-04,  -2.20    ,  0.320    ,  8.6830E-02),  # Ellrod3       20240103
+ (1, 2, 407,     1.875    ,  9.1967E-02,  -42.71    ,  -17.11    ,  1.0000E-10,  5.0000E-06,  -2.20    ,  0.320    ,  6.2840E-02),  # CCAT          20240103
+ (1, 2, 408,     11.17    ,  0.4937    ,  -26.79    ,  -54.34    ,  2.0000E-02,  0.5000    ,  -2.20    ,  0.320    ,  1.7025E-01),  # MSEDR         20240103
+ (1, 2, 409,     8.798    ,  0.4027    ,  -26.95    ,  -44.83    ,  6.0000E-02,  0.3000    ,  -2.20    ,  0.320    ,  3.3429E-02),  # DTF3          20240103
+ (1, 2, 410,   -0.8118    ,  3.0356E-02,  -40.91    ,  -6.432    ,  1.0000E-08,  1.0000E-02,  -2.20    ,  0.320    ,  2.4529E-02),  # Fth/Ri        20240103
+ (1, 2, 411,     5.255    ,  0.2622    ,  -27.88    ,  -30.63    ,  2.0000E-02,  0.5000    ,  -2.20    ,  0.320    ,  1.3400E-01),  # PBLEDR        20240103
+ (1, 2, 412,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # Dutton # No fit
+ (1, 2, 413,     4.407    ,  0.2369    ,  -27.27    ,  -27.24    ,  5.0000E-03,   2.000    ,  -2.20    ,  0.320    ,  4.8999E-02),  # Endlich       20240103
+ (1, 2, 414,    -1.198    ,  3.7851E-02,  -22.69    ,  -4.937    ,  1.0000E-02,  2.0000E+04,  -2.20    ,  0.320    ,  1.9955E-02),  # LAZ           20240103
+ (1, 2, 415,     2.073    ,  0.1273    ,  -32.41    ,  -17.90    ,  2.0000E-04,  0.1000    ,  -2.20    ,  0.320    ,  9.7233E-02),  # NGM1          20240103
+ (1, 2, 416,     5.129    ,  0.1852    ,  -38.78    ,  -30.13    ,  5.0000E-11,  2.0000E-05,  -2.20    ,  0.320    ,  4.5692E-02),  # -NGM2         20240103
+ (1, 2, 417,   -6.3203E-02,  4.6007E-02,  -43.25    ,  -9.385    ,  5.0000E-10,  1.0000E-04,  -2.20    ,  0.320    ,  5.0046E-02),  # SCHGW         20240103
+ (1, 2, 418,     1.560    ,  0.1182    ,  -30.56    ,  -15.85    ,  8.0000E-04,  0.2000    ,  -2.20    ,  0.320    ,  9.0089E-02),  # VWS           20240103
+ (1, 2, 419,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.20    ,  0.320    , -9.9990E+03),  # TROPVWS # Do not use at low
+ (1, 2, 420,     2.927    ,  0.1412    ,  -35.28    ,  -21.32    ,  1.0000E-05,  1.5000E-03,  -2.20    ,  0.320    ,  1.1005E-01),  # HS            20240103
+ (1, 2, 421,     2.212    ,  9.6555E-02,  -44.18    ,  -18.46    ,  1.0000E-09,  1.0000E-06,  -2.20    ,  0.320    ,  6.3290E-02),  # STABADV       20240103
+ (1, 2, 422,    0.8965    ,  6.6967E-02,  -44.04    ,  -13.20    ,  5.0000E-09,  1.0000E-05,  -2.20    ,  0.320    ,  7.6690E-02),  # DEFSQ         20240103
+ (1, 2, 423,     3.828    ,  0.1694    ,  -34.72    ,  -24.92    ,  2.0000E-05,  1.0000E-02,  -2.20    ,  0.320    ,  9.5646E-02),  # |VORTZ|       20240103
+ (1, 2, 424,     3.096    ,  0.1479    ,  -34.81    ,  -21.99    ,  5.0000E-05,  5.0000E-03,  -2.20    ,  0.320    ,  1.1263E-01),  # |DIV|         20240103
+ (1, 2, 425,     14.31    ,  0.6628    ,  -24.69    ,  -66.91    ,  0.2000    ,   5.000    ,  -2.20    ,  0.320    ,  3.1050E-01),  # EGR           20240103
+ (1, 2, 426,     1.050    ,  0.1320    ,  -23.51    ,  -13.82    ,   2.000    ,   300.0    ,  -2.20    ,  0.320    ,  1.1088E-01),  # iawind        20240103
+ (1, 2, 427,     1.886    ,  0.1397    ,  -28.19    ,  -17.15    ,  1.0000E-05,   5.000    ,  -2.20    ,  0.320    ,  1.3150E-02),  # AGI           20240103
+ (1, 2, 428,    0.1298    ,  9.3549E-02,  -23.33    ,  -10.15    ,  0.5000    ,   100.0    ,  -2.20    ,  0.320    ,  1.9921E-02),  # UBF/Ri        20240103
+ (1, 2, 429,    0.9187    ,  0.1102    ,  -26.97    ,  -13.29    ,  5.0000E-02,   4.000    ,  -2.20    ,  0.320    ,  3.0037E-02),  # 1/SATRi       20240103
+ (1, 2, 430,    0.2403    ,  7.8201E-02,  -29.32    ,  -10.59    ,  7.0000E-03,   5.000    ,  -2.20    ,  0.320    ,  8.7218E-02),  # PVGRAD        20240103
+ (1, 2, 431,     4.211    ,  0.2169    ,  -28.88    ,  -26.45    ,  1.0000E-04,  0.3000    ,  -2.20    ,  0.320    ,  5.6040E-02),  # EDRRCH        20240103
+ (1, 2, 432,     4.542    ,  0.2329    ,  -28.32    ,  -27.78    ,  2.0000E-02,  0.6000    ,  -2.20    ,  0.320    ,  1.1643E-01),  # EDR           20240103
+ (1, 2, 433,     3.564    ,  0.1980    ,  -28.38    ,  -23.87    ,  2.0000E-02,  0.8000    ,  -2.20    ,  0.320    ,  1.0819E-01),  # EDRLL         20240103
+ (1, 2, 434,    0.5931    ,  8.0851E-02,  -32.73    ,  -11.99    ,  5.0000E-05,  0.1000    ,  -2.20    ,  0.320    ,  5.2784E-02),  # CTSQ          20240103
+ (1, 2, 435,     1.747    ,  0.1576    ,  -24.11    ,  -16.60    ,  0.5000    ,   20.00    ,  -2.20    ,  0.320    ,  4.4160E-02),  # 1/RiTW        20240103
+ (1, 2, 436,     6.404    ,  0.2375    ,  -35.62    ,  -35.24    ,  1.0000E-05,  2.0000E-04,  -2.20    ,  0.320    ,  2.1026E-01),  # LHFK          20240103
+ (1, 2, 437,    0.5246    ,  7.9191E-02,  -32.55    ,  -11.72    ,  1.0000E-07,   1.000    ,  -2.20    ,  0.320    ,  7.3552E-02),  # LHFK/Ri       20240103
+ (1, 2, 438,     3.937    ,  0.1690    ,  -35.45    ,  -25.36    ,  1.0000E-05,  5.0000E-04,  -2.20    ,  0.320    ,  1.2107E-01),  # TEMPG         20240103
+ (1, 2, 439,    9.2141E-02,  6.2953E-02,  -34.07    ,  -10.00    ,  5.0000E-06,  1.0000E-02,  -2.20    ,  0.320    ,  1.5136E-02),  # CTSQ/Ri       20240103
+ (1, 2, 440,    0.6271    ,  7.4952E-02,  -35.76    ,  -12.13    ,  2.0000E-06,  2.0000E-03,  -2.20    ,  0.320    ,  2.4479E-02),  # Brown1/Ri     20240103
+ (1, 2, 441,   -0.4900    ,  6.2310E-02,  -25.08    ,  -7.696    ,  8.0000E-02,   100.0    ,  -2.20    ,  0.320    ,  2.0618E-02),  # iawind/Ri     20240103
+ (1, 2, 442,    0.3830    ,  7.1711E-02,  -33.97    ,  -11.16    ,  1.0000E-05,  1.0000E-02,  -2.20    ,  0.320    ,  1.5497E-02),  # NGM1/Ri       20240103
+ (1, 2, 443,    0.6569    ,  6.5392E-02,  -41.44    ,  -12.25    ,  1.0000E-08,  1.0000E-05,  -2.20    ,  0.320    ,  1.5131E-02),  # NGM2/Ri       20240103
+ (1, 2, 444,   -0.9732    ,  2.5842E-02,  -41.85    ,  -5.803    ,  1.0000E-10,   1.000    ,  -2.20    ,  0.320    ,  2.7819E-02),  # SCHGW/Ri      20240103
+ (1, 2, 445,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.20    ,  0.320    , -9.9990E+03),  # TROPG/Z # Do not use at low
+ (1, 2, 446,     5.847    ,  0.3439    ,  -22.98    ,  -33.01    ,   1.000    ,   40.00    ,  -2.20    ,  0.320    ,  4.9996E-02),  # SPEED         20230124
+ (1, 2, 447,    0.7417    ,  6.0355E-02,  -46.30    ,  -12.59    ,  1.0000E-10,  1.0000E-07,  -2.20    ,  0.320    ,  1.3150E-02),  # -Stone        20240103
+ (1, 2, 448,     2.149    ,  9.7848E-02,  -42.95    ,  -18.21    ,  5.0000E-09,  1.0000E-05,  -2.20    ,  0.320    ,  6.5424E-02),  # -NVA          20240103
+ (1, 2, 449,   -0.1531    ,  3.8355E-02,  -49.53    ,  -9.028    ,  5.0000E-14,  5.0000E-07,  -2.20    ,  0.320    ,  2.7194E-02),  # NCSU1         20240103
+ (1, 2, 450,   -0.4001    ,  3.7420E-02,  -44.17    ,  -8.051    ,  5.0000E-12,  1.0000E-04,  -2.20    ,  0.320    ,  3.0019E-02),  # NCSU2/Ri      20240103
+ (1, 2, 451,     4.030    ,  0.2075    ,  -29.31    ,  -25.73    ,  1.0000E-04,  0.2000    ,  -2.20    ,  0.320    ,  3.7299E-02),  # EDRLUN        20240103
+ (1, 2, 452,   -0.2985    ,  5.5212E-02,  -31.78    ,  -8.452    ,  5.0000E-04,   10.00    ,  -2.20    ,  0.320    ,  4.9427E-02),  # wsq           20240103
+ (1, 2, 453,    -1.049    ,  3.4132E-02,  -29.49    ,  -5.511    ,  5.0000E-06,   1000.    ,  -2.20    ,  0.320    ,  3.1005E-02),  # wsq/Ri        20240103
+ (1, 2, 454,   -0.1818    ,  5.6128E-02,  -33.34    ,  -8.914    ,  5.0000E-06,  5.0000E-02,  -2.20    ,  0.320    ,  1.9742E-02),  # EDR/Ri        20240103
+ (1, 2, 455,   -0.2538    ,  5.4150E-02,  -33.22    ,  -8.629    ,  5.0000E-06,  5.0000E-02,  -2.20    ,  0.320    ,  1.9223E-02),  # EDRLL/Ri      20240103
+ (1, 2, 456,     1.200    ,  0.1184    ,  -27.47    ,  -14.41    ,  1.0000E-06,   5.000    ,  -2.20    ,  0.320    ,  6.1755E-02),  # SIGW          20240103
+ (1, 2, 457,    -1.037    ,  3.7962E-02,  -26.80    ,  -5.554    ,  1.0000E-05,  1.0000E+04,  -2.20    ,  0.320    ,  3.1680E-02),  # SIGW/Ri       20240103
+ (1, 2, 458,     1.109    ,  6.8699E-02,  -46.02    ,  -14.05    ,  5.0000E-12,  5.0000E-08,  -2.20    ,  0.320    ,  2.1616E-02),  # F2D/Ri        20240103
+ (1, 2, 459,     2.463    ,  9.9421E-02,  -45.43    ,  -19.46    ,  5.0000E-12,  5.0000E-08,  -2.20    ,  0.320    ,  2.9064E-02),  # F2DTW/Ri      20240103
+ (1, 2, 460,    0.9509    ,  6.4813E-02,  -46.35    ,  -13.42    ,  5.0000E-12,  5.0000E-08,  -2.20    ,  0.320    ,  2.3305E-02),  # F3D/Ri        20240103
+ (1, 2, 461,     1.392    ,  7.5500E-02,  -45.64    ,  -15.18    ,  5.0000E-10,  5.0000E-06,  -2.20    ,  0.320    ,  7.5024E-02),  # F3D           20240103
+ (1, 2, 462,     1.904    ,  0.1178    ,  -33.60    ,  -17.23    ,  2.0000E-04,  1.0000E-02,  -2.20    ,  0.320    ,  7.8445E-02),  # |THP/THB|     20240103
+ (1, 2, 463,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.20    ,  0.320    , -9.9990E+03),  # EDRM  (ARPEGE and ARWRF ONLY)
+ (1, 2, 464,     1.327    ,  0.1126    ,  -30.02    ,  -14.92    ,  1.0000E-04,  0.1000    ,  -2.20    ,  0.320    ,  8.7077E-03),  # SEDR          20240103
+ (1, 2, 465,     6.227    ,  0.3347    ,  -24.75    ,  -34.53    ,  0.1500    ,   10.00    ,  -2.20    ,  0.320    ,  3.9678E-01),  # SGSTKE        20240103
+ (1, 2, 466,   -0.8350    ,  4.2270E-02,  -28.84    ,  -6.342    ,  0.1500    ,   10.00    ,  -2.20    ,  0.320    ,  5.4955E-03),  # SGSTKE/Ri     20240103
+ (1, 2, 467,   -9.2353E-02,  7.2209E-02,  -27.15    ,  -9.269    ,  5.0000E-03,   50.00    ,  -2.20    ,  0.320    ,  5.6971E-02),  # RTKE          20240103
+ (1, 2, 468,    -1.016    ,  4.2413E-02,  -24.48    ,  -5.636    ,  1.0000E-03,  5.0000E+04,  -2.20    ,  0.320    ,  3.3749E-02),  # RTKE/Ri       20240103
+ (1, 2, 469,    0.8092    ,  0.1184    ,  -24.17    ,  -12.86    ,  0.6000    ,   100.0    ,  -2.20    ,  0.320    ,  1.0625E-01),  # VARE          20240103
+ (1, 2, 470,   -0.2701    ,  7.0554E-02,  -25.27    ,  -8.565    ,  1.0000E-02,   50.00    ,  -2.20    ,  0.320    ,  2.0581E-02),  # VARE/Ri       20240103
+# Specify MWT dignostic fit parameters:  region= 1, unstable, outcloud  
+ (1, 2, 471,   -0.5230    ,  4.9498E-02,  -30.91    ,  -7.566    ,  2.0000E-05,   100.0    ,  -2.20    ,  0.320    ,  2.7458E-02),  # MWT1          20240103
+ (1, 2, 472,   -3.8488E-02,  6.0767E-02,  -33.15    ,  -9.483    ,  1.0000E-04,   100.0    ,  -2.20    ,  0.320    ,  5.7268E-02),  # MWT2          20240103
+ (1, 2, 473,     1.209    ,  7.2342E-02,  -45.09    ,  -14.45    ,  1.0000E-10,  1.0000E-05,  -2.20    ,  0.320    ,  4.5182E-02),  # MWT3          20240103
+ (1, 2, 474,    9.0089E-02,  8.9101E-02,  -24.05    ,  -9.993    ,  0.1000    ,   500.0    ,  -2.20    ,  0.320    ,  4.7652E-02),  # MWT4          20240103
+ (1, 2, 475,     1.747    ,  0.1279    ,  -29.72    ,  -16.60    ,  1.0000E-03,   1.000    ,  -2.20    ,  0.320    ,  3.5827E-02),  # MWT5          20240103
+ (1, 2, 476,     1.227    ,  7.6767E-02,  -42.73    ,  -14.52    ,  1.0000E-09,  1.0000E-04,  -2.20    ,  0.320    ,  3.3448E-02),  # MWT13         20240103
+ (1, 2, 477,     1.957    ,  0.1156    ,  -34.70    ,  -17.44    ,  1.0000E-05,  5.0000E-02,  -2.20    ,  0.320    ,  4.1604E-02),  # MWT14         20240103
+ (1, 2, 478,     1.897    ,  0.1546    ,  -25.55    ,  -17.20    ,  1.0000E-04,   10.00    ,  -2.20    ,  0.320    ,  6.2808E-02),  # TKE_GWB       20240103
+ (1, 2, 479,     2.665    ,  0.1356    ,  -34.79    ,  -20.27    ,  1.0000E-05,  5.0000E-02,  -2.20    ,  0.320    ,  4.2694E-02),  # MWT6          20240103
+ (1, 2, 480,   -6.4975E-02,  7.1345E-02,  -27.86    ,  -9.377    ,  5.0000E-03,  1.0000E+04,  -2.20    ,  0.320    ,  2.4238E-02),  # MWT7          20240103
+ (1, 2, 481,    0.8090    ,  7.1324E-02,  -40.13    ,  -12.85    ,  1.0000E-07,  5.0000E-04,  -2.20    ,  0.320    ,  4.2459E-02),  # MWT8          20240103
+ (1, 2, 482,     2.033    ,  0.1230    ,  -33.23    ,  -17.74    ,  2.0000E-05,  3.0000E-02,  -2.20    ,  0.320    ,  3.7076E-02),  # MWT9          20240103
+ (1, 2, 483,    0.4393    ,  7.8388E-02,  -31.79    ,  -11.38    ,  1.0000E-04,   1.000    ,  -2.20    ,  0.320    ,  4.8983E-02),  # MWT10         20240103
+ (1, 2, 484,   -0.5589    ,  3.4797E-02,  -42.94    ,  -7.425    ,  1.0000E-09,  1.0000E-03,  -2.20    ,  0.320    ,  4.0775E-02),  # MWT11         20240103
+ (1, 2, 485,     1.834    ,  0.1082    ,  -35.91    ,  -16.95    ,  5.0000E-06,  1.0000E-02,  -2.20    ,  0.320    ,  6.0747E-02),  # MWT12         20240103
+# Specify CIT dignostic fit parameters:  region= 1, unstable, incloud   
+ (1, 2, 486,     1.623    ,  0.1093    ,  -33.30    ,  -13.05    ,  2.0000E-05,  5.0000E-02,  -2.20    ,  0.400    ,  7.3188E-02),  # CONDHEAT      20240104
+ (1, 2, 487,     4.867    ,  0.2436    ,  -28.26    ,  -23.42    ,  1.0000E-02,   1.500    ,  -2.20    ,  0.400    ,  1.0312E-01),  # CLDGRADW      20240104
+ (1, 2, 488,    0.5467    ,  8.4802E-02,  -30.22    ,  -9.625    ,  1.0000E-04,   10.00    ,  -2.20    ,  0.400    ,  3.2943E-02),  # CLDWSQ        20240104
+ (1, 2, 489,     1.783    ,  0.1402    ,  -27.10    ,  -13.56    ,  1.0000E-04,   5.000    ,  -2.20    ,  0.400    ,  5.6797E-02),  # CLDSIGW       20240104
+ (1, 2, 490,     4.725    ,  0.1618    ,  -41.67    ,  -22.97    ,  5.0000E-09,  8.0000E-06,  -2.20    ,  0.400    ,  4.2372E-02),  # CLDDEFSQ      20240104
+ (1, 2, 491,     3.751    ,  0.1883    ,  -30.64    ,  -19.85    ,  1.0000E-04,  5.0000E-02,  -2.20    ,  0.400    ,  5.1927E-02),  # CLDEDR        20240104
+ (1, 2, 492,    0.7490    ,  0.2078    ,  -13.31    ,  -10.27    ,   500.0    ,  1.0000E+06,  -2.20    ,  0.400    ,  5.0401E-02),  # CLDIWP        20240104
+ (1, 2, 493,     6.390    ,  0.2505    ,  -33.57    ,  -28.30    ,  5.0000E-06,  5.0000E-03,  -2.20    ,  0.400    ,  9.9609E-02),  # CLDIFLX       20240104
+ (1, 2, 494,     1.052    ,  0.1184    ,  -25.92    ,  -11.23    ,  1.0000E-02,   20.00    ,  -2.20    ,  0.400    ,  4.5635E-02),  # CLDRTKE       20240104
+ (1, 2, 495,     4.190    ,  0.1405    ,  -44.18    ,  -21.26    ,  5.0000E-10,  5.0000E-06,  -2.20    ,  0.400    ,  4.6874E-02),  # CLDF3D        20240104
+# Specify GTG diagnostic fit parameters:  region= 1, stable, inoutcloud
+ (1, 2, 496,     8.347    ,  0.3789    ,  -27.45    ,  -43.02    ,  8.0000E-02,  0.4000    ,  -2.20    ,  0.320    ,  6.1390E-01),  # GTGDEF        20240103
+ (1, 2, 497,     12.62    ,  0.5363    ,  -27.37    ,  -60.16    ,  0.1000    ,  0.4000    ,  -2.20    ,  0.320    ,  5.1572E-01),  # GTGMWT        20240103
+ (1, 2, 498,     13.16    ,  0.5534    ,  -27.43    ,  -50.01    ,  1.0000E-02,  0.5000    ,  -2.20    ,  0.400    ,  5.8851E-02),  # GTGCIT        20240104
+ (1, 2, 499,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.20    ,  0.40     , -9.9990E+03),  # GTGMAX2 # No longer used
+ (1, 2, 500,     8.333    ,  0.3784    ,  -27.45    ,  -42.97    ,  8.0000E-02,  0.4000    ,  -2.20    ,  0.320    ,  6.1409E-01),  # GTGMAX3       20240103
+# Specify diagnostic fit parameters: mid-levels, stable
+# Lognormal fitting: alpha=0.
+# ln(epsilon^(1/3)) = a + b ln(x)
+# fitparm1=<ln x>, fitparm2=SD[ln(x)]
+# Use insitu fits 7000-22000 ft, heartbeats+triggered: avg=-2.70, sd=0.50, MWT avg=-2.65, sd=0.45
+# index           a            b       fitparm1       fitparm2         x1           x2   <ln(edrclimo)> SD[ln(edrclimo)]  fitrmse
+# Specify CAT/LLT dignostic fit parameters:  region= 2, unstable, outcloud  
+ (2, 1, 400,     3.191    ,  0.6154    ,  -9.409    ,  0.8125    ,  1.0000E-04,  2.0000E-03,  -2.60    ,  0.500    ,  9.6102E-02),  # Brown1        20240103
+ (2, 1, 401,    0.4462    ,  0.8388    ,  -3.632    ,  0.5961    ,  3.0000E-03,  0.2000    ,  -2.60    ,  0.500    ,  6.9940E-02),  # Brown2        20240103
+ (2, 1, 402,    -4.070    ,  0.5329    ,   2.759    ,  0.9383    ,   5.000    ,   1000.    ,  -2.60    ,  0.500    ,  9.0494E-02),  # CP            20240103
+ (2, 1, 403,     4.246    ,  0.4628    ,  -14.79    ,   1.080    ,  1.0000E-08,  1.0000E-05,  -2.60    ,  0.500    ,  2.8344E-02),  # Ellrod1       20240103
+ (2, 1, 404,     3.576    ,  0.4198    ,  -14.71    ,   1.191    ,  1.0000E-08,  2.0000E-05,  -2.60    ,  0.500    ,  2.6553E-02),  # Ellrod2       20240103
+ (2, 1, 405,    -1.657    ,  0.3967    ,  -2.376    ,   1.260    ,  5.0000E-03,   3.000    ,  -2.60    ,  0.500    ,  1.5441E-02),  # 1/Ri          20240103
+ (2, 1, 406,     4.045    ,  0.4579    ,  -14.51    ,   1.092    ,  1.0000E-08,  2.0000E-05,  -2.60    ,  0.500    ,  4.2734E-02),  # Ellrod3       20240103
+ (2, 1, 407,     3.829    ,  0.3474    ,  -18.51    ,   1.439    ,  2.0000E-10,  2.0000E-06,  -2.60    ,  0.500    ,  3.2041E-02),  # CCAT          20240103
+ (2, 1, 408,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # MSEDR # Do not use at mid
+ (2, 1, 409,    0.1472    ,   1.138    ,  -2.415    ,  0.4395    ,  1.5000E-02,  0.2500    ,  -2.60    ,  0.500    ,  2.6622E-02),  # DTF3          20240103
+ (2, 1, 410,     2.469    ,  0.2572    ,  -19.71    ,   1.944    ,  5.0000E-12,  5.0000E-07,  -2.60    ,  0.500    ,  1.2315E-02),  # Fth/Ri        20240103
+ (2, 1, 411,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # PBLEDR # Do not use at mid
+ (2, 1, 412,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # Dutton # No fit
+ (2, 1, 413,    -1.379    ,  0.7525    ,  -1.623    ,  0.6644    ,  6.0000E-02,   2.000    ,  -2.60    ,  0.500    ,  5.3083E-02),  # Endlich       20240103
+ (2, 1, 414,    -3.606    ,  0.2454    ,   4.101    ,   2.038    ,   50.00    ,  5.0000E+04,  -2.60    ,  0.500    ,  5.7308E-02),  # LAZ           20240103
+ (2, 1, 415,    0.8680    ,  0.5016    ,  -6.914    ,  0.9969    ,  5.0000E-05,  5.0000E-02,  -2.60    ,  0.500    ,  3.3619E-02),  # NGM1          20240103
+ (2, 1, 416,     6.043    ,  0.5977    ,  -14.46    ,  0.8366    ,  5.0000E-08,  2.0000E-05,  -2.60    ,  0.500    ,  4.4530E-02),  # -NGM2         20240103
+ (2, 1, 417,     1.039    ,  0.2005    ,  -18.15    ,   2.494    ,  1.0000E-13,  1.0000E-03,  -2.60    ,  0.500    ,  2.4658E-02),  # SCHGW         20240103
+ (2, 1, 418,    0.8345    ,  0.6030    ,  -5.696    ,  0.8293    ,  2.0000E-04,  5.0000E-02,  -2.60    ,  0.500    ,  4.3892E-02),  # VWS           20240103
+ (2, 1, 419,     4.118    ,  0.9760    ,  -6.883    ,  0.5123    ,  3.0000E-04,  2.0000E-02,  -2.60    ,  0.500    ,  1.9062E-01),  # TROPVWS       20240103
+ (2, 1, 420,     3.562    ,  0.6151    ,  -10.02    ,  0.8129    ,  2.0000E-06,  1.5000E-03,  -2.60    ,  0.500    ,  3.7707E-02),  # HS            20240103
+ (2, 1, 421,     3.770    ,  0.3185    ,  -20.00    ,   1.570    ,  1.0000E-09,  1.0000E-06,  -2.60    ,  0.500    ,  5.2303E-02),  # STABADV       20240103
+ (2, 1, 422,     3.580    ,  0.3361    ,  -18.39    ,   1.488    ,  5.0000E-10,  5.0000E-06,  -2.60    ,  0.500    ,  3.0467E-02),  # DEFSQ         20240103
+ (2, 1, 423,     3.441    ,  0.6177    ,  -9.780    ,  0.8095    ,  5.0000E-06,  2.0000E-03,  -2.60    ,  0.500    ,  4.6229E-02),  # |VORTZ|       20240103
+ (2, 1, 424,     3.832    ,  0.6610    ,  -9.732    ,  0.7565    ,  3.0000E-06,  1.0000E-03,  -2.60    ,  0.500    ,  4.2122E-02),  # |DIV|         20240103
+ (2, 1, 425,    -2.067    ,  0.6098    , -0.8733    ,  0.8199    ,  3.0000E-02,   3.500    ,  -2.60    ,  0.500    ,  4.5041E-02),  # EGR           20240103
+ (2, 1, 426,    -3.581    ,  0.5214    ,   1.881    ,  0.9590    ,  0.1000    ,   500.0    ,  -2.60    ,  0.500    ,  2.1997E-02),  # iawind        20240103
+ (2, 1, 427,   -0.8101    ,  0.4596    ,  -3.895    ,   1.088    ,  5.0000E-03,   2.000    ,  -2.60    ,  0.500    ,  4.7334E-02),  # AGI           20240103
+ (2, 1, 428,    -3.003    ,  0.3364    ,   1.197    ,   1.486    ,  1.0000E-02,   200.0    ,  -2.60    ,  0.500    ,  8.9099E-03),  # UBF/Ri        20240103
+ (2, 1, 429,    -1.737    ,  0.4166    ,  -2.070    ,   1.200    ,  2.0000E-03,   5.000    ,  -2.60    ,  0.500    ,  1.0202E-02),  # 1/SATRi       20240103
+ (2, 1, 430,    -1.121    ,  0.3542    ,  -4.175    ,   1.412    ,  5.0000E-03,   5.000    ,  -2.60    ,  0.500    ,  5.2773E-02),  # PVGRAD        20240103
+ (2, 1, 431,    0.5751    ,  0.7366    ,  -4.311    ,  0.6788    ,  3.0000E-03,  0.2000    ,  -2.60    ,  0.500    ,  5.8510E-02),  # EDRRCH        20240103
+ (2, 1, 432,    4.9858E-02,  0.7601    ,  -3.486    ,  0.6578    ,  2.0000E-03,  0.5000    ,  -2.60    ,  0.500    ,  4.4308E-02),  # EDR           20240103
+ (2, 1, 433,   -0.1769    ,  0.6794    ,  -3.566    ,  0.7359    ,  2.0000E-03,  0.7000    ,  -2.60    ,  0.500    ,  1.9647E-02),  # EDRLL         20240103
+ (2, 1, 434,    2.2340E-02,  0.3086    ,  -8.498    ,   1.620    ,  1.0000E-06,  0.1000    ,  -2.60    ,  0.500    ,  2.2298E-02),  # CTSQ          20240103
+ (2, 1, 435,    -2.559    ,  0.4536    , -9.0166E-02,   1.102    ,  2.0000E-02,   5.000    ,  -2.60    ,  0.500    ,  7.5165E-03),  # 1/RiTW        20240103
+ (2, 1, 436,     6.539    ,  0.8970    ,  -10.19    ,  0.5574    ,  4.0000E-06,  5.0000E-04,  -2.60    ,  0.500    ,  9.3185E-02),  # LHFK          20240103
+ (2, 1, 437,     1.696    ,  0.3507    ,  -12.25    ,   1.426    ,  1.0000E-08,  4.0000E-04,  -2.60    ,  0.500    ,  5.7485E-03),  # LHFK/Ri       20240103
+ (2, 1, 438,     3.473    ,  0.5654    ,  -10.74    ,  0.8843    ,  5.0000E-06,  1.0000E-03,  -2.60    ,  0.500    ,  7.2612E-02),  # TEMPG         20240103
+ (2, 1, 439,   -0.2228    ,  0.2160    ,  -11.01    ,   2.315    ,  1.0000E-08,  1.0000E-02,  -2.60    ,  0.500    ,  1.0539E-02),  # CTSQ/Ri       20240103
+ (2, 1, 440,    0.9925    ,  0.3189    ,  -11.26    ,   1.568    ,  8.0000E-08,  1.5000E-03,  -2.60    ,  0.500    ,  1.5115E-02),  # Brown1/Ri     20240103
+ (2, 1, 441,    -2.512    ,  0.2733    , -0.3234    ,   1.830    ,  1.0000E-03,   100.0    ,  -2.60    ,  0.500    ,  6.2838E-03),  # iawind/Ri     20240103
+ (2, 1, 442,   -0.1933    ,  0.2648    ,  -9.090    ,   1.888    ,  1.0000E-07,  2.0000E-02,  -2.60    ,  0.500    ,  5.8892E-03),  # NGM1/Ri       20240103
+ (2, 1, 443,     2.101    ,  0.2789    ,  -16.85    ,   1.793    ,  1.0000E-10,  1.0000E-05,  -2.60    ,  0.500    ,  1.1493E-02),  # NGM2/Ri       20240103
+ (2, 1, 444,    0.4459    ,  0.1602    ,  -19.01    ,   3.121    ,  1.0000E-12,  1.0000E-04,  -2.60    ,  0.500    ,  1.4309E-02),  # SCHGW/Ri      20240103
+ (2, 1, 445,     2.797    ,  0.3818    ,  -14.14    ,   1.310    ,  1.0000E-06,  9.0000E-05,  -2.60    ,  0.500    ,  3.5834E-02),  # TROPG/Z       20240103
+ (2, 1, 446,    -4.952    ,  0.8675    ,   2.711    ,  0.5764    ,   6.000    ,   80.00    ,  -2.60    ,  0.500    ,  1.1085E-01),  # SPEED         20240103
+ (2, 1, 447,     3.117    ,  0.2657    ,  -21.52    ,   1.882    ,  5.0000E-11,  1.0000E-07,  -2.60    ,  0.500    ,  2.3180E-02),  # -Stone        20240103
+ (2, 1, 448,     4.150    ,  0.3757    ,  -17.97    ,   1.331    ,  1.0000E-10,  1.0000E-05,  -2.60    ,  0.500    ,  4.2147E-02),  # -NVA          20240103
+ (2, 1, 449,     3.036    ,  0.2013    ,  -27.99    ,   2.484    ,  5.0000E-16,  5.0000E-10,  -2.60    ,  0.500    ,  5.9978E-03),  # NCSU1         20240103
+ (2, 1, 450,     2.469    ,  0.2043    ,  -24.81    ,   2.447    ,  1.0000E-13,  1.0000E-08,  -2.60    ,  0.500    ,  1.5956E-02),  # NCSU2/Ri      20240103
+ (2, 1, 451,    0.4901    ,  0.6312    ,  -4.896    ,  0.7922    ,  2.0000E-03,  0.3000    ,  -2.60    ,  0.500    ,  4.2537E-02),  # EDRLUN        20240103
+ (2, 1, 452,    -1.030    ,  0.2692    ,  -5.831    ,   1.857    ,  1.0000E-04,   10.00    ,  -2.60    ,  0.500    ,  1.9497E-02),  # wsq           20240103
+ (2, 1, 453,   -0.9633    ,  0.2144    ,  -7.634    ,   2.332    ,  1.0000E-07,  0.5000    ,  -2.60    ,  0.500    ,  1.8842E-02),  # wsq/Ri        20240103
+ (2, 1, 454,   -0.4912    ,  0.2294    ,  -9.191    ,   2.179    ,  5.0000E-08,  8.0000E-02,  -2.60    ,  0.500    ,  1.6071E-02),  # EDR/Ri        20240103
+ (2, 1, 455,   -0.5599    ,  0.2182    ,  -9.349    ,   2.291    ,  5.0000E-08,  8.0000E-02,  -2.60    ,  0.500    ,  1.1030E-02),  # EDRLL/Ri      20240103
+ (2, 1, 456,    -1.635    ,  0.2308    ,  -4.182    ,   2.167    ,  1.0000E-06,   5.000    ,  -2.60    ,  0.500    ,  2.7154E-02),  # SIGW          20240103
+ (2, 1, 457,    -1.271    ,  0.2153    ,  -6.173    ,   2.322    ,  1.0000E-07,  0.8000    ,  -2.60    ,  0.500    ,  1.0323E-02),  # SIGW/Ri       20240103
+ (2, 1, 458,     2.908    ,  0.2443    ,  -22.55    ,   2.047    ,  1.0000E-13,  5.0000E-08,  -2.60    ,  0.500    ,  1.3466E-02),  # F2D/Ri        20240103
+ (2, 1, 459,     2.878    ,  0.2418    ,  -22.66    ,   2.068    ,  2.0000E-12,  5.0000E-08,  -2.60    ,  0.500    ,  8.8884E-03),  # F2DTW/Ri      20240103
+ (2, 1, 460,     3.092    ,  0.2509    ,  -22.69    ,   1.993    ,  5.0000E-14,  5.0000E-08,  -2.60    ,  0.500    ,  1.4503E-02),  # F3D/Ri        20240103
+ (2, 1, 461,     4.154    ,  0.3280    ,  -20.59    ,   1.524    ,  5.0000E-11,  5.0000E-07,  -2.60    ,  0.500    ,  3.6195E-02),  # F3D           20240103
+ (2, 1, 462,     1.133    ,  0.4152    ,  -8.991    ,   1.204    ,  1.0000E-04,  1.0000E-02,  -2.60    ,  0.500    ,  3.2041E-02),  # |THP/THB|     20240103
+ (2, 1, 463,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # EDRM (ARPEGE and ARWRF only)
+ (2, 1, 464,   -0.6247    ,  0.2766    ,  -7.140    ,   1.807    ,  1.0000E-05,  0.1000    ,  -2.60    ,  0.500    ,  8.4982E-03),  # SEDR          20240103
+ (2, 1, 465,    -2.267    ,  0.6291    , -0.5288    ,  0.7947    ,  1.0000E-02,   15.00    ,  -2.60    ,  0.500    ,  4.2001E-01),  # SGSTKE        20240103
+ (2, 1, 466,     2.032    ,  0.3940    ,  -11.76    ,   1.269    ,  1.0000E-06,  5.0000E-04,  -2.60    ,  0.500    ,  2.8204E-02),  # SGSTKE/Ri     20240103
+ (2, 1, 467,    -1.861    ,  0.3182    ,  -2.322    ,   1.571    ,  1.0000E-04,   50.00    ,  -2.60    ,  0.500    ,  2.5050E-02),  # RTKE          20240103
+ (2, 1, 468,    -1.508    ,  0.2242    ,  -4.873    ,   2.230    ,  5.0000E-05,   1.000    ,  -2.60    ,  0.500    ,  7.8729E-03),  # RTKE/Ri       20240103
+ (2, 1, 469,    -3.482    ,  0.5486    ,   1.608    ,  0.9114    ,  0.5000    ,   500.0    ,  -2.60    ,  0.500    ,  3.3753E-02),  # VARE          20240103
+ (2, 1, 470,    -2.425    ,  0.2624    , -0.6658    ,   1.905    ,  5.0000E-04,   100.0    ,  -2.60    ,  0.500    ,  4.8197E-03),  # VARE/Ri       20240103
+# Specify MWT dignostic fit parameters:  region= 2, stable  , outcloud  
+ (2, 1, 471,    -1.404    ,  0.1777    ,  -6.728    ,   2.813    ,  1.0000E-06,   5.000    ,  -2.60    ,  0.500    ,  8.7014E-03),  # MWT1          20240103
+ (2, 1, 472,   -0.4823    ,  0.2308    ,  -9.174    ,   2.166    ,  1.0000E-06,  0.5000    ,  -2.60    ,  0.500    ,  1.9724E-02),  # MWT2          20240103
+ (2, 1, 473,     2.355    ,  0.2321    ,  -21.35    ,   2.154    ,  1.0000E-10,  5.0000E-06,  -2.60    ,  0.500    ,  1.9911E-02),  # MWT3          20240103
+ (2, 1, 474,    -2.861    ,  0.3377    ,  0.7715    ,   1.481    ,  5.0000E-02,   2000.    ,  -2.60    ,  0.500    ,  9.5176E-03),  # MWT4          20240103
+ (2, 1, 475,   -0.2051    ,  0.4624    ,  -5.180    ,   1.081    ,  5.0000E-04,   2.000    ,  -2.60    ,  0.500    ,  3.1643E-02),  # MWT5          20240103
+ (2, 1, 476,     2.041    ,  0.2435    ,  -19.06    ,   2.054    ,  5.0000E-12,  1.0000E-05,  -2.60    ,  0.500    ,  1.7038E-02),  # MWT13         20240103
+ (2, 1, 477,    0.8479    ,  0.3180    ,  -10.84    ,   1.572    ,  1.0000E-07,  8.0000E-03,  -2.60    ,  0.500    ,  1.2450E-02),  # MWT14         20240103
+ (2, 1, 478,    -1.863    ,  0.4215    ,  -1.749    ,   1.186    ,  0.5000    ,   10.00    ,  -2.60    ,  0.500    ,  6.7721E-02),  # TKE_GWB       20240103
+ (2, 1, 479,     1.396    ,  0.3643    ,  -10.97    ,   1.372    ,  5.0000E-07,  8.0000E-03,  -2.60    ,  0.500    ,  1.0551E-02),  # MWT6          20240103
+ (2, 1, 480,    -1.778    ,  0.1917    ,  -4.286    ,   2.608    ,  8.0000E-05,   20.00    ,  -2.60    ,  0.500    ,  1.4942E-02),  # MWT7          20240103
+ (2, 1, 481,     1.526    ,  0.2615    ,  -15.78    ,   1.912    ,  1.0000E-10,  2.0000E-04,  -2.60    ,  0.500    ,  1.3613E-02),  # MWT8          20240103
+ (2, 1, 482,    0.3982    ,  0.3121    ,  -9.606    ,   1.602    ,  5.0000E-07,  5.0000E-02,  -2.60    ,  0.500    ,  1.7090E-02),  # MWT9          20240103
+ (2, 1, 483,   -0.6102    ,  0.2478    ,  -8.029    ,   2.018    ,  2.0000E-05,  0.8000    ,  -2.60    ,  0.500    ,  1.6177E-02),  # MWT10         20240103
+ (2, 1, 484,    0.3370    ,  0.1623    ,  -18.09    ,   3.080    ,  1.0000E-10,  1.0000E-03,  -2.60    ,  0.500    ,  1.3993E-02),  # MWT11         20240103
+ (2, 1, 485,     1.100    ,  0.3148    ,  -11.75    ,   1.588    ,  5.0000E-07,  5.0000E-03,  -2.60    ,  0.500    ,  1.9522E-02),  # MWT12         20240103
+# Specify CIT dignostic fit parameters:  region= 2, stable, incloud   
+ (2, 1, 486,    0.6015    ,  0.3192    ,  -8.776    ,   1.566    ,  5.0000E-06,  3.0000E-02,  -2.20    ,  0.500    ,  1.7046E-02),  # CONDHEAT      20240104
+ (2, 1, 487,   -0.6505    ,  0.3520    ,  -4.402    ,   1.421    ,  1.0000E-04,   2.000    ,  -2.20    ,  0.500    ,  5.7635E-02),  # CLDGRADW      20240104
+ (2, 1, 488,    -1.041    ,  0.2116    ,  -5.478    ,   2.363    ,  1.0000E-05,   10.00    ,  -2.20    ,  0.500    ,  6.8998E-03),  # CLDWSQ        20240104
+ (2, 1, 489,    -1.481    ,  0.2496    ,  -2.879    ,   2.003    ,  1.0000E-05,   5.000    ,  -2.20    ,  0.500    ,  1.4074E-02),  # CLDSIGW       20240104
+ (2, 1, 490,     2.874    ,  0.2877    ,  -17.64    ,   1.738    ,  1.0000E-10,  2.0000E-05,  -2.20    ,  0.500    ,  5.3119E-03),  # CLDDEFSQ      20240104
+ (2, 1, 491,   -1.3240E-02,  0.3570    ,  -6.125    ,   1.401    ,  5.0000E-05,  0.5000    ,  -2.20    ,  0.500    ,  3.5970E-03),  # CLDEDR        20240104
+ (2, 1, 492,    -5.811    ,  0.3330    ,   10.84    ,   1.502    ,   500.0    ,  5.0000E+07,  -2.20    ,  0.500    ,  3.6830E-02),  # CLDIWP        20240104
+ (2, 1, 493,    0.5117    ,  0.2522    ,  -10.75    ,   1.982    ,  1.0000E-07,  2.0000E-02,  -2.20    ,  0.500    ,  2.6048E-02),  # CLDIFLX       20240104
+ (2, 1, 494,    -1.741    ,  0.2787    ,  -1.646    ,   1.794    ,  1.0000E-03,   100.0    ,  -2.20    ,  0.500    ,  8.2632E-03),  # CLDRTKE       20240104
+ (2, 1, 495,     3.619    ,  0.2880    ,  -20.21    ,   1.736    ,  5.0000E-12,  5.0000E-06,  -2.20    ,  0.500    ,  8.5831E-03),  # CLDF3D        20240104
+# Specify GTG diagnostic fit parameters:  region= 2, stable, outcloud
+ (2, 1, 496,    0.3881    ,   1.160    ,  -2.576    ,  0.4311    ,  1.0000E-02,  0.4000    ,  -2.60    ,  0.500    ,  3.1636E-02),  # GTGDEF        20240103
+ (2, 1, 497,    0.7837    ,   1.219    ,  -2.777    ,  0.4103    ,  2.5000E-02,  0.4000    ,  -2.60    ,  0.500    ,  9.0120E-02),  # GTGMWT        20240103
+ (2, 1, 498,    0.3281    ,   1.022    ,  -2.475    ,  0.4894    ,  5.0000E-02,  0.5000    ,  -2.20    ,  0.500    ,  7.8137E-02),  # GTGCIT        20240104
+ (2, 1, 499,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -2.20    ,  0.40     , -9.9990E+03),  # GTGMAX2 # No longer used
+ (2, 1, 500,    0.3831    ,   1.162    ,  -2.567    ,  0.4303    ,  1.0000E-02,  0.4000    ,  -2.60    ,  0.500    ,  2.9769E-02),  # GTGMAX3       20240103
+# Specify diagnostic fit parameters: upper-levels, stable
+# Use insitu fits 18000-50000 ft, heartbeats+triggered: avg=-2.90, sd=0.60, mwt: avg=-2.80, sd=0.60
+# Lognormal fitting: alpha=0.
+# ln(epsilon^(1/3)) = a + b ln(x)
+# fitparm1=<ln x>, fitparm2=SD[ln(x)]
+# index           a            b       fitparm1       fitparm2         x1           x2   <ln(edrclimo)> SD[ln(edrclimo)]  fitrmse
+# Specify CAT/LLT dignostic fit parameters:  region= 3, stable  , outcloud  
+ (3, 1, 400,     5.446    ,  0.9126    ,  -9.254    ,  0.6574    ,  1.0000E-04,  2.0000E-03,  -3.00    ,  0.600    ,  1.0902E-01),  # Brown1        20240103
+ (3, 1, 401,     1.973    ,   1.322    ,  -3.761    ,  0.4538    ,  3.0000E-03,  0.2000    ,  -3.00    ,  0.600    ,  4.4882E-02),  # Brown2        20240103
+ (3, 1, 402,    -6.268    ,  0.8469    ,   3.858    ,  0.7084    ,   8.000    ,   2000.    ,  -3.00    ,  0.600    ,  9.2204E-02),  # CP            20240103
+ (3, 1, 403,     6.078    ,  0.6115    ,  -14.85    ,  0.9812    ,  1.0000E-08,  2.0000E-05,  -3.00    ,  0.600    ,  1.8184E-02),  # Ellrod1       20240103
+ (3, 1, 404,     5.532    ,  0.5785    ,  -14.75    ,   1.037    ,  1.0000E-08,  2.0000E-05,  -3.00    ,  0.600    ,  1.4404E-02),  # Ellrod2       20240103
+ (3, 1, 405,   -0.8258    ,  0.6483    ,  -3.354    ,  0.9254    ,  5.0000E-03,   3.000    ,  -3.00    ,  0.600    ,  5.5153E-02),  # 1/Ri          20240103
+ (3, 1, 406,     6.260    ,  0.6312    ,  -14.67    ,  0.9505    ,  1.0000E-08,  2.0000E-05,  -3.00    ,  0.600    ,  2.1086E-02),  # Ellrod3       20240103
+ (3, 1, 407,     8.101    ,  0.6189    ,  -17.94    ,  0.9695    ,  5.0000E-10,  5.0000E-07,  -3.00    ,  0.600    ,  4.0991E-02),  # CCAT          20240103
+ (3, 1, 408,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # MSEDR # Do not use at high
+ (3, 1, 409,     1.508    ,   1.801    ,  -2.503    ,  0.3332    ,  3.0000E-02,   30.00    ,  -3.00    ,  0.600    ,  1.9679E-01),  # DTF3          20240103
+ (3, 1, 410,     4.285    ,  0.3639    ,  -20.02    ,   1.649    ,  1.0000E-11,  2.0000E-06,  -3.00    ,  0.600    ,  1.0380E-02),  # Fth/Ri        20240103
+ (3, 1, 411,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -3.00    ,  0.600    , -9.9990E+03),  # PBLEDR # Do not use at high
+ (3, 1, 412,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    , -9.999E+03, -9.999E+03, -9.9990E+03),  # Dutton # No fit
+ (3, 1, 413,    -1.809    ,  0.9888    ,  -1.204    ,  0.6068    ,  6.0000E-02,   3.000    ,  -3.00    ,  0.600    ,  5.5590E-02),  # Endlich       20240103
+ (3, 1, 414,    -3.305    ,  0.1655    ,   1.842    ,   3.625    ,   5.000    ,  5.0000E+04,  -3.00    ,  0.600    ,  2.4834E-02),  # LAZ           20240103
+ (3, 1, 415,     1.236    ,  0.6437    ,  -6.581    ,  0.9321    ,  1.0000E-05,  5.0000E-02,  -3.00    ,  0.600    ,  2.7622E-02),  # NGM1          20240103
+ (3, 1, 416,     6.286    ,  0.5735    ,  -16.19    ,   1.046    ,  1.0000E-08,  1.0000E-05,  -3.00    ,  0.600    ,  4.6673E-02),  # -NGM2         20240103
+ (3, 1, 417,     1.676    ,  0.2525    ,  -18.52    ,   2.376    ,  1.0000E-09,  1.0000E-04,  -3.00    ,  0.600    ,  3.3331E-02),  # SCHGW         20240103
+ (3, 1, 418,     3.967    ,   1.237    ,  -5.632    ,  0.4851    ,  1.0000E-03,  5.0000E-02,  -3.00    ,  0.600    ,  1.1383E-01),  # VWS           20240103
+ (3, 1, 419,     3.672    ,  0.8785    ,  -7.594    ,  0.6830    ,  1.0000E-04,  5.0000E-02,  -3.00    ,  0.600    ,  1.5241E-01),  # TROPVWS       20240103
+ (3, 1, 420,     5.860    ,  0.8775    ,  -10.10    ,  0.6838    ,  5.0000E-06,  1.0000E-03,  -3.00    ,  0.600    ,  3.9522E-02),  # HS            20240103
+ (3, 1, 421,     9.731    ,  0.6765    ,  -18.82    ,  0.8869    ,  1.0000E-09,  3.0000E-05,  -3.00    ,  0.600    ,  1.9981E-02),  # STABADV       20240103
+ (3, 1, 422,     4.280    ,  0.3829    ,  -19.01    ,   1.567    ,  5.0000E-09,  3.0000E-06,  -3.00    ,  0.600    ,  5.0016E-02),  # DEFSQ         20240103
+ (3, 1, 423,     5.777    ,  0.8843    ,  -9.925    ,  0.6785    ,  2.0000E-06,  2.0000E-03,  -3.00    ,  0.600    ,  5.0705E-02),  # |VORTZ|       20240103
+ (3, 1, 424,     4.840    ,  0.8159    ,  -9.609    ,  0.7354    ,  5.0000E-06,  2.0000E-03,  -3.00    ,  0.600    ,  6.2311E-02),  # |DIV|         20240103
+ (3, 1, 425,    -1.893    ,   1.059    ,  -1.046    ,  0.5667    ,  0.2000    ,   3.000    ,  -3.00    ,  0.600    ,  7.4765E-02),  # EGR           20240103
+ (3, 1, 426,    -4.462    ,  0.6575    ,   2.224    ,  0.9126    ,  0.2000    ,   500.0    ,  -3.00    ,  0.600    ,  1.5388E-02),  # iawind        20240103
+ (3, 1, 427,   -0.6833    ,  0.6087    ,  -3.806    ,  0.9857    ,  5.0000E-03,   1.000    ,  -3.00    ,  0.600    ,  7.4952E-02),  # AGI           20240103
+ (3, 1, 428,    -2.783    ,  0.4042    , -0.5364    ,   1.485    ,  1.0000E-02,   300.0    ,  -3.00    ,  0.600    ,  2.3292E-02),  # UBF/Ri        20240103
+ (3, 1, 429,    -1.130    ,  0.5800    ,  -3.224    ,   1.035    ,  5.0000E-03,   2.000    ,  -3.00    ,  0.600    ,  3.5253E-02),  # 1/SATRi       20240103
+ (3, 1, 430,    -2.089    ,  0.6480    ,  -1.406    ,  0.9260    ,  1.0000E-02,   20.00    ,  -3.00    ,  0.600    ,  1.2969E-02),  # PVGRAD        20240103
+ (3, 1, 431,    0.9456    ,  0.9489    ,  -4.158    ,  0.6323    ,  3.0000E-03,  0.2000    ,  -3.00    ,  0.600    ,  7.1739E-02),  # EDRRCH        20240103
+ (3, 1, 432,    6.9751E-02,  0.8604    ,  -3.568    ,  0.6974    ,  5.0000E-03,  0.5000    ,  -3.00    ,  0.600    ,  6.2860E-02),  # EDR           20240103
+ (3, 1, 433,   -0.2155    ,  0.7691    ,  -3.620    ,  0.7801    ,  5.0000E-03,  0.5000    ,  -3.00    ,  0.600    ,  3.1783E-02),  # EDRLL         20240103
+ (3, 1, 434,    0.2309    ,  0.4136    ,  -7.812    ,   1.451    ,  1.0000E-06,  0.1500    ,  -3.00    ,  0.600    ,  2.4653E-02),  # CTSQ          20240103
+ (3, 1, 435,    -2.836    ,  0.5083    , -0.3219    ,   1.180    ,  5.0000E-02,   10.00    ,  -3.00    ,  0.600    ,  9.7866E-03),  # 1/RiTW        20240103
+ (3, 1, 436,     7.701    ,   1.046    ,  -10.23    ,  0.5737    ,  8.0000E-06,  4.0000E-04,  -3.00    ,  0.600    ,  1.5500E-01),  # LHFK          20240103
+ (3, 1, 437,     2.779    ,  0.4277    ,  -13.51    ,   1.403    ,  1.0000E-07,  1.0000E-04,  -3.00    ,  0.600    ,  2.1167E-02),  # LHFK/Ri       20240103
+ (3, 1, 438,     5.238    ,  0.8439    ,  -9.762    ,  0.7110    ,  1.0000E-05,  1.0000E-03,  -3.00    ,  0.600    ,  7.1629E-02),  # TEMPG         20240103
+ (3, 1, 439,    0.3311    ,  0.2884    ,  -11.55    ,   2.080    ,  1.0000E-08,  4.0000E-02,  -3.00    ,  0.600    ,  5.4472E-03),  # CTSQ/Ri       20240103
+ (3, 1, 440,     2.671    ,  0.4496    ,  -12.61    ,   1.334    ,  8.0000E-08,  1.5000E-03,  -3.00    ,  0.600    ,  1.2793E-02),  # Brown1/Ri     20240103
+ (3, 1, 441,    -2.544    ,  0.3918    ,  -1.165    ,   1.531    ,  1.0000E-02,   200.0    ,  -3.00    ,  0.600    ,  2.3418E-02),  # iawind/Ri     20240103
+ (3, 1, 442,    0.4110    ,  0.3395    ,  -10.05    ,   1.767    ,  1.0000E-06,  2.0000E-02,  -3.00    ,  0.600    ,  1.5552E-02),  # NGM1/Ri       20240103
+ (3, 1, 443,     5.177    ,  0.4361    ,  -18.75    ,   1.376    ,  5.0000E-10,  1.0000E-05,  -3.00    ,  0.600    ,  5.8197E-02),  # NGM2/Ri       20240103
+ (3, 1, 444,     1.409    ,  0.2099    ,  -21.01    ,   2.859    ,  1.0000E-15,  1.0000E-04,  -3.00    ,  0.600    ,  3.9292E-03),  # SCHGW/Ri      20240103
+ (3, 1, 445,     2.833    ,  0.3963    ,  -14.72    ,   1.514    ,  1.0000E-06,  8.0000E-05,  -3.00    ,  0.600    ,  1.3333E-02),  # TROPG/Z       20240103
+ (3, 1, 446,    -5.946    ,  0.9983    ,   2.951    ,  0.6010    ,   6.000    ,   70.00    ,  -3.00    ,  0.600    ,  7.1214E-02),  # SPEED         20240103
+ (3, 1, 447,     6.140    ,  0.4200    ,  -21.76    ,   1.428    ,  5.0000E-11,  1.0000E-07,  -3.00    ,  0.600    ,  4.1105E-02),  # -Stone        20240103
+ (3, 1, 448,     6.248    ,  0.5292    ,  -17.48    ,   1.134    ,  1.0000E-09,  2.0000E-06,  -3.00    ,  0.600    ,  1.8571E-02),  # -NVA          20240103
+ (3, 1, 449,     4.467    ,  0.2539    ,  -29.41    ,   2.363    ,  1.0000E-15,  1.0000E-09,  -3.00    ,  0.600    ,  2.6072E-03),  # NCSU1         20240103
+ (3, 1, 450,     4.296    ,  0.2759    ,  -26.44    ,   2.175    ,  1.0000E-13,  1.0000E-08,  -3.00    ,  0.600    ,  1.1192E-02),  # NCSU2/Ri      20240103
+ (3, 1, 451,     1.435    ,  0.9218    ,  -4.811    ,  0.6509    ,  2.0000E-03,  0.1000    ,  -3.00    ,  0.600    ,  5.3632E-02),  # EDRLUN        20240103
+ (3, 1, 452,    -1.050    ,  0.3071    ,  -6.350    ,   1.954    ,  5.0000E-04,   1.000    ,  -3.00    ,  0.600    ,  3.8316E-02),  # wsq           20240103
+ (3, 1, 453,   -0.5972    ,  0.2537    ,  -9.471    ,   2.365    ,  1.0000E-06,   1.000    ,  -3.00    ,  0.600    ,  8.2661E-03),  # wsq/Ri        20240103
+ (3, 1, 454,    0.1045    ,  0.2884    ,  -10.77    ,   2.081    ,  1.0000E-07,  5.0000E-02,  -3.00    ,  0.600    ,  6.0873E-03),  # EDR/Ri        20240103
+ (3, 1, 455,    2.5249E-02,  0.2869    ,  -10.55    ,   2.091    ,  1.0000E-08,  8.0000E-02,  -3.00    ,  0.600    ,  9.3906E-03),  # EDRLL/Ri      20240103
+ (3, 1, 456,    -1.488    ,  0.3631    ,  -4.164    ,   1.652    ,  5.0000E-04,   2.000    ,  -3.00    ,  0.600    ,  2.8941E-02),  # SIGW          20240103
+ (3, 1, 457,   -0.9828    ,  0.2678    ,  -7.533    ,   2.241    ,  1.0000E-06,   1.000    ,  -3.00    ,  0.600    ,  1.1444E-02),  # SIGW/Ri       20240103
+ (3, 1, 458,     4.252    ,  0.3156    ,  -22.98    ,   1.901    ,  1.0000E-13,  3.0000E-07,  -3.00    ,  0.600    ,  1.3689E-02),  # F2D/Ri        20240103
+ (3, 1, 459,     5.714    ,  0.3605    ,  -24.17    ,   1.664    ,  5.0000E-13,  1.0000E-07,  -3.00    ,  0.600    ,  1.4265E-02),  # F2DTW/Ri      20240103
+ (3, 1, 460,     3.883    ,  0.2928    ,  -23.51    ,   2.049    ,  1.0000E-12,  2.0000E-07,  -3.00    ,  0.600    ,  7.0134E-03),  # F3D/Ri        20240103
+ (3, 1, 461,     4.880    ,  0.3882    ,  -20.30    ,   1.546    ,  5.0000E-10,  2.0000E-07,  -3.00    ,  0.600    ,  4.8328E-02),  # F3D           20240103
+ (3, 1, 462,     1.865    ,  0.5629    ,  -8.642    ,   1.066    ,  5.0000E-05,  1.0000E-02,  -3.00    ,  0.600    ,  3.7084E-02),  # |THP/THB|     20240103
+ (3, 1, 463,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -3.00    ,  0.600    , -9.9990E+03),  # EDRM  (ARPEGE and ARWRF ONLY)
+ (3, 1, 464,    0.3402    ,  0.4216    ,  -7.922    ,   1.423    ,  2.0000E-05,  5.0000E-02,  -3.00    ,  0.600    ,  2.9763E-02),  # SEDR          20240103
+ (3, 1, 465,    -2.267    ,  0.6291    , -0.5288    ,  0.7947    ,  1.0000E-02,   15.00    ,  -2.60    ,  0.500    ,  4.2001E-01),  # SGSTKE # No fit - use region 2
+ (3, 1, 466,     4.043    ,  0.5597    ,  -12.58    ,   1.072    ,  1.0000E-06,  2.0000E-04,  -3.00    ,  0.600    ,  2.9129E-02),  # SGSTKE/Ri     20240103
+ (3, 1, 467,    -1.905    ,  0.3644    ,  -3.006    ,   1.647    ,  2.0000E-02,   50.00    ,  -3.00    ,  0.600    ,  2.3854E-02),  # RTKE          20240103
+ (3, 1, 468,    -1.232    ,  0.2828    ,  -6.253    ,   2.122    ,  6.0000E-06,   3.000    ,  -3.00    ,  0.600    ,  4.3974E-03),  # RTKE/Ri       20240103
+ (3, 1, 469,    -4.229    ,  0.6432    ,   1.911    ,  0.9329    ,   1.000    ,   200.0    ,  -3.00    ,  0.600    ,  1.0500E-02),  # VARE          20240103
+ (3, 1, 470,    -2.459    ,  0.3304    ,  -1.638    ,   1.816    ,  5.0000E-03,   100.0    ,  -3.00    ,  0.600    ,  1.2472E-02),  # VARE/Ri       20240103
+# Specify MWT dignostic fit parameters:  region= 3, stable  , outcloud  
+ (3, 1, 471,    -1.474    ,  0.2087    ,  -7.313    ,   2.875    ,  1.0000E-04,   10.00    ,  -3.00    ,  0.600    ,  1.2993E-02),  # MWT1          20240103
+ (3, 1, 472,   -0.3708    ,  0.3109    ,  -8.458    ,   1.930    ,  2.0000E-05,  0.5000    ,  -3.00    ,  0.600    ,  1.9331E-02),  # MWT2          20240103
+ (3, 1, 473,     2.433    ,  0.2588    ,  -20.99    ,   2.318    ,  1.0000E-10,  1.0000E-06,  -3.00    ,  0.600    ,  2.3115E-02),  # MWT3          20240103
+ (3, 1, 474,    -3.296    ,  0.3588    ,  0.8260    ,   1.672    ,  0.1000    ,   500.0    ,  -3.00    ,  0.600    ,  1.2337E-02),  # MWT4          20240103
+ (3, 1, 475,   -0.4221    ,  0.4946    ,  -5.212    ,   1.213    ,  1.0000E-04,   2.000    ,  -3.00    ,  0.600    ,  4.3034E-03),  # MWT5          20240103
+ (3, 1, 476,     2.628    ,  0.2924    ,  -19.25    ,   2.052    ,  1.0000E-11,  1.0000E-05,  -3.00    ,  0.600    ,  1.7302E-02),  # MWT13         20240103
+ (3, 1, 477,     1.714    ,  0.4432    ,  -10.64    ,   1.354    ,  2.0000E-06,  5.0000E-03,  -3.00    ,  0.600    ,  2.5580E-02),  # MWT14         20240103
+ (3, 1, 478,    -1.057    ,  0.6859    ,  -2.832    ,  0.8747    ,  0.1000    ,   10.00    ,  -3.00    ,  0.600    ,  1.2387E-01),  # TKE_GWB       20240103
+ (3, 1, 479,     2.104    ,  0.4563    ,  -11.19    ,   1.315    ,  1.0000E-06,  1.0000E-02,  -3.00    ,  0.600    ,  1.5987E-02),  # MWT6          20240103
+ (3, 1, 480,    -1.866    ,  0.2296    ,  -4.937    ,   2.613    ,  1.0000E-04,   10.00    ,  -3.00    ,  0.600    ,  1.6194E-02),  # MWT7          20240103
+ (3, 1, 481,     2.523    ,  0.3449    ,  -16.02    ,   1.740    ,  1.0000E-09,  5.0000E-04,  -3.00    ,  0.600    ,  5.7501E-03),  # MWT8          20240103
+ (3, 1, 482,    0.5824    ,  0.3809    ,  -9.405    ,   1.575    ,  1.0000E-06,  5.0000E-02,  -3.00    ,  0.600    ,  1.6435E-02),  # MWT9          20240103
+ (3, 1, 483,   -0.5244    ,  0.3120    ,  -7.934    ,   1.923    ,  1.0000E-05,   1.000    ,  -3.00    ,  0.600    ,  1.6638E-02),  # MWT10         20240103
+ (3, 1, 484,    0.7953    ,  0.1995    ,  -19.02    ,   3.007    ,  1.0000E-10,  1.0000E-04,  -3.00    ,  0.600    ,  1.4901E-02),  # MWT11         20240103
+ (3, 1, 485,     1.340    ,  0.4003    ,  -10.84    ,   1.499    ,  1.0000E-06,  5.0000E-03,  -3.00    ,  0.600    ,  1.5499E-02),  # MWT12         20240103
+# Specify CIT dignostic fit parameters:  region= 3, stable  , incloud   
+ (3, 1, 486,     3.997    ,  0.5624    ,  -11.02    ,   1.067    ,  1.0000E-06,  3.0000E-03,  -2.20    ,  0.600    ,  3.1361E-02),  # CONDHEAT      20240104
+ (3, 1, 487,    0.3576    ,  0.5960    ,  -4.291    ,   1.007    ,  1.0000E-03,  0.5000    ,  -2.20    ,  0.600    ,  4.7893E-02),  # CLDGRADW      20240104
+ (3, 1, 488,   -0.5499    ,  0.2686    ,  -6.143    ,   2.234    ,  1.0000E-05,   5.000    ,  -2.20    ,  0.600    ,  1.1027E-02),  # CLDWSQ        20240104
+ (3, 1, 489,   -0.9561    ,  0.3493    ,  -3.561    ,   1.718    ,  2.0000E-04,   5.000    ,  -2.20    ,  0.600    ,  1.7263E-02),  # CLDSIGW       20240104
+ (3, 1, 490,     5.234    ,  0.4142    ,  -17.95    ,   1.449    ,  5.0000E-10,  5.0000E-06,  -2.20    ,  0.600    ,  1.5377E-02),  # CLDDEFSQ      20240104
+ (3, 1, 491,     1.027    ,  0.5105    ,  -6.321    ,   1.175    ,  2.0000E-04,  0.3000    ,  -2.20    ,  0.600    ,  1.6839E-02),  # CLDEDR        20240104
+ (3, 1, 492,    -4.864    ,  0.3093    ,   8.615    ,   1.940    ,   100.0    ,  3.0000E+05,  -2.20    ,  0.600    ,  3.2051E-02),  # CLDIWP        20240104
+ (3, 1, 493,    0.2854    ,  0.1591    ,  -15.62    ,   3.772    ,  1.0000E-09,  5.0000E-04,  -2.20    ,  0.600    ,  2.4401E-02),  # CLDIFLX       20240104
+ (3, 1, 494,    -1.486    ,  0.3343    ,  -2.135    ,   1.795    ,  2.0000E-03,   50.00    ,  -2.20    ,  0.600    ,  7.2833E-03),  # CLDRTKE       20240104
+ (3, 1, 495,     4.422    ,  0.3318    ,  -19.96    ,   1.808    ,  5.0000E-11,  5.0000E-07,  -2.20    ,  0.600    ,  3.1366E-03),  # CLDF3D        20240104
+# Specify GTG diagnostic fit parameters:  region= 3, stable  , inoutcloud
+ (3, 1, 496,     1.425    ,   1.586    ,  -2.790    ,  0.3783    ,  2.0000E-02,  0.5000    ,  -3.00    ,  0.600    ,  4.3554E-02),  # GTGDEF        20240103
+ (3, 1, 497,    0.9771    ,   1.441    ,  -2.760    ,  0.4164    ,  2.0000E-02,  0.5000    ,  -3.00    ,  0.600    ,  1.1422E-01),  # GTGMWT        20240103
+ (3, 1, 498,     1.530    ,   1.239    ,  -3.011    ,  0.4844    ,  2.0000E-02,  0.3000    ,  -2.20    ,  0.600    ,  7.2436E-02),  # GTGCIT        20240104
+ (3, 1, 499,    -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -9999.    ,  -3.00    ,  0.600    , -9.9990E+03),  # GTGMAX2 # No longer used
+ (3, 1, 500,     1.233    ,   1.540    ,  -2.749    ,  0.3897    ,  2.0000E-02,  0.5000    ,  -3.00    ,  0.600    ,  2.6515E-02),  # GTGMAX3       20240103
+);
+#
+# end section 2

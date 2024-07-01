@@ -1,0 +1,140 @@
+# input parameters for GTG indices driver and scoring routines
+# input model assignment parameters
+ input_model               =31;            | input model 31=North America rotated lat-lon
+ input_model_domain        =1;	           | input model domain
+ input_model_vcoord        =2;             | input model vertical coordinate (1=isentropic, 2=sigma, 3=p, 4=z)
+ IM                        =4881;          | input model x grid points (nominally west-east)
+ JM                        =2961;          | input model y grid points (nominally south-north)
+ LM                        =65;            | input model z grid points (nominally vertical)
+# gtg run parameters
+ crunid                    ='RRFS_NA';     | label for output files
+ zsmin                     = 0.0;          | minimum altitude to compute 
+ zsmin                     = 60000.;       | maximum altitude to compute 
+ start_year                = 2022;         | ifyearmin
+ start_month               = 06;           | ifmonmin
+ start_day                 = 30;           | ifdaymin
+ end_year                  = 2022;         | ifyearmax
+ end_month                 = 06;           | ifmonmax
+ end_day                   = 30;           | ifdaymax
+ ihours                    = 10;           | list of init hours, e.g. 09,12,15...nitimes
+ fhours                    = 02;           | list of fcst hours, e.g. 06,12,18...nftimes
+ nensembles                = 1;            | Number of NWP ensembles
+ skipfile                  = 1;            | skip frequency (days) between start and end times
+ CutoutDimensions          = 2500,2961,65; | x,y,z dimensions of output file cutout (0,0,0=full grid)
+ CutoutCenterLatLon        = 2900,1481;    | ic,jc of center of cutout domain
+ ic                        = 900;          | row to print during indices execution
+ jc                        = 550;          | column to print during indices execution
+ kc                        = 38;           | level to print during indices execution
+ assignlatlons             =.FALSE.;       | if true assigns ic,jc based on lats,lons
+ lats                      = 27.80;        | lat for ic,jc if assignlatlons=T
+ lons                      =-97.40;        | lon for ic,jc if assignlatlons=T
+ nhalo                     =2;             | number of points in halo
+ preserve_nwp_input        =.TRUE.;        | False=OK to overwrite nwp input vars within GTG
+ debug_on                  =0;             | 0=No print(proc) output files, minimal prints (i.e. production run), 1=print according printflag
+# index/GTG computation options
+ comp_CIT                  =.TRUE.;        | compute CIT parameters
+ QCLDmin                   =1.0E-5;        | cloud mixing ratio threshold (kg/kg) - NCEP
+ NOFILT                    =.FALSE.;       | Disable all smoothing and filtering of indices (T=disable)
+ select_GTG_only           =.FALSE.;       | compute all indices according to ipickindx
+ remap_GTG                 =.FALSE.;       | remap GTG combo using fit
+ usetropregion23           =.TRUE.;        | Use trop ht for region2-3 boundary 
+ use_default_zi            =.TRUE.;        | T=Set output interpolated alts of FL010-600, otherwise hardcode in gtg_algo
+ gtg_comp_option           =0;             | 0=avg,1=median,2=80thpercentile of GTG indices
+ use_equal_wts             =.TRUE.;        | Use equal weights in GTG combo, otherwise use weight from config file
+ comp_gtg_probs            =.FALSE.;        | compute GTG probabilities and write to output files
+ use_all_indices_prob      =.FALSE.;       | use all computed indices or just gtg deterministic combo
+ prob_thresholds           =0.1,0.2,0.30,0.45;  | probability thresholds to compute (up to 10)
+ GTGSPVAL                  =9.9E10;        | missing value to be used within GTG computations
+ OUTSPVAL                  =9.9E10;        | missing value to be output
+# machine learning model
+ mlmodel_opt               =.FALSE.;       | activates the use of machine learning model for GTG calculation
+ mlmodel_opt_lowmid        =.FALSE.;       | activates the use of low/mid levels machine learning model for GTG calculation
+ mlmodel_dir               =''; '/glade/scratch/domingom/GTG_2021/GTG_codes/Runs_TurbCases_Teddie/GTGML2021_20to45kft_noLatLon_TR70pc_20200929_TEST_2models/MLmodel_TR70pc_2021_20to45kft_noLatLon/'; | machine learning model info directory
+ mlmodel_name              ='CASEv9_09_TR70pc_2021_20to45kft_noLatLon'; | ML model name
+ mlmodel_name_lowmid       ='CASEv9_09_TR70pc_2021_0to20kft_noLatLon_PBLEDRinc'; | ML model name
+ mlmodel_ntree             =100; |; | 100; | number of trees conforming the random forest
+ mlmodel_kinc              =50;            | number of vertical grid points for ML model batch size
+ mlmodel_maxopt            =1;             | option for GTGMAX (==0: across trees; ==1: same as GTGDEF)
+# assign input directories/files
+ fosgpfDir                 ='';
+ DALgpfDir                 ='';
+ ANZgpfDir                 ='';
+ MFAgpfDir                 ='';
+ AFrgpfDir                 ='';
+ monthlyedrDir             ='';
+ IATAedrDir                ='';
+ NTDAedrDir                ='';
+ udeDir                    ='';
+ nldnDir                   ='';
+ entlnlgtDir               ='';
+ nwpDir                    ='';
+ nwpFileFormat             ='netcdf';      | input file format 'netcdf' or 'grib'
+ config_name               ='gtg.config.rrfs';
+ actypefile                ='';
+ NTDAHGTFile               ='';  | terrain ht file to use with NTDA gridded data
+# assign output directories
+ cwdDir                    ='';
+ FcstOutDir                ='';
+ PrintOutDir               ='';            ! thread output
+ PDFOutDir                 ='';
+ SCOREOutDir               ='';      ! ObsIndex ascii files
+ PIOutDir                  ='';         ! pressure interpolation netcdf files
+# output options
+ defaultprintflag          =0;             | default printflag (0,1,2, etc) 0=no print
+ ioutputflag               =0;             | 0=nowrite, 1=write F,Q files, 2=use 4darray and write F,Q files
+ outputFileFormat          ='binary';      | output file format ("netcdf" or "binary")
+ SaveQ                     =.FALSE.;       | write Q binary or netcdf files (required for SAVEPDFs or saveplotsQ options)
+ writencFout               =0;             | save reduced F data in netcdf format (0=don't save, 1=GTG combos only, 2=GTG combos+NWP, 3=GTG combos+NWP+indices)
+ writencQout               =0;             | save reduced Q data in netcdf format (0=don't save, 1=GTG combos only, 2=GTG combos+NWP, 3=GTG combos+NWP+indices)
+ writencPout               =0;             | final output interpolated pressure data netcdf option (0=don't save, 1=GTG combo only, 2=GTG combo+indices) 
+ writeRemappedInd          =.FALSE.;       | final output of indices (T=remapped to EDR)
+ SAVE_SCORES               =.FALSE.;       | create file of index-obs values for later scoring
+ SAVEPDFs                  =.FALSE.;       | creates PDFS (histogram) files of indices
+ nbins                     =180;           | Number of bins to be used in PDFS (histogram)
+ nbmin                     =20;            | Minimum number of items/bin to be used in PDFS (histogram)
+ binning_option_mask       =1,1,0;         | bin (incloud,out-of-cloud,in/out cloud)
+ saveplotsF                =.FALSE.;       | writes .F binary plot file
+ saveplotsQ                =.FALSE.;       | writes .Q binary plot file
+ savebinary                =.TRUE.;        | Saves binary .F,.Q files (T=save,F=delete at end of execution-default)
+# scoring options
+ rscore                    =0.;            | scoring radius from observation (m)
+ dzscore                   =500.;          | scoring altitude increment from observation (ft)
+ INCPIREPS                 =.TRUE.;        | use pireps in scoring,weighting
+ INCDALPIREPS              =.TRUE.;        | use NWA/DAL pireps in scoring,weighting
+ INCANZPIREPS              =.TRUE.;        | use Air New Zealand pireps in scoring,weighting
+ INCMFAIREPS               =.TRUE.;        | use Meteo France aireps in scoring,weighting
+ INCAFPIREPS               =.TRUE.;        | use Air France pireps in scoring,weighting
+ TransitionAltitude        =18000.;        | transition altitude to flight levels (ft MSL)
+ usewakeclass              =.FALSE.;       | Use wake/weight class to convert to edr
+ dptimef                   =0.5;           | pirep forward time window (hrs)
+ dptimeb                   =0.5;           | pirep backward time window (hrs)
+ lower_alt_limit           =0.;            | lowest obs altitude to use (ft)
+ upper_alt_limit           =60000;         | highest obs altitude to use (ft)
+ INCINSITUEDR              =.TRUE.;        | use insitu edr reports in scoring,weighting
+ INCUALEDR                 =.TRUE.;        | use UAL insitu edr reports in scoring,weighting
+ INCDALEDR                 =.TRUE.;        | use DAL insitu edr reports in scoring,weighting
+ INCSWAEDR                 =.TRUE.;        | use SWA insitu edr reports in scoring,weighting
+ INCSWREDR                 =.TRUE.;        | use SWISS saved insitu edr reports in scoring,weighting
+ USE_INTERPOLATED_NULLS    =.FALSE.;       | use interpolated nulls nulls from edr reports (DAL,SWA)
+ USE_Triggered_Only        =.FALSE.;       | use only triggered edr reports (DAL,SWA)
+ dedrtime                  =0.5;           | edr forward/backward time window (hrs)
+ INCIATAEDR                =.FALSE.;       | use IATA insitu edr reports in scoring,weighting
+ INCNTDAEDR                =.TRUE.;        | use NTDA edr reports in scoring,weighting
+ dntdatime                 =0.1;           | ntda edr forward/backward time window (hrs)
+ INCUDE                    =.FALSE.;       | use Ude reports in scoring,weighting
+ dudetime                  =1.0;           | Ude forward/backward time window (hrs)
+ INCLIGHTNING              =.TRUE.;        | use lightning data to identify CIT observations
+ LFILT                     =.FALSE.;       | filter observations within lgtrad dist and dltime 
+ lgtrad                    =50.0E3;        | lightning filter radius (m)
+ dltime                    =0.5;           | lightning filter time window (hr)
+# Optional climo run parameters
+ save_obs_climo            =.FALSE.;       | Associate GTG output with observations
+ save_climo_files          =.FALSE.;       | Save run climatological parameters to disk
+ save_vert_climo           =.FALSE.;       | Output vertical profile at observation
+ save_climo_bins           =.FALSE.;       | Output binned data of obs vs scales
+ use_insitu_only           =.TRUE.;        | Save only insitu obs
+ include_trop_region       =.FALSE.;       | Bin extra regions +/- 1km of tropopause
+ output_p_levels           =.FALSE.;       | Output climo netcdf files on p levels
+ comp_minabsvort           =.FALSE.;       | compute min abs vorticity to check for inertial instability
+ ClimoDir                  ='';            | output netcdf file directory
+## 
