@@ -208,8 +208,11 @@ EOF
 #
 #-----------------------------------------------------------------------
 
-cp ${UPP_DIR}/sorc/ncep_post.fd/post_gtg.fd/gtg.config.rrfs ./gtg.config.rrfs
-cp ${UPP_DIR}/sorc/ncep_post.fd/post_gtg.fd/gtg.input.rrfs ./gtg.input.rrfs
+# cp ${UPP_DIR}/sorc/ncep_post.fd/post_gtg.fd/gtg.config.rrfs ./gtg.config.rrfs
+# cp ${UPP_DIR}/sorc/ncep_post.fd/post_gtg.fd/gtg.input.rrfs ./gtg.input.rrfs
+
+cp ${PARMdir}/gtg.config.rrfs ./gtg.config.rrfs
+cp ${PARMdir}/gtg.input.rrfs ./gtg.input.rrfs
 
 #-----------------------------------------------------------------------
 #
