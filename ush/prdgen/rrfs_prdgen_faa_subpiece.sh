@@ -19,6 +19,8 @@ USHrrfs=$8
 fixdir=${USHrrfs}/../../fix/prdgen
 parmdir=${USHrrfs}/../../parm
 
+compress_type="jpeg"
+
 #-- remove the leading 0"
 ifhr=$(expr ${fhr:0:3} + 0)    ## (eg. f013-15-00)
 ifmn=${fhr:4:2}
@@ -79,7 +81,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- GRID 130: CONUS 13km
     if [ $ifhr -le 21 ]; then
       wgrib2 ${COMOUT}/${prslev} | grep -F -f rrfs.prslev-FAA130.params | \
-      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_130} rrfs.t${cyc}z.prslevfaa.f${fhr}.conus13km.grib2
@@ -94,7 +96,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- 3km Rotated Lat Lon (subset of the original RRFS output)
     if [ $ifhr -le 15 ]; then
       wgrib2 ${COMOUT}/${prslev} | grep -F -f rrfs.prslev-rrfs3km.params | \
-      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -grib  rrfs.t${cyc}z.prslev.f${fhr}.na3km.grib2
       mv rrfs.t${cyc}z.prslev.f${fhr}.na3km.grib2 ${COMOUT}
       wgrib2 ${COMOUT}/rrfs.t${cyc}z.prslev.f${fhr}.na3km.grib2 -s > ${COMOUT}/rrfs.t${cyc}z.prslev.f${fhr}.na3km.grib2.idx
@@ -107,7 +109,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- 13km Rotated Lat Lon
     if [ $ifhr -le 18 ]; then
       wgrib2 ${COMOUT}/${prslev} | grep -F -f rrfs.prslev-rrfs13km.params | \
-      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_rrfs_13km} rrfs.t${cyc}z.prslevfaa.f${fhr}.na13km.grib2
@@ -118,7 +120,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
       
       export ifhrmn=$(printf "%02d" $ifhrmn)
       wgrib2 ${COMOUT}/${prslev} -s | egrep '(:VIL:entire atmosphere:|:RETOP:)' | \
-      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_rrfs_13km} rrfs.t${cyc}z.prslevfaa.subh.f${ifhrmn}00.na13km.grib2
@@ -128,7 +130,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- GRID 237: PR 32 km
     if [ $ifhr -le 12 ]; then
       wgrib2 ${COMOUT}/${prslev} | grep -F -f rrfs.prslev-FAA237.params | \
-      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_237} rrfs.t${cyc}z.prslevfaa.f${fhr}.pr32km.grib2
@@ -140,7 +142,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
 
     #-- GRID 130
     #wgrib2 ${COMOUT}/${natlev} -s | grep "hybrid level:" | grep -F -f ${fixdir}/rrfs.natlev-FAA130.params | \
-    #wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type c3 \
+    #wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type ${compress_type} \
     #   -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
     #   -new_grid_interpolation bilinear \
     #   -new_grid ${grid_specs_130} rrfs.t${cyc}z.natlevfaa.f${fhr}.conus13km.grib2
@@ -149,13 +151,13 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- 13km Rotated Lat Lon
     if [ $ifhr -le 6 ]; then
       wgrib2 ${COMOUT}/${natlev} -s | grep "hybrid level:" | grep -F -f ${fixdir}/rrfs.natlev-FAA130.params | \
-      wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_rrfs_13km} rrfs.t${cyc}z.natlevfaa.f${fhr}.na13km.grib2
 
       wgrib2 ${COMOUT}/${natlev} -s | grep ":LTNG:entire atmosphere:" | \
-      wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_rrfs_13km} rrfs.t${cyc}z.natlevfaa.f${fhr}.na13km.tmp.grib2
@@ -168,13 +170,13 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- GRID 237
     if [ $ifhr -le 12 ]; then
       #wgrib2 ${COMOUT}/${natlev} -s | grep "hybrid level:" | grep -F -f ${fixdir}/rrfs.natlev-FAA130.params | \
-      #wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type c3 \
+      #wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type ${compress_type} \
       #   -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
       #   -new_grid_interpolation bilinear \
       #   -new_grid ${grid_specs_237} rrfs.t${cyc}z.natlevfaa.f${fhr}.pr32km.grib2
 
       wgrib2 ${COMOUT}/${natlev} -s | grep ":LTNG:entire atmosphere:" | \
-      wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${natlev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_237} rrfs.t${cyc}z.natlevfaa.f${fhr}.pr32km.tmp.grib2
@@ -220,7 +222,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
   #  if [ $ifhr -le 21 ]; then
   #    # wgrib2 ${COMOUT}/${aviati} -s | egrep '(:EDPARM:|:CATEDR:|:MWTURB:|:CITEDR:)' | \
   #    wgrib2 ${COMOUT}/${aviati} -s | egrep '(:EDPARM:|:CATEDR:|:MWTURB:|:var discipline=0 master_table=2 parmcat=19 parm=50:)' | \
-  #    wgrib2 -i ${COMOUT}/${aviati} -set_bitmap 1 -set_grib_type c3 \
+  #    wgrib2 -i ${COMOUT}/${aviati} -set_bitmap 1 -set_grib_type ${compress_type} \
   #       -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
   #       -new_grid_interpolation bilinear \
   #       -new_grid ${grid_specs_130} GTG_grid_130.grib2
@@ -234,7 +236,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     if [ $ifhr -le 21 ]; then
       # wgrib2 ${COMOUT}/${aviati} -s | egrep '(:EDPARM:|:CATEDR:|:MWTURB:|:CITEDR:)' | \
       wgrib2 ${COMOUT}/${aviati} -s | egrep '(:EDPARM:|:CATEDR:|:MWTURB:|:var discipline=0 master_table=2 parmcat=19 parm=50:)' | \
-      wgrib2 -i ${COMOUT}/${aviati} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${aviati} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_rrfs} GTG_grid_conus3km.grib2
@@ -251,7 +253,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #if [ $ifhr -le 21 ]; then
     #  # wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:ICESEV:)' | \
     #  wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:var discipline=0 master_table=2 parmcat=19 parm=37:)' | \
-    #  wgrib2 -i ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type c3 \
+    #  wgrib2 -i ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type ${compress_type} \
     #     -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
     #     -new_grid_interpolation neighbor \
     #     -new_grid ${grid_specs_130} IFI_grid_130.grib2
@@ -270,7 +272,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     if [ $ifhr -le 21 ]; then
       # wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:ICESEV:)' | \
       wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:var discipline=0 master_table=2 parmcat=19 parm=37:)' | \
-      wgrib2 -i ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation neighbor \
          -new_grid ${grid_specs_rrfs} IFI_grid_conus3km.grib2
@@ -288,7 +290,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- 13km Rotated Lat Lon
     #wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:ICESEV:)' | \
     # wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:var discipline=0 master_table=2 parmcat=19 parm=37:)' | \
-    #wgrib2 -i ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type c3 \
+    #wgrib2 -i ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type ${compress_type} \
     #   -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
     #   -new_grid_interpolation neighbor \
     #   -new_grid ${grid_specs_rrfs_13km} IFI_rotate_130.grib2
@@ -299,7 +301,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     if [ $ifhr -le 18 ]; then
       # wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:ICESEV:)' | \
       wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:var discipline=0 master_table=2 parmcat=19 parm=37:)' | \
-      wgrib2 ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation neighbor \
          -new_grid ${grid_specs_91}  rrfs.t${cyc}z.ififip.f${fhr}.ak3km.grib2
@@ -317,7 +319,7 @@ if [ ${ifmn} -eq  ""]; then    # exact hour, hourly (eg. f012)
     #-- GRID 237: PR 32km
     #wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:ICESEV:)' | \
     # wgrib2 ${COMOUT}/${ififip} -s | egrep '(:ICPRB:|:SIPD:|:var discipline=0 master_table=2 parmcat=19 parm=37:)' | \
-    #wgrib2 ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type c3 \
+    #wgrib2 ${COMOUT}/${ififip} -set_bitmap 1 -set_grib_type ${compress_type} \
     #   -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
     #   -new_grid_interpolation neighbor \
     #   -new_grid ${grid_specs_237}  rrfs.t${cyc}z.ififip.f${fhr}.pr_32km.grib2
@@ -334,7 +336,7 @@ else     # sub-hourly upp data  (eg. f013-15-00)
     if [ $ifhrmn -le 1800 ]; then
       export ifhrmn=$(printf "%04d" $ifhrmn)
       wgrib2 ${COMOUT}/${prslev} -s | egrep '(:VIL:entire atmosphere:|:RETOP:)' | \
-      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type c3 \
+      wgrib2 -i ${COMOUT}/${prslev} -set_bitmap 1 -set_grib_type ${compress_type} \
          -new_grid_winds grid -new_grid_vectors "UGRD:VGRD:USTM:VSTM" \
          -new_grid_interpolation bilinear \
          -new_grid ${grid_specs_rrfs_13km} rrfs.t${cyc}z.prslevfaa.subh.f${ifhrmn}.na13km.grib2

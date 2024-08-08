@@ -22,7 +22,7 @@ domain=$4
 prslev=$5
 DATA=$6
 comout=$7
-export compress_type=c3
+export compress_type=jpeg
 
 cd $DATA/prdgen_${domain}_${subpiece}
 
