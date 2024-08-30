@@ -139,6 +139,9 @@ cyc=$hh
 #-----------------------------------------------------------------------
 #
 len_fhr=${#fhr}
+
+fhr_true=${fhr:1:2}
+
 if [ ${len_fhr} -eq 9 ]; then
   post_min=${fhr:4:2}
   if [ ${post_min} -lt 15 ]; then
@@ -149,6 +152,7 @@ else
 fi
 
 subh_fhr=${fhr}
+
 if [ ${len_fhr} -eq 2 ]; then
   post_fhr=${fhr}00
 elif [ ${len_fhr} -eq 3 ]; then
@@ -157,21 +161,48 @@ elif [ ${len_fhr} -eq 3 ]; then
   else
     post_fhr=${fhr}00
   fi
+
 elif [ ${len_fhr} -eq 9 ]; then
+	echo is this block setting old stuff
   if [ "${fhr:0:1}" = "0" ]; then
     if [ ${post_min} -eq 00 ]; then
       post_fhr="${fhr:1:2}00"
       subh_fhr="${fhr:0:3}"
+      let post_fhr_old=fhr_true-1
+      post_min_old=45
     else
       post_fhr="${fhr:1:2}${fhr:4:2}"
+      let post_fhr_old=fhr_true
     fi
+
+    if [ ${post_min} -eq 15 ]; then
+      post_min_old=00
+    elif  [ ${post_min} -eq 30 ]; then
+      post_min_old=15
+    elif  [ ${post_min} -eq 45 ]; then
+      post_min_old=30
+    fi
+
   else
     if [ ${post_min} -eq 00 ]; then
       post_fhr="${fhr:0:3}00"
       subh_fhr="${fhr:0:3}"
+      let post_fhr_old=fhr_true-1
+      post_min_old=45
     else
       post_fhr="${fhr:0:3}${fhr:4:2}"
+      let post_fhr_old=fhr_true
     fi
+
+    if [ ${post_min} -eq 15 ]; then
+      post_min_old=00
+    elif  [ ${post_min} -eq 30 ]; then
+      post_min_old=15
+    elif  [ ${post_min} -eq 45 ]; then
+      post_min_old=30
+    fi
+
+
   fi
 else
   err_exit "\
@@ -199,7 +230,29 @@ if [ ${DO_ENSFCST} = "TRUE" ]; then
   aviati=${net4}.t${cyc}z.m0${ensmem_num}.aviati.f${fhr}.${gridname}grib2
   testbed=${net4}.t${cyc}z.m0${ensmem_num}.testbed.f${fhr}.${gridname}grib2
 else
+
+  echo here with fhr as $fhr
+  echo here with post_fhr_old as $post_fhr_old
+  echo here with post_min_old as $post_min_old
+
+  fhr_old_use=`printf "%03d\n" $post_fhr_old`
+
+  fhr_old_full=${fhr_old_use}-${post_min_old}-00
+
   prslev=${net4}.t${cyc}z.prslev.f${fhr}.${gridname}grib2
+  prslev_old=${net4}.t${cyc}z.prslev.f${fhr_old_full}.${gridname}grib2
+
+#  ls -l ${postprd_dir}/$prslev ${postprd_dir}/$prslev_old
+
+  wgrib2 ${postprd_dir}/$prslev_old -match APCP -grib apcp.f${fhr_old_full}.grib2
+  wgrib2 ${postprd_dir}/$prslev -match APCP -grib apcp.f${fhr}.grib2
+
+  ls -l apcp.f${fhr_old_full}.grib2 apcp.f${fhr}.grib2
+
+
+
+# insert bucket step here?
+
   natlev=${net4}.t${cyc}z.natlev.f${fhr}.${gridname}grib2
   ififip=${net4}.t${cyc}z.ififip.f${fhr}.${gridname}grib2
   aviati=${net4}.t${cyc}z.aviati.f${fhr}.${gridname}grib2
