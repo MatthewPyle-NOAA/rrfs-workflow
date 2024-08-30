@@ -244,8 +244,38 @@ else
 
 #  ls -l ${postprd_dir}/$prslev ${postprd_dir}/$prslev_old
 
-  wgrib2 ${postprd_dir}/$prslev_old -match APCP -grib apcp.f${fhr_old_full}.grib2
-  wgrib2 ${postprd_dir}/$prslev -match APCP -grib apcp.f${fhr}.grib2
+# possibly not needed?
+#
+
+echo `pwd` > ./itag_${fhr}
+echo "${net4}.t${cyc}z.prslev" >> ./itag_${fhr}
+echo "$fhr_old_use" >> ./itag_${fhr}
+echo "$post_min_old" >> ./itag_${fhr}
+echo "$fhr_true" >> ./itag_${fhr}
+echo "$post_min" >> ./itag_${fhr}
+echo "0" >> ./itag_${fhr}
+echo "junk" >> ./itag_{$fhr}
+
+list=`wgrib2 -d 1 ${postprd_dir}/$prslev -nxny`
+
+new=`echo $list | awk -F : '{print $3}'`
+
+echo new $new
+
+IM=217
+JM=128
+
+echo $IM $JM >> itag_${fhr}
+
+#here
+
+$APRUN $EXECdir/rrfs_bucket.exe < ./itag_${fhr} >> $pgmout 2>errfile
+
+
+
+
+#  wgrib2 ${postprd_dir}/$prslev_old -match APCP -grib apcp.f${fhr_old_full}.grib2
+#  wgrib2 ${postprd_dir}/$prslev -match APCP -grib apcp.f${fhr}.grib2
 
   ls -l apcp.f${fhr_old_full}.grib2 apcp.f${fhr}.grib2
 
@@ -528,7 +558,9 @@ else
   fi
 fi  # block for parallel or series wgrib2 runs.
 
-rm -rf ${fhr_dir}
+echo not deleting for now
+
+#tmp rm -rf ${fhr_dir}
 #
 #-----------------------------------------------------------------------
 #
