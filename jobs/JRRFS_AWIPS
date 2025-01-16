@@ -1,0 +1,37 @@
+#!/bin/bash
+
+date
+export PS4=' $SECONDS + '
+set -xue
+
+#-----------------------------------------------------------------------
+# Source the variable definitions file and the bash utility functions.
+#-----------------------------------------------------------------------
+export USHrrfs=${USHrrfs:-${HOMErrfs}/ush}
+export PARMrrfs=${PARMrrfs:-${HOMErrfs}/parm}
+export EXECrrfs=${EXECrrfs:-${HOMErrfs}/exec}
+export FIXrrfs=${FIXrrfs:-${HOMErrfs}/fix}
+
+export DATA=${DATA:-${DATAROOT:?}/${jobid:?}}
+mkdir $DATA
+cd $DATA 
+
+export COMIN=${COMIN:-$(compath.py  ${envir}/$NET/${rrfs_ver})/${RUN}.${PDY}/${cyc}}
+export COMOUT=${COMOUT:-$(compath.py -o $NET/${rrfs_ver})/${RUN}.${PDY}/${cyc}}
+export COMOUTwmo=${COMOUTwmo:-${COMOUT}/wmo}
+
+. ${GLOBAL_VAR_DEFNS_FP}
+. $USHrrfs/source_util_funcs.sh
+
+export cycle="t${cyc}z"
+setpdy.sh
+. ./PDY
+export CDATE=${PDY}${cyc}
+
+
+${HOMErrfs}/scripts/exrrfs_awips.sh
+export err=$?; err_chk
+
+if [ "${KEEPDATA}" != "YES" ]; then
+  rm -rf ${DATA}
+fi
