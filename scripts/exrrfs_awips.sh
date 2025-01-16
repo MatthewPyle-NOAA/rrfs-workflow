@@ -17,8 +17,35 @@ set -x
 cd $DATA
 
 msg="RRFS post-processing for AWIPS has begun on `hostname` at `date`"
+export pgm="rrfsawips"
+
 postmsg  "$msg"
 startmsg
+
+
+gridname=""
+gridspacing=""
+
+# not sure why seem to need to hardwire it here...PREDEF_GRID_NAME lost along the way
+PREDEF_GRID_NAME=RRFS_CONUS_25km
+
+if [ "${PREDEF_GRID_NAME}" = "RRFS_FIREWX_1.5km" ]; then
+  gridname="firewx"
+  gridspacing="1p5km"
+elif [ "${PREDEF_GRID_NAME}" = "RRFS_CONUS_25km" ]; then
+  gridname="conus"
+  gridspacing="25km"
+elif [ "${PREDEF_GRID_NAME}" = "RRFS_CONUS_13km" ]; then
+   gridname="conus"
+   gridspacing="13km"
+elif [ "${PREDEF_GRID_NAME}" = "RRFS_CONUS_3km" ]; then
+   gridname="conus"
+   gridspacing="3km"
+elif [ "${PREDEF_GRID_NAME}" = "RRFS_NA_3km" ]; then
+    gridname="na"
+    gridspacing="3km"
+fi
+
 
 for fhr in 000 001 002 003 004 005 006 007 008 009 010 011 012 013 014 015 \
        016 017 018 019 020 021 022 023 024 025 026 027 028 029 030 031 032 033 \
@@ -33,7 +60,7 @@ do
   do
 
 	  # believe need to add grid spacing to file name.
-    if [ -f $COMIN/${NET}.t${cyc}z.prslev.f${fhr}.grib2.idx ]; then
+    if [ -f $COMIN/${NET}.t${cyc}z.prslev.${gridspacing}.f${fhr}.${gridname}.grib2.idx ]; then
       break
     else
       let "icnt=icnt+1"
@@ -41,15 +68,18 @@ do
     fi
   done
   if [ $icnt -ge $maxtries ]; then
-     msg="FATAL ERROR - ABORTING after 50 minutes of waiting for ${NET}.t${cyc}z.prslev.f${fhr}.grib2.idx to become available."
+     msg="FATAL ERROR - ABORTING after 50 minutes of waiting for ${NET}.t${cyc}z.prslev.${gridspacing}.f${fhr}.${gridname}.grib2.idx to become available."
      err_exit $msg
   fi
 	  # believe need to add grid spacing to file name.
-    export FORT11=$COMIN/${NET}.t${cyc}z.prslev.f${fhr}.grib2
+    export FORT11=$COMIN/${NET}.t${cyc}z.prslev.${gridspacing}.f${fhr}.${gridname}.grib2
     export FORT31=""
     export FORT51=grib2.t${cyc}z.rrfs_f${fhr}
+
     $TOCGRIB2 < $PARMutil/grib2.awips.rrfs.${fhr}
 
+    SENDCOM=YES
+    SENDDBN_NTC=NO
     if [ $SENDCOM = "YES" ] ; then
        cp  $FORT51  $COMOUTwmo/
     fi
