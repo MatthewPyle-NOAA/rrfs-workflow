@@ -146,8 +146,8 @@ DD=`echo $endtime | cut -c7-8`
 
 FINALDATE=${YYYY}-${MM}-${DD}_${cyc}:00:00
 
-if [ -e sndpostdone00.tm00 ]; then
-  lasthour=`ls -1rt sndpostdone??.tm00 | tail -1 | cut -c 12-13`
+if [ -e ../sndpostdone00.tm00 ]; then
+  lasthour=`ls -1rt ../sndpostdone??.tm00 | tail -1 | cut -c 12-13`
   typeset -Z2 lasthour
 
   let "fhr=$(( ${fhr#0} + 1 ))"
