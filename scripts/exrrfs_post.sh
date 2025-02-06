@@ -45,6 +45,16 @@ In directory:     \"${scrfunc_dir}\"
 This is the ex-script for the task that runs the post-processor (UPP) on
 the output files corresponding to a specified forecast hour.
 ========================================================================"
+
+# will it be in an umbrella structure?
+POSTDONE=./postdone_${fhr}
+
+if [ -e ${POSTDONE} ]
+then
+	echo "It appears that this RRFS post time was already run"
+	ls -l ${POSTDONE}
+	exit 0
+fi
 #
 #-----------------------------------------------------------------------
 #
@@ -456,7 +466,11 @@ if [ -f AVIATI.GrbF${post_fhr} ]; then
   wgrib2 AVIATI.GrbF${post_fhr} -set center 7 -grib ${bgavi} >>$pgmout 2>>errfile
 fi
 
+
+echo DONE > ${POSTDONE}
+
 #
+# this seems like it needs to be removed for EE2 purposes
 #-----------------------------------------------------------------------
 #   clean forecast netcdf files for saving space
 #-----------------------------------------------------------------------

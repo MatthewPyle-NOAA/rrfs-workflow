@@ -52,6 +52,17 @@ the output files corresponding to a specified forecast hour.
 #
 #-----------------------------------------------------------------------
 #
+
+# will it be in an umbrella structure?
+PRDGENDONE=./prdgendone_${fhr}
+#
+if [ -e ${PRDGENDONE} ]
+then    
+   echo "It appears that this RRFS prdgen time was already run"
+   ls -l ${PRDGENDONE}
+   exit 0
+fi      
+
 ulimit -s unlimited
 ulimit -a
 
@@ -454,6 +465,9 @@ else
     done
   fi
 fi  # block for parallel or series wgrib2 runs.
+
+
+echo DONE > $PRDGENDONE
 
 #
 #-----------------------------------------------------------------------
