@@ -338,7 +338,17 @@ if [ ${extrn_mdl_name} != GEFS ] ; then
      echo "Add file - ${file_to_copy} to parallel transfer job list"
      echo "cpfs ${file_to_copy} ${umbrella_lbcops_data}" >> ${DATA}/parallel_copy.sh
    done
-   [[ -s ${DATA}/parallel_copy.sh ]]&& cat ${DATA}/parallel_copy.sh | parallel --verbose
+   if [ -s ${DATA}/parallel_copy.sh ]; then
+     lop_slp=2
+     split -l 10 parallel_copy.sh parallel_copy_run
+     for file_to_p_copy in parallel_copy_run*; do
+       sleep ${lop_slp}
+       echo "Working on ${file_to_p_copy}"
+       cat ${file_to_p_copy} | parallel --verbose --halt-on-error 1
+       export err=$?; err_chk
+       lop_slp=$(($lop_slp+8))
+     done
+   fi
  else
    # 3 second of file system refreshment
    sleep 3
