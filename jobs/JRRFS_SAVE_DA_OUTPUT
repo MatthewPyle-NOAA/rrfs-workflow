@@ -21,6 +21,9 @@ export USHrrfs=${USHrrfs:-${HOMErrfs}/ush}
 #-----------------------------------------------------------------------
 export pid=${pid:-$$}
 export outid=${outid:-"LL$job"}
+export RUN=${RUN:-rrfs}
+export NET=${NET:-rrfs}
+export cycle="t${cyc}z"
 export DATA=${DATA:-${DATAROOT}/${jobid}}
 mkdir -p ${DATA}
 cd ${DATA}
@@ -71,7 +74,7 @@ case "${WGF}" in
     export RUN="enkfrrfs"
     ;;
   "ensf")
-    export RUN="refs"
+    export RUN="rrfsens"
     ;;
   "firewx")
     export RUN="firewx"
@@ -93,7 +96,7 @@ if [ ${WGF} == "ensf" ]; then
 else
   export COMOUT="${COMrrfs}/${RUN}.${PDY}/${cyc}/${mem_num}/forecast"
 fi
-export umbrella_forecast_data="${DATAROOT}/rrfs_forecast_${cyc}_${rrfs_ver}/${WGF}/${mem_num}/INPUT"
+export umbrella_forecast_data="${DATAROOT}/rrfs_forecast_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}/${mem_num}/INPUT"
 export DATA=${DATA:-${DATAROOT}/${jobid}}
 mkdir -p ${COMOUT}/DA_OUTPUT
 
@@ -120,3 +123,11 @@ print_info_msg "
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+
+##################################################
+# Remove the Temporary working directory
+##################################################
+if [ "${KEEPDATA^^}" != YES ]; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi

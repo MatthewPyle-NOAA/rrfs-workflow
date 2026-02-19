@@ -35,6 +35,7 @@ cd ${DATA}
 export cycle="t${cyc}z"
 setpdy.sh
 . ./PDY
+export CDATE="${PDY}${cyc}"
 
 case "${WGF}" in
   "det")
@@ -44,7 +45,7 @@ case "${WGF}" in
     export RUN="enkfrrfs"
     ;;
   "ensf")
-    export RUN="refs"
+    export RUN="rrfsens"
     ;;
   "firewx")
     export RUN="firewx"
@@ -86,6 +87,10 @@ hour zero).
 # Send data to COMOUT since the LBCs jobs share data with other jobs
 # outside of the current cycle
 
+export COMINgfs=${COMINgfs:-$(compath.py gfs/${gfs_ver})}
+export COMINgefs=${COMINgefs:-$(compath.py gefs/${gefs_ver})}
+export COMIN=${COMIN:-$(compath.py rrfs/${rrfs_ver})}
+
 if [ $WGF = "enkf" ] || [ $WGF = "ensf" ]; then
   export ENSMEM_INDX=${MEMBER_NAME}
   export mem_num=m$(echo "${ENSMEM_INDX}")
@@ -93,13 +98,13 @@ if [ $WGF = "enkf" ] || [ $WGF = "ensf" ]; then
 else
   export ENSMEM_INDX=""
   export COMOUT="${COMOUT:-$(compath.py -o ${NET}/${rrfs_ver}/${RUN}.${PDY}/${cyc}/lbcs)}"
-  export umbrella_lbcops_data=${umbrella_ops_data:-${DATAROOT}/rrfs_lbcops_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_lbcops_data=${umbrella_ops_data:-${DATAROOT}/rrfs_lbcops_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
   if [ -d ${umbrella_lbcops_data} ] && [ ${BCGRP} = "00" ]; then
     mv ${umbrella_lbcops_data} ${umbrella_lbcops_data}_$$
   fi
   mkdir -p ${umbrella_lbcops_data}
   if [ $WGF = "firewx" ]; then
-    export firewx_input_dir="${COMrrfs}/firewx_input"
+    export firewx_input_dir="${COMIN}/firewx_input"
     export COMINnam=${COMINnam:-$(compath.py nam/${nam_ver})}
   fi
 fi
@@ -118,9 +123,7 @@ export err=$?; err_chk
 if [ -e "$pgmout" ]; then
   cat $pgmout
 fi
-if [ "${KEEPDATA}" != "YES" ]; then
-   rm -rf ${DATA}
-fi
+
 #-----------------------------------------------------------------------
 # Print exit message.
 #-----------------------------------------------------------------------
@@ -130,3 +133,11 @@ print_info_msg "
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+
+##################################################
+# Remove the Temporary working directory
+##################################################
+if [ "${KEEPDATA^^}" != YES ]; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi

@@ -41,7 +41,7 @@ export SFC_CLIMO_DIR="${HOMErrfs}/fix/lam/${GRID_NAME}"
 export OBSPATH_NSSLMOSIAC="${DCOMROOT}/ldmdata/obs/upperair/mrms/conus/MergedReflectivityQC"
 export GLMFED_EAST_ROOT="${DCOMROOT}/ldmdata/obs/GOES-19/GLM/tiles"
 export GLMFED_WEST_ROOT="${DCOMROOT}/ldmdata/obs/GOES-18/GLM/tiles"
-export GVF_ROOT="${DCOMROOT}/viirs"
+export DCOMINgvf="${DCOMROOT}/viirs"
 export FIRE_RAVE_DIR="${DCOMROOT}"
 export TOPO_DIR="${FIXrrfs}/fix_orog"
 export SFC_CLIMO_INPUT_DIR="${FIXrrfs}/fix_sfc_climo"
@@ -49,7 +49,6 @@ export AIRCRAFT_REJECT="${FIXrrfs}/gsi"
 export SFCOBS_USELIST="${FIXrrfs}/gsi"
 export CUSTOM_POST_CONFIG_FP="${FIXrrfs}/upp/postxconfig-NT-rrfs.txt"
 export CUSTOM_POST_PARAMS_FP="${FIXrrfs}/upp/params_grib2_tbl_new"
-export DATA_TABLE_FP="${PARMrrfs}/config/${WGF}/data_table"
 export FIELD_TABLE_FP="${PARMrrfs}/config/${WGF}/field_table"
 export FV3_NML_FP="${PARMrrfs}/config/${WGF}/input.nml"
 export UFS_YAML_FP="${PARMrrfs}/config/${WGF}/fd_ufs.yaml"
@@ -83,7 +82,7 @@ case "${WGF}" in
     export RUN="enkfrrfs"
     ;;
   "ensf")
-    export RUN="refs"
+    export RUN="rrfsens"
     ;;
   "firewx")
     export RUN="firewx"
@@ -107,7 +106,7 @@ case $WGF in
     COM_WGF="enkfrrfs"
     ;;
   ensf)
-    COM_WGF="refs"
+    COM_WGF="rrfsens"
     ;;
   firewx)
     COM_WGF="firewx"
@@ -120,8 +119,8 @@ esac
 #-----------------------------------------------------------------------
 export CYCLE_TYPE=${CYCLE_TYPE:-prod}
 export CYCLE_SUBTYPE=${CYCLE_SUBTYPE:-empty}
-export umbrella_ics_data="${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}/ics"
-export umbrella_post_data=${DATAROOT}/rrfs_post_${cyc}_${rrfs_ver}/${WGF}
+export umbrella_ics_data="${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}/ics"
+export umbrella_post_data=${DATAROOT}/rrfs_post_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}
 spinup_prefix=""
 spinup_postfix=""
 if [ ${CYCLE_TYPE} = "spinup" ]; then
@@ -135,9 +134,9 @@ else
 fi
 if [ "${DO_ENSEMBLE}" = "TRUE" ]; then
   spinup_postfix="/${mem_num}"
-  export umbrella_ics_data="${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}/${mem_num}/ics"
+  export umbrella_ics_data="${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}/${mem_num}/ics"
 fi
-export umbrella_forecast_data=${DATAROOT}/rrfs_forecast${spinup_prefix}_${cyc}_${rrfs_ver}/${WGF}${spinup_postfix}
+export umbrella_forecast_data=${DATAROOT}/rrfs_forecast${spinup_prefix}_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}${spinup_postfix}
 export FORECAST_INPUT_PRODUCT=${umbrella_forecast_data}/INPUT
 export shared_forecast_output_data=${umbrella_forecast_data}/output
 export shared_forecast_restart_data=${umbrella_forecast_data}/RESTART
@@ -219,3 +218,11 @@ print_info_msg "
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+
+##################################################
+# Remove the Temporary working directory
+##################################################
+if [ "${KEEPDATA^^}" != YES ]; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi

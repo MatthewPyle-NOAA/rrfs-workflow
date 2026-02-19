@@ -104,7 +104,7 @@ esac
 #
 START_DATE=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
 
-YYYYMMDDHH=$(date +%Y%m%d%H -d "${START_DATE}")
+YYYYMMDDHH=$CDATE
 JJJ=$(date +%j -d "${START_DATE}")
 
 YYYY=${YYYYMMDDHH:0:4}
@@ -152,7 +152,7 @@ cat << EOF > namelist.soiltq
  /
 EOF
 
-  export pgm="adjust_soiltq.exe"
+  export pgm="rrfs_util_adjust_soiltq.exe"
   . prep_step
 
   $APRUN ${EXECrrfs}/$pgm >>$pgmout 2>errfile
@@ -179,7 +179,7 @@ cat << EOF > namelist.updatebc
  /
 EOF
 
-  export pgm="update_bc.exe"
+  export pgm="rrfs_util_update_bc.exe"
   . prep_step
 
   $APRUN ${EXECrrfs}/$pgm >>$pgmout 2>errfile

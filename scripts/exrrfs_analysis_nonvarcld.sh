@@ -80,7 +80,7 @@ esac
 #-----------------------------------------------------------------------
 #
 START_DATE=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
-YYYYMMDDHH=$(date +%Y%m%d%H -d "${START_DATE}")
+YYYYMMDDHH=$CDATE
 JJJ=$(date +%j -d "${START_DATE}")
 
 YYYY=${YYYYMMDDHH:0:4}
@@ -273,7 +273,7 @@ EOF
 ####
 #exit 0
 
-export pgm="fv3lam_nonvarcldana.exe"
+export pgm="rrfs_util_fv3lam_nonvarcldana.exe"
 . prep_step
 
 if [ ${BKTYPE} -eq 0 ]; then

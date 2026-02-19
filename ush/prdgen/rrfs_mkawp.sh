@@ -19,7 +19,7 @@ set -xa
 fhr=$1
 
 #runRRFS="000 001 002 003 004 005 006 007 008 009 010 011 012 013 014 015 016 017 018 019 020 021 022 023 024 025 026 027 028 029 030 031 032 033 034 035 036 037 038 039 040 041 042 043 044 045 046 047 048 049 050 051 052 053 054 055 056 057 058 059 060 063 066 069 072 075 078 081 084"
-runRRFS="000 003 006 009 012 015 018 021 024 027 030 033 036 039 042 045 048 051 054 057 060 063 066 069 072 075 078 081 084"
+runRRFS="000 003 006 009 012 015 018 021 024 027 030 033 036 039 042 045 048 051 054 057 060 066 072 078 084"
 if  echo $runRRFS |grep $fhr;
 then
   # Processing AWIPS grid (RRFS 3-km North America grid)
@@ -34,17 +34,16 @@ then
   . prep_step
 
   export FORT11=rrfs.t${cyc}z.prslev.3km.f${fhr}.na.grib2
-  export FORT51=grib2.t${cyc}z.awprrfs_f${fhr}_${cyc}
+  export FORT51=grib2.rrfs.t${cyc}z.awips.f${fhr}.na
   $TOCGRIB2 < $PARMrrfs/wmo/grib2_awips_rrfs_f${fhr}
   export err=$?; err_chk
 
-  cpreq -p grib2.t${cyc}z.awprrfs_f${fhr}_${cyc} ${COMOUT}/wmo
+  cpreq -p grib2.rrfs.t${cyc}z.awips.f${fhr}.na ${COMOUT}/wmo
 
-# DBN alerts from HRRR script - someone can modify this for RRFS later
-#  if [ $SENDDBN_NTC = YES -a $fhr -le 18 ]
-#  then
-#    $DBNROOT/bin/dbn_alert NTC_LOW $NET $job $WMO/grib2.${cycle}.awphrrr184_f${fhr}_${cyc}
-#  fi
+ if [ $SENDDBN_NTC = YES ]
+ then
+   $DBNROOT/bin/dbn_alert NTC_LOW $NET $job ${COMOUT}/wmo/grib2.rrfs.t${cyc}z.awips.f${fhr}.na
+ fi
 
 else
   echo "An AWIPS file will not be generated for forecast hour ${fhr}."

@@ -34,7 +34,7 @@ case "${WGF}" in
     export RUN="enkfrrfs"
     ;;
   "ensf")
-    export RUN="refs"
+    export RUN="rrfsens"
     ;;
   "firewx")
     export RUN="firewx"
@@ -46,9 +46,9 @@ esac
 export COMrrfs=${COMrrfs:-$(compath.py -o ${NET}/${rrfs_ver})}
 export CYCLE_TYPE=${CYCLE_TYPE:-prod}
 if [ "${CYCLE_TYPE}" = "spinup" ]; then
-  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_spinup_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_spinup_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
 else
-  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
 fi
 export shared_output_data=${umbrella_init_data}/output
 
@@ -68,7 +68,6 @@ else
   export COMOUT_ANALYSIS=${COMrrfs}/${RUN}.${PDY}/${cyc}/analysis
 fi
 mkdir -p ${COMOUT_ANALYSIS}
-
 
 #-----------------------------------------------------------------------
 # Source the bash utility functions.
@@ -122,3 +121,11 @@ print_info_msg "
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+
+##################################################
+# Remove the Temporary working directory
+##################################################
+if [ "${KEEPDATA^^}" != YES ]; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi

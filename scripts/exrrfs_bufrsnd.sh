@@ -83,16 +83,6 @@ Run command has not been specified for this machine:
 
 esac
 #
-#-----------------------------------------------------------------------
-#
-# Get the cycle date and hour (in formats of yyyymmdd and hh, respectively)
-# from CDATE.
-#
-#-----------------------------------------------------------------------
-#
-yyyymmdd=${CDATE:0:8}
-hh=${CDATE:8:2}
-cyc=$hh
 #
 #-----------------------------------------------------------------------
 #
@@ -117,10 +107,6 @@ FHRLIM=${FHRLIM}
 
 let NFILE=1
 
-START_DATE=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
-
-PDY=$CDATE
-
 YYYY=`echo $PDY | cut -c1-4`
 MM=`echo $PDY | cut -c5-6`
 DD=`echo $PDY | cut -c7-8`
@@ -130,7 +116,7 @@ startd=$YYYY$MM$DD
 startdate=$CYCLE
 
 STARTDATE=${YYYY}-${MM}-${DD}_${cyc}:00:00
-endtime=$(date +%Y%m%d%H -d "${START_DATE} +${FHRLIM} hours")
+endtime=$($NDATE ${FHRLIM} ${YYYY}${MM}${DD}${cyc})
 
 YYYY=`echo $endtime | cut -c1-4`
 MM=`echo $endtime | cut -c5-6`
@@ -168,7 +154,7 @@ fi
 while [ $fhr -le $FHRLIM ]
 do
 
-  date=$(date +%Y%m%d%H -d "${START_DATE} +${fhr} hours")
+  date=$($NDATE ${fhr} $CDATE)
 
   let "fhrold=$(( ${fhr#0} - 1 ))"
   if [ $fhrold -le 10 ]; then
@@ -237,7 +223,7 @@ ln -sf $DATA/bufrpost/regional_profdat     fort.19
 ln -sf $DATA/bufrpost/profilm.c1.${tmmark} fort.79
 ln -sf ./itag                              fort.11
 
-  export pgm="rrfs_bufr.exe"
+  export pgm="rrfs_util_rrfs_bufr.exe"
   . prep_step
 
   ${APRUNC} ${EXECrrfs}/$pgm >>$pgmout 2>errfile
@@ -266,8 +252,6 @@ cd $DATA
 # SNDP code
 ########################################################
 
-export pgm=rrfs_sndp
-
 cpreq -p ${FIX_BUFRSND}/regional_sndp.parm.mono $DATA/regional_sndp.parm.mono
 cpreq -p ${FIX_BUFRSND}/regional_bufr.tbl $DATA/regional_bufr.tbl
 
@@ -283,19 +267,22 @@ nlev=65
 FCST_LEN_HRS=$FHRLIM
 echo "$nlev $NSTAT $FCST_LEN_HRS" > itag
 
-export pgm="rrfs_sndp.exe"
+export pgm="rrfs_util_rrfs_sndp.exe"
 . prep_step
 
 ${APRUNS} ${EXECrrfs}/$pgm < itag >>$pgmout 2>errfile
 export err=$?; err_chk
 mv errfile errfile_rrfs_sndp
 
-SENDCOM=YES
-
-if [ "${SENDCOM}" = "YES" ]; then
+if [[ "${SENDCOM}" = "YES" ]]; then
   cpreq $DATA/class1.bufr $COMOUT/rrfs.t${cyc}z.class1.bufr
   cpreq $DATA/profilm.c1.${tmmark} ${COMOUT}/rrfs.t${cyc}z.profilm.c1
-fi
+
+ if [[ "${SENDDBN}" = "YES" ]]; then
+   $DBNROOT/bin/dbn_alert MODEL RRFS_BUFR $job ${COMOUT}/rrfs.t${cyc}z.class1.bufr
+ fi
+
+fi #SENDCOM
 
 # remove bufr file breakout directory in $COMOUT if it exists
 
@@ -322,7 +309,7 @@ export DIRD=${COMOUT}/bufr.${cyc}/bufr
 
 echo "before stnmlist.exe"
 
-export pgm="rrfs_stnmlist.exe"
+export pgm="rrfs_util_rrfs_stnmlist.exe"
 . prep_step
 
 ${APRUNS} ${EXECrrfs}/$pgm < stnmlist_input >>$pgmout 2>errfile
@@ -361,6 +348,16 @@ r
 
 exit
 EOF
+
+if [[ "${SENDCOM}" = "YES" ]]; then
+  cpreq ${outfilbase}.snd ${COMOUT}/gempak/
+  cpreq ${outfilbase}.sfc* ${COMOUT}/gempak/
+ if [[ "${SENDDBN}" = "YES" ]]; then
+  $DBNROOT/bin/dbn_alert MODEL RRFS_GEMPAK $job ${COMOUT}/gempak/${outfilbase}.snd
+  $DBNROOT/bin/dbn_alert MODEL RRFS_GEMPAK $job ${COMOUT}/gempak/${outfilbase}.sfc
+  $DBNROOT/bin/dbn_alert MODEL RRFS_GEMPAK $job ${COMOUT}/gempak/${outfilbase}.sfc_aux
+ fi
+fi
 
 print_info_msg "
 ========================================================================

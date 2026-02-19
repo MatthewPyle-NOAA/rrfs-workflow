@@ -1,9 +1,10 @@
 #!/bin/bash
+set -x
 echo "--> radmon_verf_bcor.sh"
 
 export PDATE=${1:-${PDATE:?}}
 
-bcor_exec=radmon_bcor.x
+bcor_exec=rrfs_util_radmon_bcor.x
 err=0
 
 if [[ $USE_ANL -eq 1 ]]; then

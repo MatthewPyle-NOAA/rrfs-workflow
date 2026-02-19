@@ -97,7 +97,7 @@ esac
 #-----------------------------------------------------------------------
 #
 START_DATE=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
-YYYYMMDDHH=$(date +%Y%m%d%H -d "${START_DATE}")
+YYYYMMDDHH=$CDATE
 JJJ=$(date +%j -d "${START_DATE}")
 
 YYYY=${YYYYMMDDHH:0:4}
@@ -144,7 +144,7 @@ list_iolayout=$(seq 0 $n_iolayouty)
 print_info_msg "$VERBOSE" "
 Getting into working directory for radar reflectivity process ..."
 
-export pgm="process_NSSL_mosaic.exe"
+export pgm="rrfs_util_process_NSSL_mosaic.exe"
 . prep_step
 
 for bigmin in ${RADARREFL_TIMELEVEL[@]}; do
@@ -333,17 +333,20 @@ EOF
   if [ -f ${shared_output_data}/rrfs.t${HH}z.RefInGSI3D.bin.${bigmin} ] && [ -s ${DATA}/${bigmin}/RefInGSI3D.dat ]; then 
     rm -f ${shared_output_data}/rrfs.t${HH}z.RefInGSI3D.bin.${bigmin}
   fi
-  ln -s ${DATA}/${bigmin}/RefInGSI3D.dat ${shared_output_data}/rrfs.t${HH}z.RefInGSI3D.bin.${bigmin} 
+#  ln -s ${DATA}/${bigmin}/RefInGSI3D.dat ${shared_output_data}/rrfs.t${HH}z.RefInGSI3D.bin.${bigmin} 
+  cpreq ${DATA}/${bigmin}/RefInGSI3D.dat ${shared_output_data}/rrfs.t${HH}z.RefInGSI3D.bin.${bigmin}
   cpreq -p RefInGSI3D.dat  ${COMOUT_ANALYSIS}/rrfs.t${HH}z.RefInGSI3D.bin.${bigmin}
   if [ -f ${shared_output_data}/Gridded_ref.nc ] && [ -s ${DATA}/${bigmin}/Gridded_ref.nc ]; then
     rm -f ${shared_output_data}/Gridded_ref.nc
   fi
-  ln -s ${DATA}/${bigmin}/Gridded_ref.nc ${shared_output_data}/Gridded_ref.nc
+#  ln -s ${DATA}/${bigmin}/Gridded_ref.nc ${shared_output_data}/Gridded_ref.nc
+  cpreq ${DATA}/${bigmin}/Gridded_ref.nc ${shared_output_data}/Gridded_ref.nc
   cpreq -p Gridded_ref.nc ${COMOUT_ANALYSIS}/Gridded_ref.nc
   if [ -f ${shared_output_data}/rrfs.t${HH}z.Gridded_ref.nc.${bigmin} ] && [ -s ${DATA}/${bigmin}/Gridded_ref.nc ]; then
     rm -f ${shared_output_data}/rrfs.t${HH}z.Gridded_ref.nc.${bigmin}
   fi
-  ln -s ${DATA}/${bigmin}/Gridded_ref.nc ${shared_output_data}/rrfs.t${HH}z.Gridded_ref.nc.${bigmin}
+#  ln -s ${DATA}/${bigmin}/Gridded_ref.nc ${shared_output_data}/rrfs.t${HH}z.Gridded_ref.nc.${bigmin}
+  cpreq ${DATA}/${bigmin}/Gridded_ref.nc ${shared_output_data}/rrfs.t${HH}z.Gridded_ref.nc.${bigmin}
   cpreq -p Gridded_ref.nc ${COMOUT_ANALYSIS}/rrfs.t${HH}z.Gridded_ref.nc.${bigmin}
 done # done with the bigmin for-loop
 #

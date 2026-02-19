@@ -79,7 +79,7 @@ esac
 #-----------------------------------------------------------------------
 #
 START_DATE=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
-YYYYMMDDHH=$(date +%Y%m%d%H -d "${START_DATE}")
+YYYYMMDDHH=${CDATE:0:10}
 JJJ=$(date +%j -d "${START_DATE}")
 
 YYYY=${YYYYMMDDHH:0:4}
@@ -122,13 +122,12 @@ cpreq -p $BUFR_TABLE prepobs_prep.bufrtable
 #   set observation soruce 
 #
 #-----------------------------------------------------------------------
-OBSPATH=${OBSPATH:-$(compath.py obsproc/${obsproc_ver})}
 OBSTYPE_SOURCE=${OBSTYPE_SOURCE:-"rrfs"}
 if [[ "${NET}" = "RTMA"* ]] && [[ "${RTMA_OBS_FEED}" = "NCO" ]]; then
-  SUBH=$(date +%M -d "${START_DATE}")
+  SUBH=00
   obs_source="rtma_ru"
   obsfileprefix=${obs_source}
-  obspath_tmp=${OBSPATH}/${obs_source}.${YYYYMMDD}
+  obspath_tmp=${COMINobsproc}/${obs_source}.${YYYYMMDD}
 else
   SUBH=""
   obs_source=${OBSTYPE_SOURCE}
@@ -141,13 +140,13 @@ else
   "WCOSS2")
 
     obsfileprefix=${obs_source}
-    obspath_tmp=${OBSPATH}/${obs_source}.${YYYYMMDD}
+    obspath_tmp=${COMINobsproc}/${obs_source}.${YYYYMMDD}
 
     ;;
   "JET" | "HERA" | "ORION" | "HERCULES")
 
     obsfileprefix=${YYYYMMDDHH}.${obs_source}
-    obspath_tmp=${OBSPATH}
+    obspath_tmp=${COMINobsproc}
 
   esac
 fi
@@ -200,7 +199,7 @@ EOF
 #
 #-----------------------------------------------------------------------
 #
-export pgm="process_Lightning.exe"
+export pgm="rrfs_util_process_Lightning.exe"
 . prep_step
 
 if [[ "$run_lightning" == true ]]; then
@@ -210,7 +209,8 @@ if [[ "$run_lightning" == true ]]; then
   if [ -f ${shared_output_data}/rrfs.t${HH}z.LightningInFV3LAM.bin ] && [ -s ${DATA}/LightningInFV3LAM.dat ]; then
     rm -f ${shared_output_data}/rrfs.t${HH}z.LightningInFV3LAM.bin
   fi
-  ln -s ${DATA}/LightningInFV3LAM.dat ${shared_output_data}/rrfs.t${HH}z.LightningInFV3LAM.bin
+#  ln -s ${DATA}/LightningInFV3LAM.dat ${shared_output_data}/rrfs.t${HH}z.LightningInFV3LAM.bin
+  cpreq ${DATA}/LightningInFV3LAM.dat ${shared_output_data}/rrfs.t${HH}z.LightningInFV3LAM.bin
   cpreq -p LightningInFV3LAM.dat ${COMOUT_ANALYSIS}/rrfs.t${HH}z.LightningInFV3LAM.bin
 fi
 #
@@ -270,7 +270,7 @@ EOF
 #
 #-----------------------------------------------------------------------
 #
-export pgm="process_larccld.exe"
+export pgm="rrfs_util_process_larccld.exe"
 . prep_step
 if [[ "$run_cloud" == true ]]; then
   $APRUN ${EXECrrfs}/$pgm >>$pgmout 2>errfile
@@ -281,7 +281,8 @@ if [[ "$run_cloud" == true ]]; then
     if [ -f ${shared_output_data}/rrfs.t${HH}z.NASALaRC_cloud4fv3.bin ] && [ -s ${DATA}/NASALaRC_cloud4fv3.bin ]; then
       rm -f ${shared_output_data}/rrfs.t${HH}z.NASALaRC_cloud4fv3.bin
     fi
-    ln -s ${DATA}/NASALaRC_cloud4fv3.bin ${shared_output_data}/rrfs.t${HH}z.NASALaRC_cloud4fv3.bin
+#    ln -s ${DATA}/NASALaRC_cloud4fv3.bin ${shared_output_data}/rrfs.t${HH}z.NASALaRC_cloud4fv3.bin
+    cpreq ${DATA}/NASALaRC_cloud4fv3.bin ${shared_output_data}/rrfs.t${HH}z.NASALaRC_cloud4fv3.bin
     cpreq -p NASALaRC_cloud4fv3.bin ${COMOUT_ANALYSIS}/rrfs.t${HH}z.NASALaRC_cloud4fv3.bin
   fi
 fi
@@ -330,7 +331,7 @@ EOF
 #
 #-----------------------------------------------------------------------
 #
-export pgm="process_metarcld.exe"
+export pgm="rrfs_util_process_metarcld.exe"
 . prep_step
 if [[ "$run_metar" == true ]]; then
   $APRUN ${EXECrrfs}/$pgm >>$pgmout 2>errfile
@@ -339,7 +340,8 @@ if [[ "$run_metar" == true ]]; then
   if [ -f ${shared_output_data}/rrfs.t${HH}z.fv3_metarcloud.bin ] && [ -s ${DATA}/fv3_metarcloud.bin ]; then
     rm -f ${shared_output_data}/rrfs.t${HH}z.fv3_metarcloud.bin
   fi
-  ln -s ${DATA}/fv3_metarcloud.bin ${shared_output_data}/rrfs.t${HH}z.fv3_metarcloud.bin 
+#  ln -s ${DATA}/fv3_metarcloud.bin ${shared_output_data}/rrfs.t${HH}z.fv3_metarcloud.bin 
+  cpreq ${DATA}/fv3_metarcloud.bin ${shared_output_data}/rrfs.t${HH}z.fv3_metarcloud.bin
   cpreq -p fv3_metarcloud.bin ${COMOUT_ANALYSIS}/rrfs.t${HH}z.fv3_metarcloud.bin
 fi
 #

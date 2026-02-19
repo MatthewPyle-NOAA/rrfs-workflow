@@ -50,9 +50,6 @@ if [[ ! -v OB_TYPE ]]; then
 fi
 export OB_TYPE=${OB_TYPE}
 
-# SATBIAS_DIR directory for cycling bias correction files
-SATBIAS_DIR=$(compath.py -o ${NET}/${rrfs_ver}/satbias)
-mkdir -p ${SATBIAS_DIR}
 #
 #-----------------------------------------------------------------------
 #
@@ -71,7 +68,6 @@ case $MACHINE in
   export OMP_NUM_THREADS=${TPP_ANALYSIS_GSI}
   ncores=$(( NNODES_ANALYSIS_GSI*PPN_ANALYSIS_GSI))
   APRUN="mpiexec -n ${ncores} -ppn ${PPN_ANALYSIS_GSI} --cpu-bind core --depth ${OMP_NUM_THREADS}"
-  export COMINgfs="${COMINgfs:-$(compath.py gfs/${gfs_ver})}"
   ;;
 #
 "HERA")
@@ -109,7 +105,7 @@ esac
 #
 START_DATE=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
 
-YYYYMMDDHH=$(date +%Y%m%d%H -d "${START_DATE}")
+YYYYMMDDHH=${CDATE:0:10}
 JJJ=$(date +%j -d "${START_DATE}")
 
 YYYY=${YYYYMMDDHH:0:4}
@@ -121,8 +117,10 @@ YYYYMMDD=${YYYYMMDDHH:0:8}
 # YYYY-MM-DD_meso_uselist.txt and YYYYMMDD_rejects.txt:
 # both contain past 7 day OmB averages till ~YYYYMMDD_23:59:59 UTC
 # So they are to be used by next day cycles
-MESO_USELIST_FN=$(date +%Y-%m-%d -d "${START_DATE} -1 day")_meso_uselist.txt
-AIR_REJECT_FN=$(date +%Y%m%d -d "${START_DATE} -1 day")_rejects.txt
+#
+prev_yyyymmddhh=$($NDATE -24 ${YYYYMMDDHH}) 
+MESO_USELIST_FN="${prev_yyyymmddhh:0:4}-${prev_yyyymmddhh:4:2}-${prev_yyyymmddhh:6:2}_meso_uselist.txt"
+AIR_REJECT_FN="${prev_yyyymmddhh:0:8}_rejects.txt"
 #
 #-----------------------------------------------------------------------
 #
@@ -167,25 +165,31 @@ print_info_msg "$VERBOSE" "background type is $BKTYPE"
 #
 if  [[ ${regional_ensemble_option:-1} -eq 5 ]]; then
   ens_nstarthr=$( printf "%02d" ${DA_CYCLE_INTERV} )
-  imem=1
-  ifound=0
-  touch ${DATA}/parallel_copy.sh
-  for hrs in ${CYCL_HRS_HYB_FV3LAM_ENS[@]}; do
-    if [ $HH == ${hrs} ]; then
+  n=${DA_CYCLE_INTERV}
+  SLEEP_TIME=300
+  SLEEP_INT=15
+  SLEEP_LOOP_MAX=`expr $SLEEP_TIME / $SLEEP_INT`
+  ic=0
+  while [[ $n -le 3 ]] ; do  # this check only works for hourly cycle
+      imem=1
+      ifound=0
+      touch ${DATA}/parallel_copy.sh
+      YYYYMMDDHHInterv=$($NDATE -${n} ${YYYYMMDDHH})
+      YYYYMMDDInterv=${YYYYMMDDHHInterv:0:8}
+      HHInterv=${YYYYMMDDHHInterv:8:2}
+      if [ ${n} -eq 1 ]; then
+        for cycl_hrs in ${CYCL_HRS_PRODSTART_ENS[@]}; do
+          if [ $HH == ${cycl_hrs} ]; then
+            HHInterv=${YYYYMMDDHHInterv:8:2}_spinup
+          fi
+         done
+       fi
+      restart_prefix="${YYYYMMDD}.${HH}0000."
       while [[ $imem -le ${NUM_ENS_MEMBERS} ]];do
         memcharv0=$( printf "%03d" $imem )
         memchar=m$( printf "%03d" $imem )
-        YYYYMMDDInterv=$( date +%Y%m%d -d "${START_DATE} ${DA_CYCLE_INTERV} hours ago" )
-        HHInterv=$( date +%H -d "${START_DATE} ${DA_CYCLE_INTERV} hours ago" )
-        restart_prefix="${YYYYMMDD}.${HH}0000."
         bkpathmem=${COMrrfs}/enkfrrfs.${YYYYMMDDInterv}/${HHInterv}/${memchar}/forecast/RESTART
-        if [ ${DO_SPINUP} == "TRUE" ]; then
-          for cycl_hrs in ${CYCL_HRS_PRODSTART_ENS[@]}; do
-           if [ $HH == ${cycl_hrs} ]; then
-             bkpathmem=${COMrrfs}/enkfrrfs.${YYYYMMDDInterv}/${HHInterv}_spinup/${memchar}/forecast/RESTART
-           fi
-          done
-        fi
+
         dynvarfile=${bkpathmem}/${restart_prefix}fv_core.res.tile1.nc
         tracerfile=${bkpathmem}/${restart_prefix}fv_tracer.res.tile1.nc
         phyvarfile=${bkpathmem}/${restart_prefix}phy_data.nc
@@ -201,7 +205,18 @@ if  [[ ${regional_ensemble_option:-1} -eq 5 ]]; then
         fi
         (( imem += 1 ))
       done
-    fi
+      # check if we got enough ensemble forecast
+      if [[ $ifound -eq ${NUM_ENS_MEMBERS} ]]; then
+	      break
+      else
+        [[ -f ${DATA}/parallel_copy.sh ]] && rm -f ${DATA}/parallel_copy.sh
+        if [[ ${n} -eq ${DA_CYCLE_INTERV} ]] && [[ ${ic} -lt $SLEEP_LOOP_MAX ]]; then
+          ic=`expr $ic + 1`
+          sleep $SLEEP_INT
+        else
+          (( n += 1 ))
+        fi
+      fi
   done
 
   if [[ $ifound -ne ${NUM_ENS_MEMBERS} ]] || [[ ${BKTYPE} -eq 1 ]]; then
@@ -211,17 +226,9 @@ if  [[ ${regional_ensemble_option:-1} -eq 5 ]]; then
   else
     poe_script=parallel_copy.sh
     export MP_CMDFILE=${poe_script}
-    launcher="time mpiexec -np 128 --cpu-bind core cfp"
+    launcher="time mpiexec -np ${ncores} -ppn ${PPN_ANALYSIS_GSI} --cpu-bind core cfp"
     $launcher $MP_CMDFILE
     export err=$?; err_chk
-
-#    split -l 10 parallel_copy.sh parallel_copy_run
-#    for file_to_p_copy in parallel_copy_run*; do
-#       echo "Working on ${file_to_p_copy}"
-#       cat ${file_to_p_copy} | parallel --verbose --halt-on-error 1
-#       export err=$?; err_chk
-#       sleep 6 
-#    done
   fi
 fi
 #
@@ -245,11 +252,9 @@ if  [[ ${regional_ensemble_option:-1} -eq 1 || ${l_both_fv3sar_gfs_ens} = ".true
         availtimeyyyymmdd=$(echo ${timelist} | cut -d'/' -f9 | cut -c 10-17)
         availtimehh=$(echo ${timelist} | cut -d'/' -f10)
         availtime=${availtimeyyyymmdd}${availtimehh}
-        avail_time=$(echo "${availtime}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
-        avail_time=$(date -d "${avail_time}")
 
         loopfcst=$(echo ${loop}| cut -c 1-3)      # for nemsio 009s to get 009
-        stamp_avail=$(date -d "${avail_time} ${loopfcst} hours" +%s)
+        stamp_avail=$(date -d "${availtimeyyyymmdd} ${availtimehh} ${loopfcst} hours" +%s)
 
         hourDiff=$(echo "($stampcycle - $stamp_avail) / (60 * 60 )" | bc);
         if [[ ${stampcycle} -lt ${stamp_avail} ]]; then
@@ -279,15 +284,14 @@ if  [[ ${regional_ensemble_option:-1} -eq 1 || ${l_both_fv3sar_gfs_ens} = ".true
         availtimeyy=$(basename ${timelist} | cut -c 1-2)
         availtimeyyyy=20${availtimeyy}
         availtimejjj=$(basename ${timelist} | cut -c 3-5)
-        availtimemm=$(date -d "${availtimeyyyy}0101 +$(( 10#${availtimejjj} - 1 )) days" +%m)
-        availtimedd=$(date -d "${availtimeyyyy}0101 +$(( 10#${availtimejjj} - 1 )) days" +%d)
+	new_yyyymmdd=$($NDATE $(( (10#${availtimejjj} - 1) * 24 )) ${availtimeyyyy}010100)
+	availtimemm=${new_yyyymmdd:4:2}
+        availtimedd=${new_yyyymmdd:6:2}
         availtimehh=$(basename ${timelist} | cut -c 6-7)
         availtime=${availtimeyyyy}${availtimemm}${availtimedd}${availtimehh}
-        avail_time=$(echo "${availtime}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
-        avail_time=$(date -d "${avail_time}")
 
         loopfcst=$(echo ${loop}| cut -c 1-3)      # for nemsio 009s to get 009
-        stamp_avail=$(date -d "${avail_time} ${loopfcst} hours" +%s)
+        stamp_avail=$(date -d "${availtimeyyyy}${availtimemm}${availtimedd} ${availtimehh} ${loopfcst} hours" +%s)
 
         hourDiff=$(echo "($stampcycle - $stamp_avail) / (60 * 60 )" | bc);
         if [[ ${stampcycle} -lt ${stamp_avail} ]]; then
@@ -425,13 +429,12 @@ fi
 # copy observation files to working directory 
 #
 #-----------------------------------------------------------------------
-OBSPATH=${OBSPATH:-$(compath.py obsproc/${obsproc_ver})}
 OBSTYPE_SOURCE=${OBSTYPE_SOURCE:-"rrfs"}
 if [[ "${NET}" = "RTMA"* ]] && [[ "${RTMA_OBS_FEED}" = "NCO" ]]; then
-  SUBH=$(date +%M -d "${START_DATE}")
+  SUBH=00
   obs_source="rtma_ru"
   obsfileprefix=${obs_source}
-  obspath_tmp=${OBSPATH}/${obs_source}.${YYYYMMDD}
+  obspath_tmp=${COMINobsproc}/${obs_source}.${YYYYMMDD}
 else
   SUBH=""
   obs_source=${OBSTYPE_SOURCE}
@@ -447,21 +450,21 @@ else
 
   "WCOSS2")
      obsfileprefix=${obs_source}
-     obspath_tmp=${OBSPATH}/${obs_source}.${YYYYMMDD}
+     obspath_tmp=${COMINobsproc}/${obs_source}.${YYYYMMDD}
     ;;
   "JET" | "HERA")
      obsfileprefix=${YYYYMMDDHH}.${obs_source}
-     obspath_tmp=${OBSPATH}
+     obspath_tmp=${COMINobsproc}
     ;;
   "ORION" | "HERCULES")
      obs_source=${OBSTYPE_SOURCE}
      obsfileprefix=${YYYYMMDDHH}.${obs_source}               # observation from JET.
      #obsfileprefix=${obs_source}.${YYYYMMDD}/${obs_source}    # observation from operation.
-     obspath_tmp=${OBSPATH}
+     obspath_tmp=${COMINobsproc}
     ;;
   *)
      obsfileprefix=${obs_source}
-     obspath_tmp=${OBSPATH}
+     obspath_tmp=${COMINobsproc}
   esac
 fi
 
@@ -576,10 +579,6 @@ if [[ ${GSI_TYPE} == "OBSERVER" || ${anav_type} == "conv" || ${anav_type} == "co
   obs_number=${#obs_files_source[@]}
   obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.ssmisu.tm00.bufr_d
   obs_files_target[${obs_number}]=ssmisbufr
-
-  obs_number=${#obs_files_source[@]}
-  obs_files_source[${obs_number}]=${obspath_tmp}/${obsfileprefix}.t${HH}z.sevcsr.tm00.bufr_d
-  obs_files_target[${obs_number}]=sevcsr
 
   fi
 fi
@@ -862,7 +861,7 @@ if [ "${DO_RADDA}" = "TRUE" ]; then
   satcounter=1
   maxcounter=240
   while [ $satcounter -lt $maxcounter ]; do
-    SAT_TIME=`date +"%Y%m%d%H" -d "${START_DATE}  ${satcounter} hours ago"`
+    SAT_TIME=$($NDATE -$((10#${satcounter})) ${YYYYMMDDHH})
     echo $SAT_TIME
 
 # DO_ENS_RADDA IS NEVER TRUE - REMOVE THIS IF BLOCK?	
@@ -1157,13 +1156,15 @@ filelist="pe*.nc4 rrfs.*.${YYYYMMDDHH}_cnvstat_nc rrfs.*.${YYYYMMDDHH}_radstat_n
 for file in $filelist; do
   if [ -s $file ]; then
     [[ -f ${shared_output_data}/${file} ]]&& rm -f ${shared_output_data}/${file}
-    echo "ln -s ${DATA}/${file} ." >> ${shared_output_data}/link_shared_file.sh
+    echo "cpfs ${DATA}/${file} ${shared_output_data}/" >> ${shared_output_data}/copy_shared_file.sh
   else
     echo "WARNING $file is not available"
   fi
 done
 cd ${shared_output_data}
-sh -x link_shared_file.sh
+launcher="time mpiexec -np ${ncores} -ppn ${PPN_ANALYSIS_GSI} --cpu-bind core cfp"
+${launcher} ${shared_output_data}/copy_shared_file.sh
+export err=$?; err_chk
 #
 #-----------------------------------------------------------------------
 #

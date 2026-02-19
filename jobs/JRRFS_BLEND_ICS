@@ -30,9 +30,9 @@ fi
 export mem_num=m$(echo "${ENSMEM_INDX}")
 
 if [ "${DO_ENSEMBLE}" = "TRUE" ]; then
-  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}/${mem_num}}
+  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}/${mem_num}}
 else
-  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
 fi
 export shared_output_data=${umbrella_ics_data}/ics
 
@@ -42,6 +42,11 @@ export shared_output_data=${umbrella_ics_data}/ics
 export DATA=${DATA:-${umbrella_ics_data}/${jobid}}
 mkdir -p ${DATA}
 cd ${DATA}
+
+export cycle="t${cyc}z"
+setpdy.sh
+. ./PDY
+export CDATE="${PDY}${cyc}"
 
 #-----------------------------------------------------------------------
 # Source the bash utility functions.
@@ -85,7 +90,7 @@ case "${WGF}" in
     export RUN="enkfrrfs"
     ;;
   "ensf")
-    export RUN="refs"
+    export RUN="rrfsens"
     ;;
   "firewx")
     export RUN="firewx"
@@ -100,7 +105,7 @@ else
   exit 1
 fi
 
-export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}/${mem_num}}
+export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}/${mem_num}}
 export shared_output_data=${umbrella_ics_data}/ics
 
 #-----------------------------------------------------------------------
@@ -130,3 +135,11 @@ print_info_msg "
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+
+##################################################
+# Remove the Temporary working directory
+##################################################
+if [ "${KEEPDATA^^}" != YES ]; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi

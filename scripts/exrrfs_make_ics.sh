@@ -61,25 +61,23 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-COMINgfs=${COMINgfs:-$(compath.py gfs/${gfs_ver})}
 extrn_mdl_name="${EXTRN_MDL_NAME_ICS}"
-sysbasedir=${COMINgfs}
 gfs_file_fmt="${GFS_FILE_FMT_ICS}"
 time_offset_hrs="${EXTRN_MDL_ICS_OFFSET_HRS}"
 ic_spec_fhrs=$(( 0 + time_offset_hrs ))
 
 hh=${CDATE:8:2}
 yyyymmdd=${CDATE:0:8}
-cdate=$( date --utc --date "${yyyymmdd} ${hh} UTC - ${time_offset_hrs} hours" "+%Y%m%d%H" )
-export extrn_mdl_cdate="$cdate"
+OFFSETDATE=`$NDATE -${time_offset_hrs} ${yyyymmdd}${hh}`
+export extrn_mdl_cdate="$OFFSETDATE"
 
 # Starting year, month, day, and hour of the external model forecast.
-yyyy=${cdate:0:4}
-mm=${cdate:4:2}
-dd=${cdate:6:2}
-hh=${cdate:8:2}
+yyyy=${OFFSETDATE:0:4}
+mm=${OFFSETDATE:4:2}
+dd=${OFFSETDATE:6:2}
+hh=${OFFSETDATE:8:2}
 mn="00"
-yyymmdd=${cdate:0:8}
+yyymmdd=${OFFSETDATE:0:8}
 
 fcst_hh=$( printf "%02d" "${ic_spec_fhrs}" )
 fcst_mn="00"
@@ -87,7 +85,6 @@ fcst_mn="00"
 case "${extrn_mdl_name}" in
 
   "GFS")
-    COMINgfs="${COMINgfs:-$(compath.py gfs/${gfs_ver})}"
     sysdir="${COMINgfs}/gfs.${yyyymmdd}/${hh}/atmos"
     if [ "${gfs_file_fmt}" = "grib2" ]; then
       fns_on_disk=( "gfs.t${hh}z.pgrb2.0p25.f0${fcst_hh}" )
@@ -105,14 +102,12 @@ case "${extrn_mdl_name}" in
     ;;
 
   "GDASENKF")
-    COMINgfs="${COMINgfs:-$(compath.py gfs/${gfs_ver})}"
     sysdir="${COMINgfs}/enkfgdas.${yyyymmdd}/${hh}/atmos/mem${MEMBER_NAME}"
     fns_on_disk=( "gdas.t${hh}z.atmf0${fcst_hh}.nc" "gdas.t${hh}z.sfcf0${fcst_hh}.nc")
     ;;
 
   "RRFS")
-    COMINrrfs="${COMINrrfs:-$(compath.py rrfs/${rrfs_ver})}"
-    sysdir="${COMINrrfs}/rrfs.${yyyymmdd}/${hh}"
+    sysdir="${COMIN}/rrfs.${yyyymmdd}/${hh}"
     fns_on_disk=( "rrfs.t${hh}z.natlev.3km.f0${fcst_hh}.na.grib2" )
     ;;
 
@@ -588,7 +583,8 @@ dd="${EXTRN_MDL_CDATE:6:2}"
 hh="${EXTRN_MDL_CDATE:8:2}"
 
 fhr="${EXTRN_MDL_ICS_OFFSET_HRS}"
-cdate_crnt_fhr=$( date --utc --date "${yyyymmdd} ${hh} UTC + ${fhr} hours" "+%Y%m%d%H" )
+cdate_crnt_fhr=`$NDATE +${fhr} ${yyyymmdd}${hh}`
+
 #
 # Get the month, day, and hour corresponding to the current forecast time
 # of the the external model.
@@ -696,7 +692,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-export pgm="chgres_cube"
+export pgm="ufs_util_chgres_cube"
 . prep_step
 
 ${APRUN} ${EXECrrfs}/$pgm >>$pgmout 2>errfile
@@ -771,7 +767,7 @@ if [[ $DO_ENS_BLENDING == "TRUE" && $EXTRN_MDL_NAME_ICS = "GDASENKF" ]]; then
   export OMP_NUM_THREADS=2
   fixgriddir=$FIX_GSI/${PREDEF_GRID_NAME}
   cpreq ${fixgriddir}/cold2warm_all.nc .
-  export pgm1=fv3lam_pre_blending.exe
+  export pgm1=rrfs_util_fv3lam_pre_blending.exe
 . prep_step
   ${APRUN_PRE_BLENDING} ${EXECrrfs}/$pgm1 >>$pgmout_pre_blending 2>errfile_pre_blending
   export err=$?; err_chk

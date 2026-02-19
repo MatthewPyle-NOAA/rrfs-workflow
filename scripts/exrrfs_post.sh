@@ -99,7 +99,6 @@ esac
 #
 yyyymmdd=${CDATE:0:8}
 hh=${CDATE:8:2}
-cyc=$hh
 #
 #-----------------------------------------------------------------------
 #
@@ -142,7 +141,7 @@ else
   post_min=00
 fi
 
-post_time=$( date --utc --date "${yyyymmdd} ${hh} UTC + ${post_fhr} hours" "+%Y%m%d%H" )
+post_time=$($NDATE ${post_fhr} ${yyyymmdd}${hh})
 post_yyyy=${post_time:0:4}
 post_mm=${post_time:4:2}
 post_dd=${post_time:6:2}
@@ -467,7 +466,7 @@ fi # PRSLEV test
 
 # post process 2m dew point for NBM - this is needed for RRFS (det) and REFS (ensf)
 if [ $WGF = "det" ] || [ $WGF = "ensf" ]; then
-  export pgm="dpt2m_post.exe"
+  export pgm="rrfs_util_dpt2m_post.exe"
   . prep_step
 
   $EXECrrfs/$pgm PRSLEV.GrbF${post_fhr} DPT2M.GrbF${post_fhr} >>$pgmout 2>errfile
@@ -488,10 +487,16 @@ fi
 #   copy post-processed grib2 files to COMOUT
 #-----------------------------------------------------------------------
 #
+
+if [[ $SENDCOM = "YES" ]]; then
+
 cpreq -p ${prslev} ${COMOUT}
 # Native level output is disabled for ensemble forecasts after f00
 if [[ -f ${natlev} ]]; then
   cpreq -p ${natlev} ${COMOUT}
+  if [[ ${SENDDBN} = "YES" && ${post_fhr} -eq "000" ]]; then
+     $DBNROOT/bin/dbn_alert MODEL ${DBN_ALERT_TYPE} $job ${COMOUT}/${natlev}
+  fi
 fi
 # NBMFLD file is only generated for RRFS and REFS
 if [[ -f ${nbmfld} ]]; then
@@ -510,6 +515,8 @@ fi
 if [ ${SUBH_GEN} = 1 ]; then
   cpreq -p ${prslev_subh_combo} ${COMOUT}
 fi
+
+fi #SENDCOM
 
 #-----------------------------------------------------------------------
 #   clean forecast umbrella data directory

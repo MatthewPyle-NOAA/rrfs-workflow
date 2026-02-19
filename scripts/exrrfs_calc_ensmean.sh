@@ -92,7 +92,7 @@ nens=${NUM_ENS_MEMBERS:-"30"}
 #
 START_DATE=$(echo "${CDATE}" | sed 's/\([[:digit:]]\{2\}\)$/ \1/')
 
-YYYYMMDDHH=$(date +%Y%m%d%H -d "${START_DATE}")
+YYYYMMDDHH=${CDATE:0:10}
 JJJ=$(date +%j -d "${START_DATE}")
 
 YYYY=${YYYYMMDDHH:0:4}
@@ -170,7 +170,7 @@ EOF
 #
 #-----------------------------------------------------------------------
 #
-export pgm="ens_mean_recenter_P2DIO.exe"
+export pgm="rrfs_util_ens_mean_recenter_P2DIO.exe"
 . prep_step
 
 ${APRUN} ${EXECrrfs}/$pgm < namelist.ens >>$pgmout 2>errfile

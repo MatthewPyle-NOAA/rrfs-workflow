@@ -32,7 +32,7 @@ case "${WGF}" in
     export RUN="enkfrrfs"
     ;;
   "ensf")
-    export RUN="refs"
+    export RUN="rrfsens"
     ;;
   "firewx")
     export RUN="firewx"
@@ -40,13 +40,15 @@ case "${WGF}" in
 esac
 #-----------------------------------------------------------------------
 # Define umbrella data directories
-#------------------------i----------------------------------------------
+#-----------------------------------------------------------------------
 export COMrrfs=${COMrrfs:-$(compath.py -o ${NET}/${rrfs_ver})}
 export CYCLE_TYPE=${CYCLE_TYPE:-prod}
+export COMINobsproc="${COMINobsproc:-$(compath.py obsproc/${obsproc_ver})}"
+
 if [ "${CYCLE_TYPE}" = "spinup" ]; then
-  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_spinup_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_spinup_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
 else
-  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_init_data=${umbrella_init_data:-${DATAROOT}/rrfs_init_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
 fi
 export shared_output_data=${umbrella_init_data}/output
 
@@ -63,6 +65,8 @@ cd ${DATA}
 export cycle="t${cyc}z"
 setpdy.sh
 . ./PDY
+export CDATE="${PDY}${cyc}"
+
 if [ "${CYCLE_TYPE}" = "spinup" ]; then
   export COMOUT_ANALYSIS=${COMrrfs}/${RUN}.${PDY}/${cyc}_spinup/analysis
 else
@@ -122,3 +126,11 @@ print_info_msg "
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+
+##################################################
+# Remove the Temporary working directory
+##################################################
+if [ "${KEEPDATA^^}" != YES ]; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi

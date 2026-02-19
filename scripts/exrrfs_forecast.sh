@@ -377,8 +377,9 @@ if [ "${DO_SMOKE_DUST}" = "TRUE" ]; then
   ln -snf  ${FIX_SMOKE_DUST}/${PREDEF_GRID_NAME}/dust12m_data.nc  ${DATA}/INPUT/dust12m_data.nc
   ln -snf  ${FIX_SMOKE_DUST}/${PREDEF_GRID_NAME}/emi_data.nc      ${DATA}/INPUT/emi_data.nc
   yyyymmddhh=${CDATE:0:10}
-  echo ${yyyymmddhh}
-  smokefile=${COMrrfs}/RAVE_INTP/SMOKE_RRFS_data_${yyyymmddhh}00.nc
+  yyyymmdd=${CDATE:0:8}
+  echo ${yyyymmddhh}, ${yyyymmdd}
+  smokefile=${COMrrfs}/RAVE_INTP/rave_intp.${yyyymmdd}/SMOKE_RRFS_data_${yyyymmddhh}00.nc
   echo "try to use smoke file=",${smokefile}
   if [ -f ${smokefile} ]; then
     cpreq -p ${smokefile} ${DATA}/INPUT/SMOKE_RRFS_data.nc
@@ -447,7 +448,6 @@ input files in the main experiment directory..."
 
 relative_or_null=""
 
-cpreq ${relative_or_null} ${DATA_TABLE_FP} ${DATA}
 cpreq ${relative_or_null} ${FIELD_TABLE_FP} ${DATA}
 cpreq ${relative_or_null} ${UFS_YAML_FP} ${DATA}
 
@@ -486,8 +486,35 @@ if [ ${BKTYPE} -eq 0 ]; then
       else
         FCST_LEN_HRS=${FCST_LEN_HRS_CYCLES[$((10#$cyc))]}
         if [ $FCST_LEN_HRS -eq '18' ]; then
+
+          if [ -e ${FIXLAM}/115_nodes_det/routehandle_fb01 ]; then
+           files=`ls ${FIXLAM}/115_nodes_det/routehandle_fb??`
+	   echo "#! /bin/sh" > ./para_copy.sh
+           for fl in $files
+           do
+             echo "cpreq $fl ${DATA}/" >> ./para_copy.sh
+           done
+	   cpprocs=`cat ./para_copy.sh | grep routehandle | wc -l`
+	   mpiexec -n ${cpprocs} -ppn ${cpprocs} --cpu-bind core cfp ./para_copy.sh
+	   rm ./para_copy.sh
+	  fi
+
+
           cpreq -p ${FV3_NML_RESTART_18H_FP} ${DATA}/${FV3_NML_FN}
         elif [ $FCST_LEN_HRS -eq '84' ]; then
+
+          if [ -e ${FIXLAM}/154_nodes_det/routehandle_fb01 ]; then
+	   files=`ls ${FIXLAM}/154_nodes_det/routehandle_fb??`
+	   echo "#! /bin/sh" > ./para_copy.sh
+           for fl in $files
+           do
+             echo "cpreq $fl ${DATA}/" >> ./para_copy.sh
+           done
+	   cpprocs=`cat ./para_copy.sh | grep routehandle | wc -l`
+	   mpiexec -n ${cpprocs} -ppn ${cpprocs} --cpu-bind core cfp ./para_copy.sh
+	   rm ./para_copy.sh
+	  fi
+
           cpreq -p ${FV3_NML_RESTART_LONG_FP} ${DATA}/${FV3_NML_FN}
         fi
       fi
@@ -510,8 +537,33 @@ else # not cycling
        else
          FCST_LEN_HRS=${FCST_LEN_HRS_CYCLES[$((10#$cyc))]}
          if [ $FCST_LEN_HRS -eq '18' ]; then
+          if [ -e ${FIXLAM}/115_nodes_det/routehandle_fb01 ]; then
+           files=`ls ${FIXLAM}/115_nodes_det/routehandle_fb??`
+	   echo "#! /bin/sh" > ./para_copy.sh
+           for fl in $files
+           do
+             echo "cpreq $fl ${DATA}/" >> ./para_copy.sh
+           done
+	   cpprocs=`cat ./para_copy.sh | grep routehandle | wc -l`
+	   mpiexec -n ${cpprocs} -ppn ${cpprocs} --cpu-bind core cfp ./para_copy.sh
+	   rm ./para_copy.sh
+	  fi
+
            cpreq -p ${FV3_NML_18H_FP} ${DATA}/${FV3_NML_FN}
          elif [ $FCST_LEN_HRS -eq '84' ]; then
+
+          if [ -e ${FIXLAM}/154_nodes_det/routehandle_fb01 ]; then
+	   files=`ls ${FIXLAM}/154_nodes_det/routehandle_fb??`
+	   echo "#! /bin/sh" > ./para_copy.sh
+           for fl in $files
+           do
+             echo "cpreq $fl ${DATA}/" >> ./para_copy.sh
+           done
+	   cpprocs=`cat ./para_copy.sh | grep routehandle | wc -l`
+	   mpiexec -n ${cpprocs} -ppn ${cpprocs} --cpu-bind core cfp ./para_copy.sh
+	   rm ./para_copy.sh
+	  fi
+
            cpreq -p ${FV3_NML_LONG_FP} ${DATA}/${FV3_NML_FN}
          fi
        fi
@@ -730,9 +782,28 @@ fi
 if [ "${DO_FCST_RESTART}" = "TRUE" ] && [ $coupler_res_ct -gt 0 ] && [ $FCST_LEN_HRS -gt 6 ]; then
   flag_fcst_restart="TRUE"
   # Update FV3 input.nml for restart
+   mem_res="0"
+   if [ ${WGF} = "ensf" ]; then
+     mem_res=${ensmem_num}
+
+     if [ -e ${FIXLAM}/94_nodes_ensf/routehandle_fb01 ]; then
+       files=`ls ${FIXLAM}/94_nodes_ensf/routehandle_fb??`
+       echo "#! /bin/sh" > ./para_copy.sh
+       for fl in $files
+       do
+         echo "cpreq $fl ${DATA}/" >> ./para_copy.sh
+       done
+       cpprocs=`cat ./para_copy.sh | grep routehandle | wc -l`
+       mpiexec -n ${cpprocs} -ppn ${cpprocs} --cpu-bind core cfp ./para_copy.sh
+       rm ./para_copy.sh
+     fi
+
+
+   fi
    $USHrrfs/update_input_nml.py \
     --path-to-defns ${FIXrrfs}/workflow/${WGF}/workflow.conf \
     --run_dir "${DATA}" \
+    --member ${mem_res} \
     --restart
   export err=$?
   if [ $err -ne 0 ]; then
@@ -824,17 +895,23 @@ fi
 if [ ${CYCLE_TYPE} = "spinup" ]; then
    export WRTCMP_write_groups=$WRTCMP_write_groups_SPINUP
    export WRTCMP_write_tasks_per_group=$WRTCMP_write_tasks_per_group_SPINUP
+   export USE_SAVED_ROUTEHANDLES="FALSE"
 else
 
 if [ ${FCST_LEN_HRS} -eq '84' ]; then
    export WRTCMP_write_groups=$WRTCMP_write_groups_LONG
    export WRTCMP_write_tasks_per_group=$WRTCMP_write_tasks_per_group_LONG
+   export USE_SAVED_ROUTEHANDLES="TRUE"
 elif [ ${FCST_LEN_HRS} -eq '60' ]; then
    export WRTCMP_write_groups=$WRTCMP_write_groups_ENSF
    export WRTCMP_write_tasks_per_group=$WRTCMP_write_tasks_per_group_ENSF
+   export USE_SAVED_ROUTEHANDLES="TRUE"
 elif [ ${FCST_LEN_HRS} -eq '18' ]; then
    export WRTCMP_write_groups=$WRTCMP_write_groups_18H
    export WRTCMP_write_tasks_per_group=$WRTCMP_write_tasks_per_group_18H
+   export USE_SAVED_ROUTEHANDLES="TRUE"
+else
+   export USE_SAVED_ROUTEHANDLES="FALSE"
 fi
 
 fi

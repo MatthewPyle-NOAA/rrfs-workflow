@@ -38,7 +38,7 @@ case "${WGF}" in
     export RUN="enkfrrfs"
     ;;
   "ensf")
-    export RUN="refs"
+    export RUN="rrfsens"
     ;;
   "firewx")
     export RUN="firewx"
@@ -54,11 +54,11 @@ else
   export DO_ENSEMBLE="FALSE"
 fi
 if [ "${DO_ENSEMBLE}" = "TRUE" ]; then
-  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}/${mem_num}}
+  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}/${mem_num}}
 elif [ $WGF = "firewx" ]; then
-  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
 else
-  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver}/${WGF}}
+  export umbrella_ics_data=${umbrella_ics_data:-${DATAROOT}/rrfs_ics_${cyc}_${rrfs_ver_2d}_${envir}/${WGF}}
 fi
 export shared_output_data=${umbrella_ics_data}/ics
 #-----------------------------------------------------------------------
@@ -71,6 +71,7 @@ cd ${DATA}
 export cycle="t${cyc}z"
 setpdy.sh
 . ./PDY
+export CDATE="${PDY}${cyc}"
 
 #-----------------------------------------------------------------------
 # Source the bash utility functions.
@@ -105,8 +106,9 @@ for the RRFS (in NetCDF format).
 #-----------------------------------------------------------------------
 # Define COM directories
 #-----------------------------------------------------------------------
-#### export COMrrfs=${COMrrfs:-$(compath.py -o ${NET}/${rrfs_ver})}
-#### export COMINgfs=${COMINgfs:-$(compath.py gfs/${gfs_ver})}
+export COMrrfs=${COMrrfs:-$(compath.py rrfs/${rrfs_ver})}
+export COMIN=${COMIN:-$(compath.py rrfs/${rrfs_ver})}
+export COMINgfs=${COMINgfs:-$(compath.py gfs/${gfs_ver})}
 
 if [ ${WGF} = "firewx" ]; then
 # Path to fix files in COM
@@ -143,3 +145,11 @@ print_info_msg "
 Exiting script:  \"${scrfunc_fn}\"
 In directory:    \"${scrfunc_dir}\"
 ========================================================================"
+
+##################################################
+# Remove the Temporary working directory
+##################################################
+if [ "${KEEPDATA^^}" != YES ]; then
+  cd $DATAROOT
+  rm -rf $DATA
+fi
