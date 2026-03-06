@@ -522,7 +522,12 @@ fi
 
 # Only one latlons_corners file per cycle is needed in COMOUT - make this change later
 if [ ${PREDEF_GRID_NAME} = "RRFS_FIREWX_1.5km" ]; then
-  cpreq -p latlons_corners.txt.f${fhr} ${COMOUT}
+	if [ ${fhr} = "000" -o ${fhr} = "001" ]; then
+		if [ ! -e ${COMOUT}/rrfs.t${cyc}z.latlons_corners.txt ]
+		then
+  cpreq -p latlons_corners.txt.f${fhr} ${COMOUT}/rrfs.t${cyc}z.latlons_corners.txt
+		fi
+        fi
 fi
 if [ ${SUBH_GEN} = 1 ]; then
   cpreq -p ${prslev_subh_combo} ${COMOUT}
